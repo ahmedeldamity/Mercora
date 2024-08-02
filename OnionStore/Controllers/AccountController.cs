@@ -9,10 +9,12 @@ namespace API.Controllers
 	public class AccountController : BaseController
 	{
 		private readonly UserManager<AppUser> _userManager;
+		private readonly SignInManager<AppUser> _signInManager;
 
-		public AccountController(UserManager<AppUser> userManager)
+		public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager)
 		{
 			_userManager = userManager;
+			_signInManager = signInManager;
 		}
 
 		[HttpPost("register")]
@@ -56,6 +58,32 @@ namespace API.Controllers
 			});
 		}
 
+		[HttpPost("login")]
+		[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+		public async Task<ActionResult<AppUserDto>> Login(LoginRequestDto model)
+		{
+			if (model is null || !IsValidEmail(model.Email))
+				return BadRequest(new ApiResponse(400, "Invalid login data."));
+
+			var user = await _userManager.FindByEmailAsync(model.Email);
+
+			if (user is null || model.Password is null)
+				return BadRequest(new ApiResponse(400, "Invalid email or password."));
+
+			var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+
+			if (result.Succeeded is false)
+				return BadRequest(new ApiResponse(400, "Invalid email or password."));
+
+			return Ok(new AppUserDto
+			{
+				DisplayName = user.DisplayName,
+				Email = model.Email,
+				Token = ""
+			});
+		}
+
 		private bool IsValidEmail(string email)
 		{
 			if (string.IsNullOrEmpty(email))
@@ -72,7 +100,10 @@ namespace API.Controllers
 			}
 		}
 
-
+		private async Task<bool> CheckEmailExist(string email)
+		{
+			return await _userManager.FindByEmailAsync(email) is not null;
+		}
 
 	}
 }
