@@ -1,4 +1,6 @@
 using API.ServicesExtension;
+using Microsoft.EntityFrameworkCore;
+using Repository.Identity;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -16,6 +18,34 @@ builder.Services.AddIdentityConfigurations(builder.Configuration);
 #endregion
 
 var app = builder.Build();
+
+#region Update Database With Using Way And Seeding Data
+
+// We Said To Update Database You Should Do Two Things (1. Create Instance From DbContext 2. Migrate It)
+
+// To Ask Clr To Create Instance Explicitly From Any Class
+//    1 ->  Create Scope (Life Time Per Request)
+using var scope = app.Services.CreateScope();
+//    2 ->  Bring Service Provider Of This Scope
+var services = scope.ServiceProvider;
+
+// --> Bring Object Of IdentityContext For Update His Migration
+var _identiyContext = services.GetRequiredService<IdentityContext>();
+// --> Bring Object Of ILoggerFactory For Good Show Error In Console    
+var loggerFactory = services.GetRequiredService<ILoggerFactory>();
+
+try
+{
+	// Migrate IdentityContext
+	await _identiyContext.Database.MigrateAsync();
+}
+catch (Exception ex)
+{
+	var logger = loggerFactory.CreateLogger<Program>();
+	logger.LogError(ex, "an error has been occured during apply the migration!");
+}
+
+#endregion
 
 #region Configure the Kestrel pipeline
 
