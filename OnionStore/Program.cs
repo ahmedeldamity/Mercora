@@ -91,6 +91,9 @@ if (app.Environment.IsDevelopment())
 // -- To Redirect Any Http Request To Https
 app.UseHttpsRedirection();
 
+// -- Error Not Found End Point: Here When This Error Thrown: It Redirect To This End Point in (Controller: Errors)
+app.UseStatusCodePagesWithReExecute("/error/{0}");
+
 /// -- In MVC We Used This Way For Routing
 ///app.UseRouting(); // -> we use this middleware to match request to an endpoint
 ///app.UseEndpoints  // -> we use this middleware to excute the matched endpoint
