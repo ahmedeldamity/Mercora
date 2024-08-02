@@ -10,6 +10,9 @@ builder.Services.AddControllers();
 // Register Required Services For Swagger In Extension Method
 builder.Services.AddSwaggerServices();
 
+// Add Identity Context and Configurations
+builder.Services.AddIdentityConfigurations(builder.Configuration);
+
 #endregion
 
 var app = builder.Build();
