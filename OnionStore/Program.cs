@@ -1,4 +1,5 @@
 using API.Errors;
+using API.Middlewares;
 using API.ServicesExtension;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -77,6 +78,9 @@ catch (Exception ex)
 #endregion
 
 #region Configure the Kestrel pipeline
+
+// -- Server Error Middleware (we catch it in class ExceptionMiddleware)
+app.UseMiddleware<ExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
 {
