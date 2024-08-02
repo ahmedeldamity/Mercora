@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using API.Errors;
+using System.Net;
 using System.Text.Json;
 
 namespace API.Middlewares
