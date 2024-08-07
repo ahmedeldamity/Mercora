@@ -9,6 +9,7 @@ using Repository.Identity;
 using System.Text;
 using Core.Interfaces.EmailSetting;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json.Linq;
 
 namespace API.Controllers
 {
@@ -254,6 +255,66 @@ namespace API.Controllers
             }
 
             return Ok(new ApiResponse(200, "Password changed successfully."));
+        }
+
+        [HttpPost("googlelogin")]
+        [ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> GoogleLogin(TokenIdDto tokenIdDto)
+        {
+            if (ValidateGoogleToken(tokenIdDto.TokenId, out JObject payload))
+            {
+                var userName = payload["name"].ToString();
+                var email = payload["email"].ToString();
+
+                var user = await _userManager.FindByEmailAsync(email);
+
+                if (user is null)
+                {
+                    user = new AppUser
+                    {
+                        UserName = email.Split('@')[0],
+                        Email = email,
+                        DisplayName = userName,
+                        EmailConfirmed = true
+                    };
+
+                    var result = await _userManager.CreateAsync(user);
+
+                    if (!result.Succeeded)
+                    {
+                        return BadRequest(new ApiResponse(400, "Failed to create user."));
+                    }
+                }
+
+                user.EmailConfirmed = true;
+                await _userManager.UpdateAsync(user);
+
+                return Ok(new AppUserDto
+                {
+                    DisplayName = user.DisplayName,
+                    Email = user.Email,
+                    Token = ""
+                });
+            }
+            else
+            {
+                return BadRequest(new ApiResponse(400, "Invalid Google token."));
+            }
+        }
+
+        private bool ValidateGoogleToken(string tokenId, out JObject payload)
+        {
+            var httpClient = new HttpClient();
+            var response = httpClient.GetAsync($"https://www.googleapis.com/oauth2/v1/userinfo?access_token={tokenId}").Result;
+            if (response.IsSuccessStatusCode)
+            {
+                var json = response.Content.ReadAsStringAsync().Result;
+                payload = JObject.Parse(json);
+                return true;
+            }
+            payload = null;
+            return false;
         }
 
         private string EmailBody(string code, string userName, string title, string message)
