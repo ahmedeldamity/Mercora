@@ -1,4 +1,4 @@
-﻿namespace API.Dtos
+﻿namespace Shared.Dtos
 {
 	public class AppUserDto
 	{

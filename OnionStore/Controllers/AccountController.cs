@@ -1,4 +1,4 @@
-﻿using API.Dtos;
+﻿using Shared.Dtos;
 using API.Errors;
 using Core.Entities.IdentityEntities;
 using Microsoft.AspNetCore.Identity;
