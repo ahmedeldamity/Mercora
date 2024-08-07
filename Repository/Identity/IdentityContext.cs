@@ -17,5 +17,7 @@ namespace Repository.Identity
 			builder.Entity<UserAddress>()
 				.ToTable("Addresses");
 		}
-	}
+
+        public DbSet<IdentityCode> IdentityCodes { get; set; }
+    }
 }

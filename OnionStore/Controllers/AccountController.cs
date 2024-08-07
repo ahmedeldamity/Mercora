@@ -84,7 +84,7 @@ namespace API.Controllers
 			});
 		}
 
-		private bool IsValidEmail(string email)
+        private bool IsValidEmail(string email)
 		{
 			if (string.IsNullOrEmpty(email))
 				return false;
