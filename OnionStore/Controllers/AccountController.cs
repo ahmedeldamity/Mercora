@@ -8,6 +8,7 @@ using API.EmailSetting;
 using Repository.Identity;
 using System.Text;
 using Core.Interfaces.EmailSetting;
+using Microsoft.EntityFrameworkCore;
 
 namespace API.Controllers
 {
@@ -140,6 +141,49 @@ namespace API.Controllers
             return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
         }
 
+        [HttpPost("VerifyResetCode")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> VerifyResetCode(CodeVerificationDto model)
+        {
+            if (!IsValidEmail(model.Email))
+                return BadRequest(new ApiResponse(400, "Invalid email format."));
+
+            var user = await _userManager.FindByEmailAsync(model.Email);
+
+            if (user is null)
+                return BadRequest(new ApiResponse(400, "Invalid Email."));
+
+            if (!user.EmailConfirmed)
+                Ok(new ApiResponse(200, "You need to confirm your email first."));
+
+            var identityCode = await _identityContext.IdentityCodes
+                                .Where(P => P.AppUserId == user.Id)
+                                .OrderBy(d => d.CreationTime)
+                                .LastOrDefaultAsync();
+
+            if (identityCode is null)
+                return BadRequest(new ApiResponse(400, "No valid reset code found."));
+
+            if (identityCode.IsActive)
+                return BadRequest(new ApiResponse(400, "You already have an active code."));
+
+            var lastCode = identityCode.Code;
+
+            if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
+                return BadRequest(new ApiResponse(400, "Invalid reset code."));
+
+            if (identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
+                return BadRequest(new ApiResponse(400, "This code has expired."));
+
+            identityCode.IsActive = true;
+            identityCode.ActivationTime = DateTime.UtcNow;
+            _identityContext.IdentityCodes.Update(identityCode);
+            await _identityContext.SaveChangesAsync();
+
+            return Ok(new ApiResponse(200, "Code verified successfully."));
+        }
+
         private string EmailBody(string code, string userName, string title, string message)
         {
             return $@"
@@ -256,5 +300,17 @@ namespace API.Controllers
 			return await _userManager.FindByEmailAsync(email) is not null;
 		}
 
-	}
+        private bool ConstantComparison(string a, string b)
+        {
+            if (a.Length != b.Length)
+                return false;
+
+            int result = 0;
+            for (int i = 0; i < a.Length; i++)
+            {
+                result |= a[i] ^ b[i];
+            }
+            return result == 0;
+        }
+    }
 }
