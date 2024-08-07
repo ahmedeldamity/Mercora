@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Core.Entities.IdentityEntities;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Repository.Identity;
 
@@ -18,7 +19,7 @@ namespace API.ServicesExtension
 			// but we don't need to register all them one by one
 			// because we have method (AddIdentity) that will register the three services
 			// --- this method has another overload take action to if you need to configure any option of identity
-			services.AddIdentity<IdentityUser, IdentityRole>(option =>
+			services.AddIdentity<AppUser, IdentityRole>(option =>
 			{
 				option.Password.RequireLowercase = true;
 				option.Password.RequireUppercase = false;
