@@ -2,7 +2,7 @@
 
 #nullable disable
 
-namespace Repository.Repository.Identity
+namespace Repository.Identity.Migrations
 {
     /// <inheritdoc />
     public partial class UpdateIdentityTables : Migration

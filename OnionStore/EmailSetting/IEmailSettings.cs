@@ -4,6 +4,6 @@ namespace Core.Interfaces.EmailSetting
 {
     public interface IEmailSettings
     {
-        public Task SendEmailMessage(Email email);
+        public Task SendEmailMessage(EmailSettingDto email);
     }
 }

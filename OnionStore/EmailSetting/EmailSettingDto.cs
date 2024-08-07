@@ -1,6 +1,6 @@
 ﻿namespace API.EmailSetting
 {
-    public class Email
+    public class EmailSettingDto
     {
         public string Subject { get; set; }
         public string Body { get; set; }

@@ -1,6 +1,7 @@
 using API.Errors;
 using API.Middlewares;
 using API.ServicesExtension;
+using API.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository.Identity;
@@ -17,6 +18,12 @@ builder.Services.AddSwaggerServices();
 
 // Add Identity Context and Configurations
 builder.Services.AddIdentityConfigurations(builder.Configuration);
+
+// This Method Has All Application Services
+builder.Services.AddApplicationServices();
+
+// Take email setting data form appsetting to MailSettings class
+builder.Services.Configure<MailSettings>(builder.Configuration.GetSection("MailSettings"));
 
 #endregion
 

@@ -1,9 +1,8 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
+﻿using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Repository.Repository.Identity
+namespace Repository.Identity.Migrations
 {
     /// <inheritdoc />
     public partial class AddIdentityTables : Migration
