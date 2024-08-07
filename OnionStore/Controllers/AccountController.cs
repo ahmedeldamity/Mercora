@@ -184,6 +184,78 @@ namespace API.Controllers
             return Ok(new ApiResponse(200, "Code verified successfully."));
         }
 
+        [HttpPost("changepassword")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> ChangePassword(ChangePasswordDto model)
+        {
+            if (!IsValidEmail(model.email))
+                return BadRequest(new ApiResponse(400, "Invalid email format."));
+
+            var user = await _userManager.FindByEmailAsync(model.email);
+
+            if (user is null)
+                return BadRequest(new ApiResponse(400, "Invalid Email."));
+
+            if (!user.EmailConfirmed)
+                Ok(new ApiResponse(200, "You need to confirm your email first."));
+
+            var identityCode = await _identityContext.IdentityCodes
+                                .Where(p => p.AppUserId == user.Id && p.IsActive)
+                                .OrderByDescending(p => p.CreationTime)
+                                .FirstOrDefaultAsync();
+
+            if (identityCode is null)
+                return BadRequest(new ApiResponse(400, "No valid reset code found."));
+
+            var lastCode = identityCode.Code;
+
+            if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
+                return BadRequest(new ApiResponse(400, "Invalid reset code."));
+
+
+            if (identityCode is null)
+                return BadRequest(new ApiResponse(400, "No valid reset code found."));
+
+            if (identityCode.ActivationTime is null || identityCode.ActivationTime.Value.AddMinutes(30) < DateTime.UtcNow)
+                return BadRequest(new ApiResponse(400, "This code has expired."));
+
+            using var transaction = await _identityContext.Database.BeginTransactionAsync();
+
+            try
+            {
+                identityCode.IsActive = false;
+                _identityContext.IdentityCodes.Update(identityCode);
+                await _identityContext.SaveChangesAsync();
+
+                var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+                if (!removePasswordResult.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new ApiResponse(400, "Failed to remove the old password."));
+                }
+
+                var addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
+                if (!addPasswordResult.Succeeded)
+                {
+                    await transaction.RollbackAsync();
+                    return BadRequest(new ApiResponse(400, "Failed to set the new password."));
+                }
+
+                await transaction.CommitAsync();
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+
+                _logger.LogError(ex, "Error occurred while changing password.");
+                return StatusCode(500, new ApiResponse(500, "An error occurred while processing your request."));
+            }
+
+            return Ok(new ApiResponse(200, "Password changed successfully."));
+        }
+
         private string EmailBody(string code, string userName, string title, string message)
         {
             return $@"
