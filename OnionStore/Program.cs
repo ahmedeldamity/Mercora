@@ -27,6 +27,9 @@ builder.Services.AddJWTConfigurations(builder.Configuration);
 // This Method Has All Application Services
 builder.Services.AddApplicationServices(builder.Configuration);
 
+// Add Store Context
+builder.Services.AddStoreContext(builder.Configuration);
+
 #endregion
 
 #region Validation Error - Bad Request
