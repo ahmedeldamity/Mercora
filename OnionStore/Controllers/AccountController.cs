@@ -7,29 +7,16 @@ using System.Security.Cryptography;
 using API.EmailSetting;
 using Repository.Identity;
 using System.Text;
-using Core.Interfaces.EmailSetting;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Core.Interfaces.Services;
 
 namespace API.Controllers
 {
-	public class AccountController : BaseController
+	public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager,
+        IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger,
+        IAuthService _authService) : BaseController
 	{
-		private readonly UserManager<AppUser> _userManager;
-		private readonly SignInManager<AppUser> _signInManager;
-        private readonly IdentityContext _identityContext;
-        private readonly IEmailSettings _emailSettings;
-        private readonly ILogger<AccountController> _logger;
-
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            IdentityContext identityContext, IEmailSettings emailSettings, ILogger<AccountController> logger)
-		{
-			_userManager = userManager;
-			_signInManager = signInManager;
-            _identityContext = identityContext;
-            _emailSettings = emailSettings;
-            _logger = logger;
-        }
 
 		[HttpPost("register")]
 		[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
@@ -64,11 +51,13 @@ namespace API.Controllers
 				return BadRequest(new ApiResponse(400, error));
 			}
 
+            var token = await _authService.CreateTokenAsync(newUser, _userManager);
+
 			return Ok(new AppUserDto
 			{
 				DisplayName = newUser.DisplayName,
 				Email = newUser.Email,
-				Token = ""
+				Token = token
 			});
 		}
 
@@ -90,11 +79,13 @@ namespace API.Controllers
 			if (result.Succeeded is false)
 				return BadRequest(new ApiResponse(400, "Invalid email or password."));
 
-			return Ok(new AppUserDto
+            var token = await _authService.CreateTokenAsync(user, _userManager);
+
+            return Ok(new AppUserDto
 			{
 				DisplayName = user.DisplayName,
 				Email = model.Email,
-				Token = ""
+				Token = token
 			});
 		}
 
@@ -290,11 +281,13 @@ namespace API.Controllers
                 user.EmailConfirmed = true;
                 await _userManager.UpdateAsync(user);
 
+                var token = await _authService.CreateTokenAsync(user, _userManager);
+
                 return Ok(new AppUserDto
                 {
                     DisplayName = user.DisplayName,
                     Email = user.Email,
-                    Token = ""
+                    Token = token
                 });
             }
             else

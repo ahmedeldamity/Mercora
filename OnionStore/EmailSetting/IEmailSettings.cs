@@ -1,6 +1,4 @@
-﻿using API.EmailSetting;
-
-namespace Core.Interfaces.EmailSetting
+﻿namespace API.EmailSetting
 {
     public interface IEmailSettings
     {
