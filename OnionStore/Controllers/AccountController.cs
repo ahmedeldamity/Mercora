@@ -7,14 +7,15 @@ using System.Security.Cryptography;
 using API.EmailSetting;
 using Repository.Identity;
 using System.Text;
-using Core.Interfaces.EmailSetting;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
+using Core.Interfaces.Services;
 
 namespace API.Controllers
 {
 	public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager,
-        IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger) : BaseController
+        IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger,
+        IAuthService _authService) : BaseController
 	{
 
 		[HttpPost("register")]
@@ -50,11 +51,13 @@ namespace API.Controllers
 				return BadRequest(new ApiResponse(400, error));
 			}
 
+            var token = await _authService.CreateTokenAsync(newUser, _userManager);
+
 			return Ok(new AppUserDto
 			{
 				DisplayName = newUser.DisplayName,
 				Email = newUser.Email,
-				Token = ""
+				Token = token
 			});
 		}
 
@@ -76,11 +79,13 @@ namespace API.Controllers
 			if (result.Succeeded is false)
 				return BadRequest(new ApiResponse(400, "Invalid email or password."));
 
-			return Ok(new AppUserDto
+            var token = await _authService.CreateTokenAsync(user, _userManager);
+
+            return Ok(new AppUserDto
 			{
 				DisplayName = user.DisplayName,
 				Email = model.Email,
-				Token = ""
+				Token = token
 			});
 		}
 
@@ -276,11 +281,13 @@ namespace API.Controllers
                 user.EmailConfirmed = true;
                 await _userManager.UpdateAsync(user);
 
+                var token = await _authService.CreateTokenAsync(user, _userManager);
+
                 return Ok(new AppUserDto
                 {
                     DisplayName = user.DisplayName,
                     Email = user.Email,
-                    Token = ""
+                    Token = token
                 });
             }
             else

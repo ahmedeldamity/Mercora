@@ -1,6 +1,6 @@
-﻿namespace API.Settings
+﻿namespace Shared.ConfigurationData
 {
-    public class MailSettings
+    public class MailData
     {
         public string Email { get; set; }
         public string DisplayName { get; set; }

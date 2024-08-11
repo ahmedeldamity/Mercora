@@ -1,18 +1,17 @@
-﻿using API.Settings;
-using Core.Interfaces.EmailSetting;
-using MailKit.Net.Smtp;
+﻿using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
+using Shared.ConfigurationData;
 
 namespace API.EmailSetting
 {
     public class EmailSettings : IEmailSettings
     {
-        private readonly MailSettings _options;
+        private readonly MailData _options;
         private readonly ILogger<EmailSettings> _logger;
 
-        public EmailSettings(IOptions<MailSettings> options, ILogger<EmailSettings> logger)
+        public EmailSettings(IOptions<MailData> options, ILogger<EmailSettings> logger)
         {
             _options = options.Value;
             _logger = logger;
