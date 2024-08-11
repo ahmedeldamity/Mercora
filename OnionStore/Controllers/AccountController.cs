@@ -13,23 +13,9 @@ using Newtonsoft.Json.Linq;
 
 namespace API.Controllers
 {
-	public class AccountController : BaseController
+	public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager,
+        IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger) : BaseController
 	{
-		private readonly UserManager<AppUser> _userManager;
-		private readonly SignInManager<AppUser> _signInManager;
-        private readonly IdentityContext _identityContext;
-        private readonly IEmailSettings _emailSettings;
-        private readonly ILogger<AccountController> _logger;
-
-        public AccountController(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager,
-            IdentityContext identityContext, IEmailSettings emailSettings, ILogger<AccountController> logger)
-		{
-			_userManager = userManager;
-			_signInManager = signInManager;
-            _identityContext = identityContext;
-            _emailSettings = emailSettings;
-            _logger = logger;
-        }
 
 		[HttpPost("register")]
 		[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
