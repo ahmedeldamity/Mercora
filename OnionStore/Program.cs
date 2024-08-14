@@ -94,11 +94,10 @@ catch (Exception ex)
 // -- Server Error Middleware (we catch it in class ExceptionMiddleware)
 app.UseMiddleware<ExceptionMiddleware>();
 
-if (app.Environment.IsDevelopment())
-{
-	// -- Add Swagger Middelwares In Extension Method
-	app.UseSwaggerMiddleware();
-}
+
+// -- Add Swagger Middelwares In Extension Method
+app.UseSwaggerMiddleware();
+
 
 // -- To Redirect Any Http Request To Https
 app.UseHttpsRedirection();
