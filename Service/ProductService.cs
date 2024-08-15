@@ -6,15 +6,8 @@ using Core.Specifications.ProductSpecifications;
 
 namespace Service
 {
-    public class ProductService: IProductService
+    public class ProductService(IUnitOfWork _unitOfWork) : IProductService
     {
-        private readonly IUnitOfWork _unitOfWork;
-
-        public ProductService(IUnitOfWork unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-        }
-
         public async Task<IReadOnlyList<Product>> GetProductsAsync(ProductSpecificationParameters specParams)
         {
             var spec = new ProductWithBrandAndCategorySpecifications(specParams);
