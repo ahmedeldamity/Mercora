@@ -20,5 +20,12 @@ namespace Service
             var products = await _unitOfWork.Repository<Product>().GetAllWithSpecAsync(spec);
             return products;
         }
+
+        public async Task<Product?> GetProductAsync(int id)
+        {
+            var spec = new ProductWithBrandAndCategorySpecifications(id);
+            var product = await _unitOfWork.Repository<Product>().GetByIdWithSpecAsync(spec);
+            return product;
+        }
     }
 }
