@@ -39,6 +39,21 @@ namespace Repository.Data
                 }
             }
 
+            if (_storeContext.Products.Count() == 0)
+            {
+                var ProductsJSONData = File.ReadAllText("../Repository/Store/DataSeeding/products.json");
+
+                var products = JsonSerializer.Deserialize<List<Product>>(ProductsJSONData);
+
+                if (products?.Count() > 0)
+                {
+                    foreach (var product in products)
+                    {
+                        _storeContext.Products.Add(product);
+                    }
+                }
+            }
+
             await _storeContext.SaveChangesAsync();
         }
     }
