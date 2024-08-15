@@ -1,5 +1,6 @@
 ﻿using API.Dtos;
 using API.Errors;
+using API.Helpers;
 using AutoMapper;
 using Core.Entities;
 using Core.Entities.Product_Entities;
@@ -20,7 +21,9 @@ namespace API.Controllers
 
             var productsDto = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductToReturnDto>>(products);
 
-            return Ok(productsDto);
+            var productsCount = await _productService.GetProductCount(specParams);
+
+            return Ok(new PaginationToReturn<ProductToReturnDto>(specParams.PageIndex, specParams.PageSize, productsCount, productsDto));
         }
 
         [HttpGet("{id}")]
