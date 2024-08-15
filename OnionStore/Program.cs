@@ -3,7 +3,9 @@ using API.Middlewares;
 using API.ServicesExtension;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Repository.Data;
 using Repository.Identity;
+using Repository.Store;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -71,15 +73,22 @@ using var scope = app.Services.CreateScope();
 //    2 ->  Bring Service Provider Of This Scope
 var services = scope.ServiceProvider;
 
+// --> Bring Object Of StoreContext For Update His Migration
+var _storeContext = services.GetRequiredService<StoreContext>();
 // --> Bring Object Of IdentityContext For Update His Migration
 var _identiyContext = services.GetRequiredService<IdentityContext>();
-// --> Bring Object Of ILoggerFactory For Good Show Error In Console    
+// --> Bring Object Of ILoggerFactory For Good Show Error In Console
 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
 
 try
 {
 	// Migrate IdentityContext
 	await _identiyContext.Database.MigrateAsync();
+
+    // Migrate StoreContext
+    await _storeContext.Database.MigrateAsync();
+    // Seeding Data For StoreContext
+    await StoreContextSeed.SeedProductDataAsync(_storeContext);
 }
 catch (Exception ex)
 {

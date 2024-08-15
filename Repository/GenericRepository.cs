@@ -25,6 +25,11 @@ namespace Repository
             return await SpecificationsEvaluator<T>.GetQuery(_storeContext.Set<T>(), spec).ToListAsync();
         }
 
+        public async Task<int> GetCountAsync(ISpecifications<T> spec)
+        {
+            return await SpecificationsEvaluator<T>.GetQuery(_storeContext.Set<T>(), spec).CountAsync();
+        }
+
         public async Task<T?> GetByIdAsync(int id)
         {
             return await _storeContext.Set<T>().FindAsync(id);

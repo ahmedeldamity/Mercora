@@ -7,6 +7,7 @@ namespace Core.Interfaces.Repositories
     {
         public Task<IReadOnlyList<T>> GetAllAsync();
         public Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecifications<T> spec);
+        Task<int> GetCountAsync(ISpecifications<T> spec);
 
         public Task<T?> GetByIdWithSpecAsync(ISpecifications<T> spec);
         public Task<T?> GetByIdAsync(int id);

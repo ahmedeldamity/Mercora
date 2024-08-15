@@ -1,4 +1,5 @@
-﻿using Core.Entities.Product_Entities;
+﻿using Core.Entities;
+using Core.Entities.Product_Entities;
 using Core.Specifications.ProductSpecifications;
 
 namespace Core.Interfaces.Services
@@ -6,5 +7,7 @@ namespace Core.Interfaces.Services
     public interface IProductService
     {
         Task<IReadOnlyList<Product>> GetProductsAsync(ProductSpecificationParameters specParams);
+        Task<int> GetProductCount(ProductSpecificationParameters specParams);
+        Task<Product?> GetProductAsync(int id);
     }
 }
