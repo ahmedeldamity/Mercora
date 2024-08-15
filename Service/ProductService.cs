@@ -21,11 +21,5 @@ namespace Service
             var product = await _unitOfWork.Repository<Product>().GetByIdWithSpecAsync(spec);
             return product;
         }
-
-        public async Task<IReadOnlyList<ProductBrand>> GetBrandsAsync()
-        {
-            var brands = await _unitOfWork.Repository<ProductBrand>().GetAllAsync();
-            return brands;
-        }
     }
 }
