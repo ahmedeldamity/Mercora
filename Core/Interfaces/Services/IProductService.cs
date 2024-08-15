@@ -1,4 +1,5 @@
-﻿using Core.Entities.Product_Entities;
+﻿using Core.Entities;
+using Core.Entities.Product_Entities;
 using Core.Specifications.ProductSpecifications;
 
 namespace Core.Interfaces.Services
@@ -7,5 +8,7 @@ namespace Core.Interfaces.Services
     {
         Task<IReadOnlyList<Product>> GetProductsAsync(ProductSpecificationParameters specParams);
         Task<Product?> GetProductAsync(int id);
+        Task<IReadOnlyList<ProductBrand>> GetBrandsAsync();
+        Task<IReadOnlyList<ProductCategory>> GetCategoriesAsync();
     }
 }

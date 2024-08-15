@@ -1,4 +1,5 @@
-﻿using Core.Entities.Product_Entities;
+﻿using Core.Entities;
+using Core.Entities.Product_Entities;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Specifications.ProductSpecifications;
@@ -26,6 +27,17 @@ namespace Service
             var spec = new ProductWithBrandAndCategorySpecifications(id);
             var product = await _unitOfWork.Repository<Product>().GetByIdWithSpecAsync(spec);
             return product;
+        }
+
+        public async Task<IReadOnlyList<ProductBrand>> GetBrandsAsync()
+        {
+            var brands = await _unitOfWork.Repository<ProductBrand>().GetAllAsync();
+            return brands;
+        }
+        public async Task<IReadOnlyList<ProductCategory>> GetCategoriesAsync()
+        {
+            var categories = await _unitOfWork.Repository<ProductCategory>().GetAllAsync();
+            return categories;
         }
     }
 }
