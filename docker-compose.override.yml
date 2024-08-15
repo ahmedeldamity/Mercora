@@ -1,0 +1,34 @@
+version: '3.4'
+
+networks:
+  onionstorenetwork:
+
+volumes:
+  sqlserver_data:
+
+services:
+  onionstoreDB:
+    container_name: onionstoreDB
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    ports:
+      - 8002:1433
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=PAssWord**
+      - MSSQL_PID=Express
+    networks:
+      - onionstorenetwork
+  onionstore:
+    container_name: onionstore
+    image: ${DOCKER_REGISTRY-}onionstoreproject
+    ports:
+      - 8080:8080
+    build:
+      context: .
+      dockerfile: OnionStore/Dockerfile
+    depends_on:
+      - onionstoreDB 
+    networks:
+      - onionstorenetwork 
+    volumes:
+      - sqlserver_data:/var/opt/mssql
