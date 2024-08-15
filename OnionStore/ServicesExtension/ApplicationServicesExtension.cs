@@ -23,6 +23,9 @@ namespace API.ServicesExtension
             // Register Product Service
             services.AddScoped(typeof(IProductService), typeof(ProductService));
 
+            // Register Category Service
+            services.AddScoped(typeof(ICategoryService), typeof(CategoryService));
+
             // --- Two Ways To Register AutoMapper
             // - First (harder)
             //builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));

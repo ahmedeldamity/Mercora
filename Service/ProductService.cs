@@ -27,10 +27,5 @@ namespace Service
             var brands = await _unitOfWork.Repository<ProductBrand>().GetAllAsync();
             return brands;
         }
-        public async Task<IReadOnlyList<ProductCategory>> GetCategoriesAsync()
-        {
-            var categories = await _unitOfWork.Repository<ProductCategory>().GetAllAsync();
-            return categories;
-        }
     }
 }

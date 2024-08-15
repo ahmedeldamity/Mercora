@@ -10,7 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers
 {
-    public class ProductController(IProductService _productService, IMapper _mapper) : BaseController
+    public class ProductController(IProductService _productService, ICategoryService _categoryService, IMapper _mapper) : BaseController
     {
         [HttpGet]
         public async Task<ActionResult<IReadOnlyList<Product>>> GetProducts([FromQuery] ProductSpecificationParameters specParams)
@@ -46,7 +46,7 @@ namespace API.Controllers
         [HttpGet("categories")]
         public async Task<ActionResult<IReadOnlyList<ProductBrand>>> GetCategories()
         {
-            var categories = await _productService.GetCategoriesAsync();
+            var categories = await _categoryService.GetCategoriesAsync();
             return Ok(categories);
         }
     }
