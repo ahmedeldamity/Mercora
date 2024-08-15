@@ -1,6 +1,7 @@
 ﻿using Core.Entities;
 using Core.Interfaces.Specifications;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 namespace Repository
 {
@@ -17,6 +18,9 @@ namespace Repository
                 query = query.OrderBy(spec.OrderBy);
             else if (spec.OrderByDesc != null)
                 query = query.OrderByDescending(spec.OrderByDesc);
+
+            if (spec.IsPaginationEnabled)
+                query = query.Skip(spec.Skip).Take(spec.Take);
 
             query = spec.IncludesCriteria.Aggregate(query, (currentQuery, includeExpression) => currentQuery.Include(includeExpression));
 
