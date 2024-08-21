@@ -1,7 +1,5 @@
-﻿namespace Shared.Dtos
+﻿namespace Shared.Dtos;
+public class EmailDto
 {
-    public class EmailDto
-    {
-        public string Email { get; set; } 
-    }
+    public string Email { get; set; } = null!;
 }

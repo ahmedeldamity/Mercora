@@ -11,12 +11,11 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json.Linq;
 using Core.Interfaces.Services;
 
-namespace API.Controllers
+namespace API.Controllers;
+
+public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager,
+             IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger, IAuthService _authService) : BaseController
 {
-	public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager,
-        IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger,
-        IAuthService _authService) : BaseController
-	{
 
 		[HttpPost("register")]
 		[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
@@ -51,7 +50,7 @@ namespace API.Controllers
 				return BadRequest(new ApiResponse(400, error));
 			}
 
-            var token = await _authService.CreateTokenAsync(newUser, _userManager);
+        var token = await _authService.CreateTokenAsync(newUser, _userManager);
 
 			return Ok(new AppUserDto
 			{
@@ -79,9 +78,9 @@ namespace API.Controllers
 			if (result.Succeeded is false)
 				return BadRequest(new ApiResponse(400, "Invalid email or password."));
 
-            var token = await _authService.CreateTokenAsync(user, _userManager);
+        var token = await _authService.CreateTokenAsync(user, _userManager);
 
-            return Ok(new AppUserDto
+        return Ok(new AppUserDto
 			{
 				DisplayName = user.DisplayName,
 				Email = model.Email,
@@ -89,230 +88,230 @@ namespace API.Controllers
 			});
 		}
 
-        [HttpPost("SendPasswordResetEmail")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> SendPasswordResetEmail(EmailDto emailDto)
-        {
-            if (!IsValidEmail(emailDto.Email))
-                return BadRequest(new ApiResponse(400, "Invalid email format."));
+    [HttpPost("SendPasswordResetEmail")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> SendPasswordResetEmail(EmailDto emailDto)
+    {
+        if (!IsValidEmail(emailDto.Email))
+            return BadRequest(new ApiResponse(400, "Invalid email format."));
 
-            var user = await _userManager.FindByEmailAsync(emailDto.Email);
+        var user = await _userManager.FindByEmailAsync(emailDto.Email);
 
-            if (user is null)
-                return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
-
-            var code = GenerateSecureCode();
-
-            EmailSettingDto emailToSend = new EmailSettingDto()
-            {
-                To = emailDto.Email,
-                Subject = $"{user.DisplayName}, Reset Your Password - Verification Code: {code}",
-                Body = EmailBody(code, user.DisplayName, "Reset Password", "You have requested to reset your password.")
-            };
-
-            try
-            {
-                await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
-                {
-                    Code = HashCode(code),
-                    AppUserId = user.Id
-                });
-
-                await _identityContext.SaveChangesAsync();
-
-                await _emailSettings.SendEmailMessage(emailToSend);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error occurred while sending password reset email.");
-                return StatusCode(500, new ApiResponse(500, "An error occurred while processing your request."));
-            }
-
+        if (user is null)
             return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
+
+        var code = GenerateSecureCode();
+
+        EmailSettingDto emailToSend = new EmailSettingDto()
+        {
+            To = emailDto.Email,
+            Subject = $"{user.DisplayName}, Reset Your Password - Verification Code: {code}",
+            Body = EmailBody(code, user.DisplayName, "Reset Password", "You have requested to reset your password.")
+        };
+
+        try
+        {
+            await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
+            {
+                Code = HashCode(code),
+                AppUserId = user.Id
+            });
+
+            await _identityContext.SaveChangesAsync();
+
+            await _emailSettings.SendEmailMessage(emailToSend);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error occurred while sending password reset email.");
+            return StatusCode(500, new ApiResponse(500, "An error occurred while processing your request."));
         }
 
-        [HttpPost("VerifyResetCode")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> VerifyResetCode(CodeVerificationDto model)
+        return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
+    }
+
+    [HttpPost("VerifyResetCode")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> VerifyResetCode(CodeVerificationDto model)
+    {
+        if (!IsValidEmail(model.Email))
+            return BadRequest(new ApiResponse(400, "Invalid email format."));
+
+        var user = await _userManager.FindByEmailAsync(model.Email);
+
+        if (user is null)
+            return BadRequest(new ApiResponse(400, "Invalid Email."));
+
+        if (!user.EmailConfirmed)
+            Ok(new ApiResponse(200, "You need to confirm your email first."));
+
+        var identityCode = await _identityContext.IdentityCodes
+                            .Where(P => P.AppUserId == user.Id)
+                            .OrderBy(d => d.CreationTime)
+                            .LastOrDefaultAsync();
+
+        if (identityCode is null)
+            return BadRequest(new ApiResponse(400, "No valid reset code found."));
+
+        if (identityCode.IsActive)
+            return BadRequest(new ApiResponse(400, "You already have an active code."));
+
+        var lastCode = identityCode.Code;
+
+        if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
+            return BadRequest(new ApiResponse(400, "Invalid reset code."));
+
+        if (identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
+            return BadRequest(new ApiResponse(400, "This code has expired."));
+
+        identityCode.IsActive = true;
+        identityCode.ActivationTime = DateTime.UtcNow;
+        _identityContext.IdentityCodes.Update(identityCode);
+        await _identityContext.SaveChangesAsync();
+
+        return Ok(new ApiResponse(200, "Code verified successfully."));
+    }
+
+    [HttpPost("changepassword")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> ChangePassword(ChangePasswordDto model)
+    {
+        if (!IsValidEmail(model.email))
+            return BadRequest(new ApiResponse(400, "Invalid email format."));
+
+        var user = await _userManager.FindByEmailAsync(model.email);
+
+        if (user is null)
+            return BadRequest(new ApiResponse(400, "Invalid Email."));
+
+        if (!user.EmailConfirmed)
+            Ok(new ApiResponse(200, "You need to confirm your email first."));
+
+        var identityCode = await _identityContext.IdentityCodes
+                            .Where(p => p.AppUserId == user.Id && p.IsActive)
+                            .OrderByDescending(p => p.CreationTime)
+                            .FirstOrDefaultAsync();
+
+        if (identityCode is null)
+            return BadRequest(new ApiResponse(400, "No valid reset code found."));
+
+        var lastCode = identityCode.Code;
+
+        if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
+            return BadRequest(new ApiResponse(400, "Invalid reset code."));
+
+
+        if (identityCode is null)
+            return BadRequest(new ApiResponse(400, "No valid reset code found."));
+
+        if (identityCode.ActivationTime is null || identityCode.ActivationTime.Value.AddMinutes(30) < DateTime.UtcNow)
+            return BadRequest(new ApiResponse(400, "This code has expired."));
+
+        using var transaction = await _identityContext.Database.BeginTransactionAsync();
+
+        try
         {
-            if (!IsValidEmail(model.Email))
-                return BadRequest(new ApiResponse(400, "Invalid email format."));
-
-            var user = await _userManager.FindByEmailAsync(model.Email);
-
-            if (user is null)
-                return BadRequest(new ApiResponse(400, "Invalid Email."));
-
-            if (!user.EmailConfirmed)
-                Ok(new ApiResponse(200, "You need to confirm your email first."));
-
-            var identityCode = await _identityContext.IdentityCodes
-                                .Where(P => P.AppUserId == user.Id)
-                                .OrderBy(d => d.CreationTime)
-                                .LastOrDefaultAsync();
-
-            if (identityCode is null)
-                return BadRequest(new ApiResponse(400, "No valid reset code found."));
-
-            if (identityCode.IsActive)
-                return BadRequest(new ApiResponse(400, "You already have an active code."));
-
-            var lastCode = identityCode.Code;
-
-            if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
-                return BadRequest(new ApiResponse(400, "Invalid reset code."));
-
-            if (identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
-                return BadRequest(new ApiResponse(400, "This code has expired."));
-
-            identityCode.IsActive = true;
-            identityCode.ActivationTime = DateTime.UtcNow;
+            identityCode.IsActive = false;
             _identityContext.IdentityCodes.Update(identityCode);
             await _identityContext.SaveChangesAsync();
 
-            return Ok(new ApiResponse(200, "Code verified successfully."));
-        }
-
-        [HttpPost("changepassword")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> ChangePassword(ChangePasswordDto model)
-        {
-            if (!IsValidEmail(model.email))
-                return BadRequest(new ApiResponse(400, "Invalid email format."));
-
-            var user = await _userManager.FindByEmailAsync(model.email);
-
-            if (user is null)
-                return BadRequest(new ApiResponse(400, "Invalid Email."));
-
-            if (!user.EmailConfirmed)
-                Ok(new ApiResponse(200, "You need to confirm your email first."));
-
-            var identityCode = await _identityContext.IdentityCodes
-                                .Where(p => p.AppUserId == user.Id && p.IsActive)
-                                .OrderByDescending(p => p.CreationTime)
-                                .FirstOrDefaultAsync();
-
-            if (identityCode is null)
-                return BadRequest(new ApiResponse(400, "No valid reset code found."));
-
-            var lastCode = identityCode.Code;
-
-            if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
-                return BadRequest(new ApiResponse(400, "Invalid reset code."));
-
-
-            if (identityCode is null)
-                return BadRequest(new ApiResponse(400, "No valid reset code found."));
-
-            if (identityCode.ActivationTime is null || identityCode.ActivationTime.Value.AddMinutes(30) < DateTime.UtcNow)
-                return BadRequest(new ApiResponse(400, "This code has expired."));
-
-            using var transaction = await _identityContext.Database.BeginTransactionAsync();
-
-            try
-            {
-                identityCode.IsActive = false;
-                _identityContext.IdentityCodes.Update(identityCode);
-                await _identityContext.SaveChangesAsync();
-
-                var removePasswordResult = await _userManager.RemovePasswordAsync(user);
-                if (!removePasswordResult.Succeeded)
-                {
-                    await transaction.RollbackAsync();
-                    return BadRequest(new ApiResponse(400, "Failed to remove the old password."));
-                }
-
-                var addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
-                if (!addPasswordResult.Succeeded)
-                {
-                    await transaction.RollbackAsync();
-                    return BadRequest(new ApiResponse(400, "Failed to set the new password."));
-                }
-
-                await transaction.CommitAsync();
-            }
-            catch (Exception ex)
+            var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+            if (!removePasswordResult.Succeeded)
             {
                 await transaction.RollbackAsync();
-
-                _logger.LogError(ex, "Error occurred while changing password.");
-                return StatusCode(500, new ApiResponse(500, "An error occurred while processing your request."));
+                return BadRequest(new ApiResponse(400, "Failed to remove the old password."));
             }
 
-            return Ok(new ApiResponse(200, "Password changed successfully."));
+            var addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
+            if (!addPasswordResult.Succeeded)
+            {
+                await transaction.RollbackAsync();
+                return BadRequest(new ApiResponse(400, "Failed to set the new password."));
+            }
+
+            await transaction.CommitAsync();
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+
+            _logger.LogError(ex, "Error occurred while changing password.");
+            return StatusCode(500, new ApiResponse(500, "An error occurred while processing your request."));
         }
 
-        [HttpPost("googlelogin")]
-        [ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult> GoogleLogin(TokenIdDto tokenIdDto)
+        return Ok(new ApiResponse(200, "Password changed successfully."));
+    }
+
+    [HttpPost("googlelogin")]
+    [ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> GoogleLogin(TokenIdDto tokenIdDto)
+    {
+        if (ValidateGoogleToken(tokenIdDto.TokenId, out JObject payload))
         {
-            if (ValidateGoogleToken(tokenIdDto.TokenId, out JObject payload))
+            var userName = payload["name"].ToString();
+            var email = payload["email"].ToString();
+
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user is null)
             {
-                var userName = payload["name"].ToString();
-                var email = payload["email"].ToString();
-
-                var user = await _userManager.FindByEmailAsync(email);
-
-                if (user is null)
+                user = new AppUser
                 {
-                    user = new AppUser
-                    {
-                        UserName = email.Split('@')[0],
-                        Email = email,
-                        DisplayName = userName,
-                        EmailConfirmed = true
-                    };
+                    UserName = email.Split('@')[0],
+                    Email = email,
+                    DisplayName = userName,
+                    EmailConfirmed = true
+                };
 
-                    var result = await _userManager.CreateAsync(user);
+                var result = await _userManager.CreateAsync(user);
 
-                    if (!result.Succeeded)
-                    {
-                        return BadRequest(new ApiResponse(400, "Failed to create user."));
-                    }
+                if (!result.Succeeded)
+                {
+                    return BadRequest(new ApiResponse(400, "Failed to create user."));
                 }
-
-                user.EmailConfirmed = true;
-                await _userManager.UpdateAsync(user);
-
-                var token = await _authService.CreateTokenAsync(user, _userManager);
-
-                return Ok(new AppUserDto
-                {
-                    DisplayName = user.DisplayName,
-                    Email = user.Email,
-                    Token = token
-                });
             }
-            else
+
+            user.EmailConfirmed = true;
+            await _userManager.UpdateAsync(user);
+
+            var token = await _authService.CreateTokenAsync(user, _userManager);
+
+            return Ok(new AppUserDto
             {
-                return BadRequest(new ApiResponse(400, "Invalid Google token."));
-            }
+                DisplayName = user.DisplayName,
+                Email = user.Email,
+                Token = token
+            });
         }
-
-        private bool ValidateGoogleToken(string tokenId, out JObject payload)
+        else
         {
-            var httpClient = new HttpClient();
-            var response = httpClient.GetAsync($"https://www.googleapis.com/oauth2/v1/userinfo?access_token={tokenId}").Result;
-            if (response.IsSuccessStatusCode)
-            {
-                var json = response.Content.ReadAsStringAsync().Result;
-                payload = JObject.Parse(json);
-                return true;
-            }
-            payload = null;
-            return false;
+            return BadRequest(new ApiResponse(400, "Invalid Google token."));
         }
+    }
 
-        private string EmailBody(string code, string userName, string title, string message)
+    private bool ValidateGoogleToken(string tokenId, out JObject payload)
+    {
+        var httpClient = new HttpClient();
+        var response = httpClient.GetAsync($"https://www.googleapis.com/oauth2/v1/userinfo?access_token={tokenId}").Result;
+        if (response.IsSuccessStatusCode)
         {
-            return $@"
+            var json = response.Content.ReadAsStringAsync().Result;
+            payload = JObject.Parse(json);
+            return true;
+        }
+        payload = null;
+        return false;
+    }
+
+    private string EmailBody(string code, string userName, string title, string message)
+    {
+        return $@"
                 <!DOCTYPE html>
                 <html lang=""en"">
                 <head>
@@ -382,30 +381,30 @@ namespace API.Controllers
                     </div>
                 </body>
                 </html>";
-        }
+    }
 
-        private string GenerateSecureCode()
-        {
-            byte[] randomNumber = new byte[4];
+    private string GenerateSecureCode()
+    {
+        byte[] randomNumber = new byte[4];
 
-            using var rng = RandomNumberGenerator.Create();
-            rng.GetBytes(randomNumber);
+        using var rng = RandomNumberGenerator.Create();
+        rng.GetBytes(randomNumber);
 
-            int result = BitConverter.ToInt32(randomNumber, 0);
-            int positiveResult = Math.Abs(result);
+        int result = BitConverter.ToInt32(randomNumber, 0);
+        int positiveResult = Math.Abs(result);
 
-            int sixDigitCode = positiveResult % 1000000;
-            return sixDigitCode.ToString("D6");
-        }
+        int sixDigitCode = positiveResult % 1000000;
+        return sixDigitCode.ToString("D6");
+    }
 
-        private string HashCode(string code)
-        {
-            var sha256 = SHA256.Create();
-            var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(code));
-            return BitConverter.ToString(hashedBytes).Replace("-", "");
-        }
+    private string HashCode(string code)
+    {
+        var sha256 = SHA256.Create();
+        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(code));
+        return BitConverter.ToString(hashedBytes).Replace("-", "");
+    }
 
-        private bool IsValidEmail(string email)
+    private bool IsValidEmail(string email)
 		{
 			if (string.IsNullOrEmpty(email))
 				return false;
@@ -426,17 +425,16 @@ namespace API.Controllers
 			return await _userManager.FindByEmailAsync(email) is not null;
 		}
 
-        private bool ConstantComparison(string a, string b)
-        {
-            if (a.Length != b.Length)
-                return false;
+    private bool ConstantComparison(string a, string b)
+    {
+        if (a.Length != b.Length)
+            return false;
 
-            int result = 0;
-            for (int i = 0; i < a.Length; i++)
-            {
-                result |= a[i] ^ b[i];
-            }
-            return result == 0;
+        int result = 0;
+        for (int i = 0; i < a.Length; i++)
+        {
+            result |= a[i] ^ b[i];
         }
+        return result == 0;
     }
 }

@@ -1,9 +1,7 @@
-﻿namespace Shared.Dtos
+﻿namespace Shared.Dtos;
+public class ChangePasswordDto
 {
-    public class ChangePasswordDto
-    {
-        public string email { get; set; }
-        public string NewPassword { get; set; }
-        public string VerificationCode { get; set; }
-    }
+    public string email { get; set; } = null!;
+    public string NewPassword { get; set; } = null!;
+    public string VerificationCode { get; set; } = null!;
 }
