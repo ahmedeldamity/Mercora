@@ -1,13 +1,12 @@
-﻿using API.Dtos;
-using API.Errors;
+﻿using API.Errors;
 using API.Helpers;
 using AutoMapper;
 using Core.Entities;
 using Core.Entities.Product_Entities;
 using Core.Interfaces.Services;
 using Core.Specifications.ProductSpecifications;
-using DotNetCore_ECommerce.Dtos;
 using Microsoft.AspNetCore.Mvc;
+using Shared.Dtos;
 
 namespace API.Controllers;
 public class ProductController(IProductService _productService, ICategoryService _categoryService,

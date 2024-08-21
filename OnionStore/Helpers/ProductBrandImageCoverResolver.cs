@@ -1,24 +1,22 @@
-﻿using API.Dtos;
-using AutoMapper;
+﻿using AutoMapper;
 using Core.Entities;
+using Shared.Dtos;
 
-namespace DotNetCore_ECommerce.Helpers
+namespace DotNetCore_ECommerce.Helpers;
+public class ProductBrandImageCoverResolver : IValueResolver<ProductBrand, ProductBrandToReturnDto, string>
 {
-    public class ProductBrandImageCoverResolver : IValueResolver<ProductBrand, ProductBrandToReturnDto, string>
-    {
-        private readonly IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
 
-        public ProductBrandImageCoverResolver(IConfiguration configuration)
+    public ProductBrandImageCoverResolver(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+    public string Resolve(ProductBrand source, ProductBrandToReturnDto destination, string destMember, ResolutionContext context)
+    {
+        if (!string.IsNullOrEmpty(source.ImageCover))
         {
-            _configuration = configuration;
+            return $"{_configuration["ApiBaseUrl"]}/{source.ImageCover}";
         }
-        public string Resolve(ProductBrand source, ProductBrandToReturnDto destination, string destMember, ResolutionContext context)
-        {
-            if (!string.IsNullOrEmpty(source.ImageCover))
-            {
-                return $"{_configuration["ApiBaseUrl"]}/{source.ImageCover}";
-            }
-            return string.Empty;
-        }
+        return string.Empty;
     }
 }

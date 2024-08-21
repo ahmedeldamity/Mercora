@@ -1,9 +1,7 @@
 ﻿using Core.Entities;
 
-namespace Core.Interfaces.Services
+namespace Core.Interfaces.Services;
+public interface ICategoryService
 {
-    public interface ICategoryService
-    {
-        Task<IReadOnlyList<ProductCategory>> GetCategoriesAsync();
-    }
+    Task<IReadOnlyList<ProductCategory>> GetCategoriesAsync();
 }

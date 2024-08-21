@@ -1,10 +1,8 @@
 ﻿using Core.Entities.IdentityEntities;
 using Microsoft.AspNetCore.Identity;
 
-namespace Core.Interfaces.Services
+namespace Core.Interfaces.Services;
+public interface IAuthService
 {
-    public interface IAuthService
-    {
-        Task<string> CreateTokenAsync(AppUser user, UserManager<AppUser> userManager);
-    }
+    Task<string> CreateTokenAsync(AppUser user, UserManager<AppUser> userManager);
 }

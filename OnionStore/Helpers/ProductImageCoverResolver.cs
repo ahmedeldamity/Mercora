@@ -1,24 +1,22 @@
 ﻿using AutoMapper;
 using Core.Entities.Product_Entities;
-using DotNetCore_ECommerce.Dtos;
+using Shared.Dtos;
 
-namespace DotNetCore_ECommerce.Helpers
+namespace DotNetCore_ECommerce.Helpers;
+public class ProductImageCoverResolver : IValueResolver<Product, ProductToReturnDto, string>
 {
-    public class ProductImageCoverResolver : IValueResolver<Product, ProductToReturnDto, string>
-    {
-        private readonly IConfiguration _configuration;
+    private readonly IConfiguration _configuration;
 
-        public ProductImageCoverResolver(IConfiguration configuration)
+    public ProductImageCoverResolver(IConfiguration configuration)
+    {
+        _configuration = configuration;
+    }
+    public string Resolve(Product source, ProductToReturnDto destination, string destMember, ResolutionContext context)
+    {
+        if (!string.IsNullOrEmpty(source.ImageCover))
         {
-            _configuration = configuration;
+            return $"{_configuration["ApiBaseUrl"]}/{source.ImageCover}";
         }
-        public string Resolve(Product source, ProductToReturnDto destination, string destMember, ResolutionContext context)
-        {
-            if (!string.IsNullOrEmpty(source.ImageCover))
-            {
-                return $"{_configuration["ApiBaseUrl"]}/{source.ImageCover}";
-            }
-            return string.Empty;
-        }
+        return string.Empty;
     }
 }

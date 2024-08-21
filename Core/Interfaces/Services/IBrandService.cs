@@ -1,9 +1,7 @@
 ﻿using Core.Entities;
 
-namespace Core.Interfaces.Services
+namespace Core.Interfaces.Services;
+public interface IBrandService
 {
-    public interface IBrandService
-    {
-        Task<IReadOnlyList<ProductBrand>> GetBrandsAsync();
-    }
+    Task<IReadOnlyList<ProductBrand>> GetBrandsAsync();
 }
