@@ -1,8 +1,10 @@
 ﻿using API.Dtos;
 using AutoMapper;
 using Core.Entities;
+using Core.Entities.BasketEntities;
 using Core.Entities.Product_Entities;
 using DotNetCore_ECommerce.Dtos;
+using Shared.Dtos;
 
 namespace DotNetCore_ECommerce.Helpers
 {
@@ -27,6 +29,14 @@ namespace DotNetCore_ECommerce.Helpers
 
             CreateMap<ProductBrand, ProductBrandToReturnDto>()
                 .ForMember(d => d.ImageCover, o => o.MapFrom<ProductBrandImageCoverResolver>());
+
+            CreateMap<BasketDto, Basket>();
+
+            CreateMap<BasketItemDto, BasketItem>();
+
+            CreateMap<Basket, BasketToReturnDto>();
+
+            CreateMap<BasketItem, BasketItemToReturnDto>();
         }
     }
 }

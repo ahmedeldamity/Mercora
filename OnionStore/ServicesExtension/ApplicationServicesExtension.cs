@@ -28,6 +28,9 @@ public static class ApplicationServicesExtension
         // Register Brand Service
         services.AddScoped(typeof(IBrandService), typeof(BrandService));
 
+        // Register Basket Repository
+        services.AddScoped(typeof(IBasketRepository), typeof(BasketRepository));
+
         // --- Two Ways To Register AutoMapper
         // - First (harder)
         //builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));

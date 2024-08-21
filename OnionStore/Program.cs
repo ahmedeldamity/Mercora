@@ -17,20 +17,23 @@ builder.Services.AddControllers();
 // Register Required Services For Swagger In Extension Method
 builder.Services.AddSwaggerServices();
 
-// Add Identity Context and Configurations
-builder.Services.AddIdentityConfigurations();
-
 // Configure Appsetting Data
 builder.Services.ConfigureAppsettingData(builder.Configuration);
+
+// Add Identity Context and Configurations
+builder.Services.AddIdentityConfigurations();
 
 // Add JWT Configurations
 builder.Services.AddJWTConfigurations();
 
-// This Method Has All Application Services
-builder.Services.AddApplicationServices();
+// Add Redis Configuration
+builder.Services.AddRedis();
 
 // Add Store Context
 builder.Services.AddStoreContext();
+
+// This Method Has All Application Services
+builder.Services.AddApplicationServices();
 
 #endregion
 

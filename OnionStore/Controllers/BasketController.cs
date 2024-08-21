@@ -19,4 +19,18 @@ public class BasketController(IBasketRepository _basketRepository, IMapper _mapp
 
         return Ok(_mapper.Map<Basket, BasketToReturnDto>(createdOrUpdated));
     }
+
+    [HttpGet]
+    public async Task<ActionResult<BasketToReturnDto>> GetBasket(string id)
+    {
+        var basket = await _basketRepository.GetBasketAsync(id);
+
+        return Ok(basket is null ? new Basket(id) : _mapper.Map<Basket, BasketToReturnDto>(basket));
+    }
+
+    [HttpDelete]
+    public async Task DeleteBasket(string id)
+    {
+        await _basketRepository.DeleteBasketAsync(id);
+    }
 }
