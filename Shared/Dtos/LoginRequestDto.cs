@@ -1,12 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Dtos
+namespace Shared.Dtos;
+public class LoginRequestDto
 {
-	public class LoginRequestDto
-	{
-		[EmailAddress]
-		public string Email { get; set; }
+	[EmailAddress]
+	public string Email { get; set; } = null!;
 
-		public string Password { get; set; }
-	}
+	public string Password { get; set; } = null!;
 }

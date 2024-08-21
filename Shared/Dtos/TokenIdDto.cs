@@ -1,7 +1,5 @@
-﻿namespace Shared.Dtos
+﻿namespace Shared.Dtos;
+public class TokenIdDto
 {
-    public class TokenIdDto
-    {
-        public string TokenId { get; set; }
-    }
+    public string TokenId { get; set; } = null!;
 }
