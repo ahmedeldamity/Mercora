@@ -18,19 +18,19 @@ builder.Services.AddControllers();
 builder.Services.AddSwaggerServices();
 
 // Add Identity Context and Configurations
-builder.Services.AddIdentityConfigurations(builder.Configuration);
+builder.Services.AddIdentityConfigurations();
 
 // Configure Appsetting Data
 builder.Services.ConfigureAppsettingData(builder.Configuration);
 
 // Add JWT Configurations
-builder.Services.AddJWTConfigurations(builder.Configuration);
+builder.Services.AddJWTConfigurations();
 
 // This Method Has All Application Services
-builder.Services.AddApplicationServices(builder.Configuration);
+builder.Services.AddApplicationServices();
 
 // Add Store Context
-builder.Services.AddStoreContext(builder.Configuration);
+builder.Services.AddStoreContext();
 
 #endregion
 
