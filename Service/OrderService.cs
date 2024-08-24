@@ -1,23 +1,36 @@
-﻿using Core.Entities.OrderEntities;
+﻿using Core.Entities.IdentityEntities;
+using Core.Entities.OrderEntities;
 using Core.Entities.Product_Entities;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace Service;
 public class OrderService : IOrderService
 {
     private readonly IUnitOfWork _unitOfWork;
     private readonly IBasketRepository _basketRepository;
+    private readonly UserManager<AppUser> userManager;
 
-    public OrderService(IUnitOfWork unitOfWork, IBasketRepository basketRepository)
+    public OrderService(IUnitOfWork unitOfWork, IBasketRepository basketRepository, UserManager<AppUser> userManager)
     {
         _unitOfWork = unitOfWork;
         _basketRepository = basketRepository;
+        this.userManager = userManager;
     }
-    public async Task<Order?> CreateOrderAsync(string buyerEmail, string basketId, int deliveryMethodId, OrderAddress shippingAddress)
+
+    #region Why We Take OrderAddress
+    // In my thinking before, I was thinking to take buyerEmail and bring user address from database
+    // but this is not good idea because it is not always the user take the order to his address
+    // it can be take the order to another address like whrn he buy gift to another person
+    #endregion
+    public async Task<Order?> CreateOrderAsync(string buyerEmail, string basketId, OrderAddress shippingAddress)
     {
         // 1. Get basket from basket repository
         var basket = await _basketRepository.GetBasketAsync(basketId);
+
+        if(basket is null || basket.DeliveryMethodId is null)
+            return null;
 
         // 2. Get Items at Basket from Product repository for get the real products price
         var orderitems = new List<OrderItem>();
@@ -40,7 +53,7 @@ public class OrderService : IOrderService
         var subTotal = orderitems.Sum(orderItem => orderItem.Price * orderItem.Quantity);
 
         // 4. Get Delivery Method
-        var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetByIdAsync(deliveryMethodId);
+        var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetByIdAsync(basket!.DeliveryMethodId.Value);
 
         // 5. Create order
         var orderRepository = _unitOfWork.Repository<Order>();

@@ -31,7 +31,7 @@ public class Order: BaseEntity
     // so will make configration for that :)
     #endregion
 
-    public OrderDeliveryMethod? DeliveryMethod { get; set; } = new();
+    public OrderDeliveryMethod DeliveryMethod { get; set; } = new();
     #region Explaination
     // this is navagation property one to many
     // so EF will take PK of many as FK in one

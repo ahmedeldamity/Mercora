@@ -3,5 +3,5 @@
 namespace Core.Interfaces.Services;
 public interface IOrderService
 {
-    Task<Order?> CreateOrderAsync(string buyerEmail, string basketId, int deliveryMethodId, OrderAddress shippingAddress);
+    Task<Order?> CreateOrderAsync(string buyerEmail, string basketId, OrderAddress shippingAddress);
 }
