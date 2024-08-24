@@ -1,4 +1,5 @@
 ﻿using Core.Entities;
+using Core.Entities.OrderEntities;
 using Core.Entities.Product_Entities;
 using Repository.Store;
 using System.Text.Json;
@@ -50,6 +51,21 @@ namespace Repository.Data
                     foreach (var product in products)
                     {
                         _storeContext.Products.Add(product);
+                    }
+                }
+            }
+
+
+            if (_storeContext.OrderDeliveryMethods.Count() == 0)
+            {
+                var deliveryMethodsData = File.ReadAllText("../Repository/Store/DataSeeding/delivery.json");
+                var deliveryMethods = JsonSerializer.Deserialize<List<OrderDeliveryMethod>>(deliveryMethodsData);
+
+                if (deliveryMethods?.Count() > 0)
+                {
+                    foreach (var deliveryMethod in deliveryMethods)
+                    {
+                        _storeContext.OrderDeliveryMethods.Add(deliveryMethod);
                     }
                 }
             }
