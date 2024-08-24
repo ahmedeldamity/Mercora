@@ -31,6 +31,9 @@ public static class ApplicationServicesExtension
         // Register Basket Repository
         services.AddScoped(typeof(IBasketRepository), typeof(BasketRepository));
 
+        // Register Order Service
+        services.AddScoped(typeof(IOrderService), typeof(OrderService));
+
         // --- Two Ways To Register AutoMapper
         // - First (harder)
         //builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));

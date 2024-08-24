@@ -6,7 +6,7 @@ public class OrderToReturnDto
     public DateTimeOffset OrderDate { get; set; }
     public string Status { get; set; } = null!;
     public OrderAddressDto ShippingAddress { get; set; } = new();
-    public string DeliveryMethod { get; set; } = null!;
+    public string DeliveryMethodName { get; set; } = null!;
     public decimal DeliveryMethodCost { get; set; }
     public ICollection<OrderItemDto> Items { get; set; } = new HashSet<OrderItemDto>();
     public decimal Subtotal { get; set; }
