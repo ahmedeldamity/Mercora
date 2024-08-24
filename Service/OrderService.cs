@@ -1,24 +1,11 @@
-﻿using Core.Entities.IdentityEntities;
-using Core.Entities.OrderEntities;
+﻿using Core.Entities.OrderEntities;
 using Core.Entities.Product_Entities;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Microsoft.AspNetCore.Identity;
 
 namespace Service;
-public class OrderService : IOrderService
+public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepository) : IOrderService
 {
-    private readonly IUnitOfWork _unitOfWork;
-    private readonly IBasketRepository _basketRepository;
-    private readonly UserManager<AppUser> userManager;
-
-    public OrderService(IUnitOfWork unitOfWork, IBasketRepository basketRepository, UserManager<AppUser> userManager)
-    {
-        _unitOfWork = unitOfWork;
-        _basketRepository = basketRepository;
-        this.userManager = userManager;
-    }
-
     #region Why We Take OrderAddress
     // In my thinking before, I was thinking to take buyerEmail and bring user address from database
     // but this is not good idea because it is not always the user take the order to his address
