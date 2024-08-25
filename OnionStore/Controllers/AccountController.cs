@@ -17,76 +17,76 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
              IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger, IAuthService _authService) : BaseController
 {
 
-		[HttpPost("register")]
-		[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
-		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-		public async Task<ActionResult> Register(RegisterRequestDto model)
+	[HttpPost("register")]
+	[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+	public async Task<ActionResult> Register(RegisterRequestDto model)
+	{
+		if (model is null || !IsValidEmail(model.Email))
 		{
-			if (model is null || !IsValidEmail(model.Email))
-			{
-				return BadRequest(new ApiResponse(400, "Invalid registration data."));
-			}
+			return BadRequest(new ApiResponse(400, "Invalid registration data."));
+		}
 
-			var user = await _userManager.FindByEmailAsync(model.Email);
+		var user = await _userManager.FindByEmailAsync(model.Email);
 
-			if (user is not null)
-			{
-				return BadRequest(new ApiResponse(400, "This email has already been used."));
-			}
+		if (user is not null)
+		{
+			return BadRequest(new ApiResponse(400, "This email has already been used."));
+		}
 
-			var newUser = new AppUser()
-			{
-				DisplayName = model.DisplayName,
-				Email = model.Email,
-				UserName = model.Email.Split('@')[0],
-				PhoneNumber = model.PhoneNumber
-			};
+		var newUser = new AppUser()
+		{
+			DisplayName = model.DisplayName,
+			Email = model.Email,
+			UserName = model.Email.Split('@')[0],
+			PhoneNumber = model.PhoneNumber
+		};
 
-			var result = await _userManager.CreateAsync(newUser, model.Password);
+		var result = await _userManager.CreateAsync(newUser, model.Password);
 
-			if (result.Succeeded is false)
-			{
-				var error = result.Errors.Select(e => e.Description).FirstOrDefault();
-				return BadRequest(new ApiResponse(400, error));
-			}
+		if (result.Succeeded is false)
+		{
+			var error = result.Errors.Select(e => e.Description).FirstOrDefault();
+			return BadRequest(new ApiResponse(400, error));
+		}
 
         var token = await _authService.CreateTokenAsync(newUser, _userManager);
 
-			return Ok(new AppUserDto
-			{
-				DisplayName = newUser.DisplayName,
-				Email = newUser.Email,
-				Token = token
-			});
-		}
-
-		[HttpPost("login")]
-		[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
-		[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-		public async Task<ActionResult<AppUserDto>> Login(LoginRequestDto model)
+		return Ok(new AppUserDto
 		{
-			if (model is null || !IsValidEmail(model.Email))
-				return BadRequest(new ApiResponse(400, "Invalid login data."));
+			DisplayName = newUser.DisplayName,
+			Email = newUser.Email,
+			Token = token
+		});
+	}
 
-			var user = await _userManager.FindByEmailAsync(model.Email);
+	[HttpPost("login")]
+	[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
+	public async Task<ActionResult<AppUserDto>> Login(LoginRequestDto model)
+	{
+		if (model is null || !IsValidEmail(model.Email))
+			return BadRequest(new ApiResponse(400, "Invalid login data."));
 
-			if (user is null || model.Password is null)
-				return BadRequest(new ApiResponse(400, "Invalid email or password."));
+		var user = await _userManager.FindByEmailAsync(model.Email);
 
-			var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+		if (user is null || model.Password is null)
+			return BadRequest(new ApiResponse(400, "Invalid email or password."));
 
-			if (result.Succeeded is false)
-				return BadRequest(new ApiResponse(400, "Invalid email or password."));
+		var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+
+		if (result.Succeeded is false)
+			return BadRequest(new ApiResponse(400, "Invalid email or password."));
 
         var token = await _authService.CreateTokenAsync(user, _userManager);
 
         return Ok(new AppUserDto
-			{
-				DisplayName = user.DisplayName,
-				Email = model.Email,
-				Token = token
-			});
-		}
+		{
+			DisplayName = user.DisplayName,
+			Email = model.Email,
+			Token = token
+		});
+	}
 
     [HttpPost("SendPasswordResetEmail")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -405,25 +405,25 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
     }
 
     private bool IsValidEmail(string email)
-		{
-			if (string.IsNullOrEmpty(email))
-				return false;
+	{
+		if (string.IsNullOrEmpty(email))
+			return false;
 
-			try
-			{
-				var addr = new System.Net.Mail.MailAddress(email);
-				return addr.Address == email;
-			}
-			catch
-			{
-				return false;
-			}
-		}
-
-		private async Task<bool> CheckEmailExist(string email)
+		try
 		{
-			return await _userManager.FindByEmailAsync(email) is not null;
+			var addr = new System.Net.Mail.MailAddress(email);
+			return addr.Address == email;
 		}
+		catch
+		{
+			return false;
+		}
+	}
+
+    private async Task<bool> CheckEmailExist(string email)
+	{
+		return await _userManager.FindByEmailAsync(email) is not null;
+	}
 
     private bool ConstantComparison(string a, string b)
     {
