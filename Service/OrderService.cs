@@ -2,6 +2,7 @@
 using Core.Entities.Product_Entities;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
+using Core.Specifications.OrderSpecifications;
 
 namespace Service;
 public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepository) : IOrderService
@@ -56,5 +57,33 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
             return null;
 
         return order;
+    }
+    public async Task<IReadOnlyList<Order>> GetOrdersForUserAsync(string buyerEmail)
+    {
+        var ordersRepo = _unitOfWork.Repository<Order>();
+
+        var spec = new OrderSpecification(buyerEmail);
+
+        var orders = await ordersRepo.GetAllWithSpecAsync(spec);
+
+        return orders;
+    }
+    public async Task<Order?> GetSpecificOrderForUserAsync(int orderId, string buyerEmail)
+    {
+        var ordersRepo = _unitOfWork.Repository<Order>();
+
+        var spec = new OrderSpecification(buyerEmail, orderId);
+
+        var order = await ordersRepo.GetByIdWithSpecAsync(spec);
+
+        return order;
+    }
+    public async Task<IReadOnlyList<OrderDeliveryMethod>> GetAllDeliveryMethodsAsync()
+    {
+        var deliveryMethodsRepo = _unitOfWork.Repository<OrderDeliveryMethod>();
+
+        var deliveryMethods = await deliveryMethodsRepo.GetAllAsync();
+
+        return deliveryMethods;
     }
 }
