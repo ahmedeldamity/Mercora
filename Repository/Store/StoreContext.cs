@@ -2,6 +2,7 @@
 using Core.Entities;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Core.Entities.OrderEntities;
 
 namespace Repository.Store
 {
@@ -22,5 +23,8 @@ namespace Repository.Store
         public DbSet<Product> Products { get; set; }
         public DbSet<ProductBrand> Brands { get; set; }
         public DbSet<ProductCategory> Categories { get; set; }
+        public DbSet<Order> Orders { get; set; }
+        public DbSet<OrderItem> OrderItems { get; set; }
+        public DbSet<OrderDeliveryMethod> OrderDeliveryMethods { get; set; }
     }
 }

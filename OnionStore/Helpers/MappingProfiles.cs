@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Entities;
 using Core.Entities.BasketEntities;
+using Core.Entities.OrderEntities;
 using Core.Entities.Product_Entities;
 using Shared.Dtos;
 
@@ -34,5 +35,16 @@ public class MappingProfiles : Profile
         CreateMap<Basket, BasketToReturnDto>();
 
         CreateMap<BasketItem, BasketItemToReturnDto>();
+
+        CreateMap<OrderAddressDto, OrderAddress>().ReverseMap();
+
+        CreateMap<Order, OrderToReturnDto>()
+                .ForMember(d => d.DeliveryMethodName, o => o.MapFrom(s => s.DeliveryMethod.Name))
+                .ForMember(d => d.DeliveryMethodCost, o => o.MapFrom(s => s.DeliveryMethod.Cost));
+
+        CreateMap<OrderItem, OrderItemDto>()
+                .ForMember(d => d.ProductId, o => o.MapFrom(s => s.Product.ProductId))
+                .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product.ProductName))
+                .ForMember(d => d.ImageCover, o => o.MapFrom(s => s.Product.ProductImageCover));
     }
 }
