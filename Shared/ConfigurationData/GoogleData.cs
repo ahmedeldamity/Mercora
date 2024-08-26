@@ -1,8 +1,6 @@
-﻿namespace Shared.ConfigurationData
+﻿namespace Shared.ConfigurationData;
+public class GoogleData
 {
-    public class GoogleData
-    {
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
-    }
+    public string ClientId { get; set; } = null!;
+    public string ClientSecret { get; set; } = null!;
 }

@@ -3,41 +3,21 @@ using Core.Interfaces.Repositories;
 using Repository.Store;
 using System.Collections.Concurrent;
 
-namespace Repository
+namespace Repository;
+public class UnitOfWork(StoreContext _storeContext) : IUnitOfWork
 {
-    public class UnitOfWork : IUnitOfWork
+    private readonly ConcurrentDictionary<string, object> _repositories = new ConcurrentDictionary<string, object>();
+
+    public IGenericRepository<T> Repository<T>() where T : BaseEntity
     {
-        private readonly StoreContext _storeContext;
-        private readonly ConcurrentDictionary<string, object> _repositories;
+        var key = typeof(T).Name;
 
-        public UnitOfWork(StoreContext storeContext)
-        {
-            _storeContext = storeContext;
-            _repositories = new ConcurrentDictionary<string, object>();
-        }
-
-        public IGenericRepository<T> Repository<T>() where T : BaseEntity
-        {
-            var key = typeof(T).Name;
-
-            return (IGenericRepository<T>)_repositories.GetOrAdd(key, _ => new GenericRepository<T>(_storeContext));
-        }
-
-        public async Task<int> CompleteAsync()
-        {
-            return await _storeContext.SaveChangesAsync();
-        }
-
-        public void Dispose()
-        {
-            _storeContext.DisposeAsync();
-            GC.SuppressFinalize(this);
-        }
-
-        public async ValueTask DisposeAsync()
-        {
-            await _storeContext.DisposeAsync();
-            GC.SuppressFinalize(this);
-        }
+        return (IGenericRepository<T>)_repositories.GetOrAdd(key, _ => new GenericRepository<T>(_storeContext));
     }
+
+    public async Task<int> CompleteAsync() => await _storeContext.SaveChangesAsync();
+
+    public void Dispose() => _storeContext.DisposeAsync();
+
+    public async ValueTask DisposeAsync() => await _storeContext.DisposeAsync();
 }

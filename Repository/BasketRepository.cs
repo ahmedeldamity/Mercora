@@ -4,13 +4,10 @@ using StackExchange.Redis;
 using System.Text.Json;
 
 namespace Repository;
-public class BasketRepository: IBasketRepository
+public class BasketRepository(IConnectionMultiplexer connection) : IBasketRepository
 {
-    private readonly IDatabase _database;
-    public BasketRepository(IConnectionMultiplexer connection)
-    {
-        _database = connection.GetDatabase();
-    }
+    private readonly IDatabase _database = connection.GetDatabase();
+
     public async Task<Basket?> CreateOrUpdateBasketAsync(Basket basket)
     {
         var createdOrUpdated = await _database.StringSetAsync(basket.Id, JsonSerializer.Serialize(basket), TimeSpan.FromDays(30));

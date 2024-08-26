@@ -1,11 +1,9 @@
-﻿namespace Shared.ConfigurationData
+﻿namespace Shared.ConfigurationData;
+public class MailData
 {
-    public class MailData
-    {
-        public string Email { get; set; }
-        public string DisplayName { get; set; }
-        public string Password { get; set; }
-        public string Host { get; set; }
-        public int Port { get; set; }
-    }
+    public string Email { get; set; } = null!;
+    public string DisplayName { get; set; } = null!;
+    public string Password { get; set; } = null!;
+    public string Host { get; set; } = null!;
+    public int Port { get; set; }
 }
