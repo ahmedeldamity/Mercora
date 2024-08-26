@@ -2,16 +2,22 @@
 using FluentValidation;
 using Shared.DtosValidators;
 
-namespace API.ServicesExtension
+namespace API.ServicesExtension;
+public static class FluentValidationExtension
 {
-    public static class FluentValidationExtension
+    public static IServiceCollection AddFluentValidation(this IServiceCollection services)
     {
-        public static IServiceCollection AddFluentValidation(this IServiceCollection services)
-        {
-            services.AddFluentValidationAutoValidation();
-            services.AddValidatorsFromAssemblyContaining<RegisterRequestDtoValidator>();
+        services.AddFluentValidationAutoValidation()
+            .AddValidatorsFromAssemblyContaining<RegisterValidator>()
+            .AddValidatorsFromAssemblyContaining<LoginValidator>()
+            .AddValidatorsFromAssemblyContaining<EmailValidator>()
+            .AddValidatorsFromAssemblyContaining<CodeVerificationValidator>()
+            .AddValidatorsFromAssemblyContaining<ChangePasswordValidator>()
+            .AddValidatorsFromAssemblyContaining<BasketItemValidator>()
+            .AddValidatorsFromAssemblyContaining<OrderAddressValidator>()
+            .AddValidatorsFromAssemblyContaining<OrderItemValidator>()
+            .AddValidatorsFromAssemblyContaining<OrderValidator>();
 
-            return services;
-        }
+        return services;
     }
 }

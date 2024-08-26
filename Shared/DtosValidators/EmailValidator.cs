@@ -2,9 +2,9 @@
 using Shared.Dtos;
 
 namespace Shared.DtosValidators;
-public class EmailDtoValidator: AbstractValidator<EmailDto>
+public class EmailValidator: AbstractValidator<EmailRequest>
 {
-    public EmailDtoValidator()
+    public EmailValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty()

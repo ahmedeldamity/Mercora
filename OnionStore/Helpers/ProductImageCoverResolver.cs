@@ -3,7 +3,7 @@ using Core.Entities.Product_Entities;
 using Shared.Dtos;
 
 namespace DotNetCore_ECommerce.Helpers;
-public class ProductImageCoverResolver : IValueResolver<Product, ProductToReturnDto, string>
+public class ProductImageCoverResolver : IValueResolver<Product, ProductResponse, string>
 {
     private readonly IConfiguration _configuration;
 
@@ -11,7 +11,7 @@ public class ProductImageCoverResolver : IValueResolver<Product, ProductToReturn
     {
         _configuration = configuration;
     }
-    public string Resolve(Product source, ProductToReturnDto destination, string destMember, ResolutionContext context)
+    public string Resolve(Product source, ProductResponse destination, string destMember, ResolutionContext context)
     {
         if (!string.IsNullOrEmpty(source.ImageCover))
         {

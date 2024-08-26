@@ -12,7 +12,7 @@ public class MappingProfiles : Profile
     {
         //_configuration = configuration;
 
-        CreateMap<Product, ProductToReturnDto>()
+        CreateMap<Product, ProductResponse>()
             .ForMember(F => F.Brand, C => C.MapFrom(S => S.Brand.Name))
             .ForMember(F => F.Category, C => C.MapFrom(S => S.Category.Name))
             // -- We wanted to bring configuration to bring "ApiBaseUrl From appsetting.json 
@@ -25,24 +25,24 @@ public class MappingProfiles : Profile
             .ForMember(d => d.ImageCover, o => o.MapFrom<ProductImageCoverResolver>())
             .ForMember(d => d.Images, o => o.MapFrom<ProductImagesResolver>());
 
-        CreateMap<ProductBrand, ProductBrandToReturnDto>()
+        CreateMap<ProductBrand, ProductBrandResponse>()
             .ForMember(d => d.ImageCover, o => o.MapFrom<ProductBrandImageCoverResolver>());
 
-        CreateMap<BasketDto, Basket>();
+        CreateMap<BasketRequest, Basket>();
 
-        CreateMap<BasketItemDto, BasketItem>();
+        CreateMap<BasketItemRequest, BasketItem>();
 
-        CreateMap<Basket, BasketToReturnDto>();
+        CreateMap<Basket, BasketResponse>();
 
-        CreateMap<BasketItem, BasketItemToReturnDto>();
+        CreateMap<BasketItem, BasketItemResponse>();
 
-        CreateMap<OrderAddressDto, OrderAddress>().ReverseMap();
+        CreateMap<OrderAddressRequest, OrderAddress>().ReverseMap();
 
-        CreateMap<Order, OrderToReturnDto>()
+        CreateMap<Order, OrderResponse>()
                 .ForMember(d => d.DeliveryMethodName, o => o.MapFrom(s => s.DeliveryMethod.Name))
                 .ForMember(d => d.DeliveryMethodCost, o => o.MapFrom(s => s.DeliveryMethod.Cost));
 
-        CreateMap<OrderItem, OrderItemDto>()
+        CreateMap<OrderItem, OrderItemRequest>()
                 .ForMember(d => d.ProductId, o => o.MapFrom(s => s.Product.ProductId))
                 .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product.ProductName))
                 .ForMember(d => d.ImageCover, o => o.MapFrom(s => s.Product.ProductImageCover));

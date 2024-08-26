@@ -2,9 +2,9 @@
 using Shared.Dtos;
 
 namespace Shared.DtosValidators;
-public class OrderDtoValidator: AbstractValidator<OrderDto>
+public class OrderValidator: AbstractValidator<OrderRequest>
 {
-    public OrderDtoValidator()
+    public OrderValidator()
     {
         RuleFor(x => x.BasketId)
             .NotEmpty()

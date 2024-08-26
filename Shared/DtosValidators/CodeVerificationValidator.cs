@@ -2,9 +2,9 @@
 using Shared.Dtos;
 
 namespace Shared.DtosValidators;
-public class CodeVerificationDtoValidator: AbstractValidator<CodeVerificationDto>
+public class CodeVerificationValidator: AbstractValidator<CodeVerificationRequest>
 {
-    public CodeVerificationDtoValidator()
+    public CodeVerificationValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty()

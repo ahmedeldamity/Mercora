@@ -1,5 +1,5 @@
 ﻿namespace Shared.Dtos;
-public class EmailDto
+public class EmailRequest
 {
     public string Email { get; set; } = null!;
 }

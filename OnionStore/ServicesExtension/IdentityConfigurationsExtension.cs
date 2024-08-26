@@ -10,10 +10,10 @@ public static class IdentityConfigurationsExtension
 {
 	public static IServiceCollection AddIdentityConfigurations(this IServiceCollection services)
 	{
-            // Identity Context
-            var serviceProvider = services.BuildServiceProvider();
-            var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
-            services.AddDbContext<IdentityContext>(options =>
+		// Identity Context
+		var serviceProvider = services.BuildServiceProvider();
+		var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
+		services.AddDbContext<IdentityContext>(options =>
 		{
 			options.UseSqlServer(databaseConnections.IdentityConnection);
 		});

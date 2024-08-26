@@ -1,5 +1,5 @@
 ﻿namespace Shared.Dtos;
-public class OrderItemDto
+public class OrderItemRequest
 {
     public int Id { get; set; } // Id For Product As Arrange In List Of Items
     public int ProductId { get; set; }  // Id For Product In Database

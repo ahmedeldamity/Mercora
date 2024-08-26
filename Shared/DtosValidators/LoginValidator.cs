@@ -2,29 +2,15 @@
 using Shared.Dtos;
 
 namespace Shared.DtosValidators;
-public class RegisterRequestDtoValidator: AbstractValidator<RegisterRequestDto>
+public class LoginValidator: AbstractValidator<LoginRequest>
 {
-    public RegisterRequestDtoValidator()
+    public LoginValidator()
     {
-        RuleFor(x => x.DisplayName)
-            .NotEmpty()
-            .WithMessage("Display name is required")
-            .MaximumLength(50)
-            .WithMessage("Display name must not exceed 50 characters");
-
         RuleFor(x => x.Email)
             .NotEmpty()
             .WithMessage("Email is required")
             .EmailAddress()
-            .WithMessage("Email must be valid")
-            .MaximumLength(50)
-            .WithMessage("Email must not exceed 50 characters");
-
-        RuleFor(x => x.PhoneNumber)
-            .NotEmpty()
-            .WithMessage("Phone number is required")
-            .MaximumLength(15)
-            .WithMessage("Phone number must not exceed 15 characters");
+            .WithMessage("Email is not valid");
 
         RuleFor(x => x.Password)
             .NotEmpty()

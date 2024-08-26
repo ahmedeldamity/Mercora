@@ -2,17 +2,31 @@
 using Shared.Dtos;
 
 namespace Shared.DtosValidators;
-public class ChangePasswordDtoValidator: AbstractValidator<ChangePasswordDto>
+public class RegisterValidator: AbstractValidator<RegisterRequest>
 {
-    public ChangePasswordDtoValidator()
+    public RegisterValidator()
     {
+        RuleFor(x => x.DisplayName)
+            .NotEmpty()
+            .WithMessage("Display name is required")
+            .MaximumLength(50)
+            .WithMessage("Display name must not exceed 50 characters");
+
         RuleFor(x => x.Email)
             .NotEmpty()
             .WithMessage("Email is required")
             .EmailAddress()
-            .WithMessage("Email is not valid");
+            .WithMessage("Email must be valid")
+            .MaximumLength(50)
+            .WithMessage("Email must not exceed 50 characters");
 
-        RuleFor(x => x.NewPassword)
+        RuleFor(x => x.PhoneNumber)
+            .NotEmpty()
+            .WithMessage("Phone number is required")
+            .MaximumLength(15)
+            .WithMessage("Phone number must not exceed 15 characters");
+
+        RuleFor(x => x.Password)
             .NotEmpty()
             .WithMessage("Password is required.")
             .MinimumLength(6)
@@ -23,11 +37,5 @@ public class ChangePasswordDtoValidator: AbstractValidator<ChangePasswordDto>
             .WithMessage("Password must contain at least one non-alphanumeric character.")
             .Must(x => x.Distinct().Count() >= 3)
             .WithMessage("Password must contain at least 3 unique characters.");
-
-        RuleFor(x => x.VerificationCode)
-            .NotEmpty()
-            .WithMessage("Verification code is required")
-            .Length(6)
-            .WithMessage("Verification code must be 6 characters");
     }
 }

@@ -12,37 +12,37 @@ namespace API.Controllers;
 [Authorize]
 public class OrderController(IMapper _mapper, IOrderService _orderService) : BaseController
 {
-    [ProducesResponseType(typeof(OrderToReturnDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [HttpPost]
-    public async Task<ActionResult<OrderToReturnDto>> CreateOrder(OrderDto orderDto)
+    public async Task<ActionResult<OrderResponse>> CreateOrder(OrderRequest orderDto)
     {
         var buyerEmail = User.FindFirstValue(ClaimTypes.Email);
 
-        var address = _mapper.Map<OrderAddressDto, OrderAddress>(orderDto.ShippingAddress);
+        var address = _mapper.Map<OrderAddressRequest, OrderAddress>(orderDto.ShippingAddress);
 
         var order = await _orderService.CreateOrderAsync(buyerEmail!, orderDto.BasketId, address);
 
         if (order is null)
             return BadRequest(new ApiResponse(400));
 
-        return Ok(_mapper.Map<Order, OrderToReturnDto>(order));
+        return Ok(_mapper.Map<Order, OrderResponse>(order));
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<OrderToReturnDto>>> GetOrdersForUser()
+    public async Task<ActionResult<IReadOnlyList<OrderResponse>>> GetOrdersForUser()
     {
         var buyerEmail = User.FindFirstValue(ClaimTypes.Email);
 
         var orders = await _orderService.GetOrdersForUserAsync(buyerEmail!);
 
-        return Ok(_mapper.Map<IReadOnlyList<Order>, IReadOnlyList<OrderToReturnDto>>(orders));
+        return Ok(_mapper.Map<IReadOnlyList<Order>, IReadOnlyList<OrderResponse>>(orders));
     }
 
     [HttpGet("{orderId}")]
-    [ProducesResponseType(typeof(OrderToReturnDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(OrderResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<OrderToReturnDto>> GetSpecificOrderForUser(int orderId)
+    public async Task<ActionResult<OrderResponse>> GetSpecificOrderForUser(int orderId)
     {
         var buyerEmail = User.FindFirstValue(ClaimTypes.Email);
 
@@ -51,7 +51,7 @@ public class OrderController(IMapper _mapper, IOrderService _orderService) : Bas
         if (order is null)
             return NotFound(new ApiResponse(404));
 
-        return Ok(_mapper.Map<Order, OrderToReturnDto>(order));
+        return Ok(_mapper.Map<Order, OrderResponse>(order));
     }
 
     [HttpGet("deliveryMethod")]

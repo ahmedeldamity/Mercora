@@ -9,23 +9,23 @@ namespace API.Controllers;
 public class BasketController(IBasketRepository _basketRepository, IMapper _mapper) : BaseController
 {
     [HttpPost]
-    public async Task<ActionResult<BasketToReturnDto>> CreateOrUpdateBasket(BasketDto basketDto)
+    public async Task<ActionResult<BasketResponse>> CreateOrUpdateBasket(BasketRequest basketDto)
     {
-        var basket = _mapper.Map<BasketDto, Basket>(basketDto);
+        var basket = _mapper.Map<BasketRequest, Basket>(basketDto);
 
         var createdOrUpdated = await _basketRepository.CreateOrUpdateBasketAsync(basket);
 
         if (createdOrUpdated is null) return BadRequest(new ApiResponse(400));
 
-        return Ok(_mapper.Map<Basket, BasketToReturnDto>(createdOrUpdated));
+        return Ok(_mapper.Map<Basket, BasketResponse>(createdOrUpdated));
     }
 
     [HttpGet]
-    public async Task<ActionResult<BasketToReturnDto>> GetBasket(string id)
+    public async Task<ActionResult<BasketResponse>> GetBasket(string id)
     {
         var basket = await _basketRepository.GetBasketAsync(id);
 
-        return Ok(basket is null ? new Basket(id) : _mapper.Map<Basket, BasketToReturnDto>(basket));
+        return Ok(basket is null ? new Basket(id) : _mapper.Map<Basket, BasketResponse>(basket));
     }
 
     [HttpDelete]

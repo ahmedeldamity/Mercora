@@ -1,5 +1,5 @@
 ﻿namespace Shared.Dtos;
-public class ChangePasswordDto
+public class ChangePasswordRequest
 {
     public string Email { get; set; } = null!;
     public string NewPassword { get; set; } = null!;

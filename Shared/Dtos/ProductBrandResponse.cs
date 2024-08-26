@@ -1,5 +1,5 @@
 ﻿namespace Shared.Dtos;
-public class ProductBrandToReturnDto
+public class ProductBrandResponse
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;

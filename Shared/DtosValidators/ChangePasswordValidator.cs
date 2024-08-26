@@ -2,9 +2,9 @@
 using Shared.Dtos;
 
 namespace Shared.DtosValidators;
-public class LoginRequestDtoValidator: AbstractValidator<LoginRequestDto>
+public class ChangePasswordValidator: AbstractValidator<ChangePasswordRequest>
 {
-    public LoginRequestDtoValidator()
+    public ChangePasswordValidator()
     {
         RuleFor(x => x.Email)
             .NotEmpty()
@@ -12,7 +12,7 @@ public class LoginRequestDtoValidator: AbstractValidator<LoginRequestDto>
             .EmailAddress()
             .WithMessage("Email is not valid");
 
-        RuleFor(x => x.Password)
+        RuleFor(x => x.NewPassword)
             .NotEmpty()
             .WithMessage("Password is required.")
             .MinimumLength(6)
@@ -23,5 +23,11 @@ public class LoginRequestDtoValidator: AbstractValidator<LoginRequestDto>
             .WithMessage("Password must contain at least one non-alphanumeric character.")
             .Must(x => x.Distinct().Count() >= 3)
             .WithMessage("Password must contain at least 3 unique characters.");
+
+        RuleFor(x => x.VerificationCode)
+            .NotEmpty()
+            .WithMessage("Verification code is required")
+            .Length(6)
+            .WithMessage("Verification code must be 6 characters");
     }
 }

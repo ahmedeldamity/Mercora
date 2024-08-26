@@ -1,5 +1,5 @@
 ﻿namespace Shared.Dtos;
-public class OrderAddressDto
+public class OrderAddressRequest
 {
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;

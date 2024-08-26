@@ -18,9 +18,9 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 {
 
 	[HttpPost("register")]
-	[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(AppUserResponse), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-	public async Task<ActionResult> Register(RegisterRequestDto model)
+	public async Task<ActionResult> Register(RegisterRequest model)
 	{
 		//if (model is null || !IsValidEmail(model.Email))
 		//{
@@ -52,7 +52,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
         var token = await _authService.CreateTokenAsync(newUser, _userManager);
 
-		return Ok(new AppUserDto
+		return Ok(new AppUserResponse
 		{
 			DisplayName = newUser.DisplayName,
 			Email = newUser.Email,
@@ -61,9 +61,9 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 	}
 
 	[HttpPost("login")]
-	[ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+	[ProducesResponseType(typeof(AppUserResponse), StatusCodes.Status200OK)]
 	[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-	public async Task<ActionResult<AppUserDto>> Login(LoginRequestDto model)
+	public async Task<ActionResult<AppUserResponse>> Login(LoginRequest model)
 	{
 		if (model is null || !IsValidEmail(model.Email))
 			return BadRequest(new ApiResponse(400, "Invalid login data."));
@@ -80,7 +80,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
         var token = await _authService.CreateTokenAsync(user, _userManager);
 
-        return Ok(new AppUserDto
+        return Ok(new AppUserResponse
 		{
 			DisplayName = user.DisplayName,
 			Email = model.Email,
@@ -92,7 +92,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> SendPasswordResetEmail(EmailDto emailDto)
+    public async Task<ActionResult> SendPasswordResetEmail(EmailRequest emailDto)
     {
         if (!IsValidEmail(emailDto.Email))
             return BadRequest(new ApiResponse(400, "Invalid email format."));
@@ -135,7 +135,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
     [HttpPost("VerifyResetCode")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> VerifyResetCode(CodeVerificationDto model)
+    public async Task<ActionResult> VerifyResetCode(CodeVerificationRequest model)
     {
         if (!IsValidEmail(model.Email))
             return BadRequest(new ApiResponse(400, "Invalid email format."));
@@ -179,7 +179,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> ChangePassword(ChangePasswordDto model)
+    public async Task<ActionResult> ChangePassword(ChangePasswordRequest model)
     {
         if (!IsValidEmail(model.Email))
             return BadRequest(new ApiResponse(400, "Invalid email format."));
@@ -248,9 +248,9 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
     }
 
     [HttpPost("googlelogin")]
-    [ProducesResponseType(typeof(AppUserDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AppUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GoogleLogin(TokenIdDto tokenIdDto)
+    public async Task<ActionResult> GoogleLogin(TokenIdRequest tokenIdDto)
     {
         if (ValidateGoogleToken(tokenIdDto.TokenId, out JObject payload))
         {
@@ -282,7 +282,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
             var token = await _authService.CreateTokenAsync(user, _userManager);
 
-            return Ok(new AppUserDto
+            return Ok(new AppUserResponse
             {
                 DisplayName = user.DisplayName,
                 Email = user.Email,

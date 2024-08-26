@@ -2,9 +2,9 @@
 using Shared.Dtos;
 
 namespace Shared.DtosValidators;
-public class OrderAddressDtoValidator: AbstractValidator<OrderAddressDto>
+public class OrderAddressValidator: AbstractValidator<OrderAddressRequest>
 {
-    public OrderAddressDtoValidator()
+    public OrderAddressValidator()
     {
         RuleFor(x => x.FirstName)
             .NotEmpty()
