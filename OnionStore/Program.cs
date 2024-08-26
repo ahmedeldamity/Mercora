@@ -35,6 +35,9 @@ builder.Services.AddStoreContext();
 // This Method Has All Application Services
 builder.Services.AddApplicationServices();
 
+// This to allow any host from front-end
+builder.Services.AddCorsPolicy();
+
 #endregion
 
 #region Validation Error - Bad Request
@@ -106,10 +109,14 @@ catch (Exception ex)
 // -- Server Error Middleware (we catch it in class ExceptionMiddleware)
 app.UseMiddleware<ExceptionMiddleware>();
 
-
 // -- Add Swagger Middelwares In Extension Method
 app.UseSwaggerMiddleware();
 
+// -- To this application can resolve on any static file like (html, wwwroot, etc..)
+app.UseStaticFiles();
+
+// -- Add Cors Policy Middleware
+app.UseCors("CorsPolicy");
 
 // -- To Redirect Any Http Request To Https
 app.UseHttpsRedirection();
@@ -117,18 +124,21 @@ app.UseHttpsRedirection();
 // -- Error Not Found End Point: Here When This Error Thrown: It Redirect To This End Point in (Controller: Errors)
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 
-/// -- In MVC We Used This Way For Routing
-///app.UseRouting(); // -> we use this middleware to match request to an endpoint
-///app.UseEndpoints  // -> we use this middleware to excute the matched endpoint
-///(endpoints =>  
-///{
-///    endpoints.MapControllerRoute(
-///        name: "default",
-///        pattern: "{controller}/{action}"
-///        );
-///});
-/// -- But We Use MapController Instead Of It Because We Create Routing On Controller Itself
-app.MapControllers(); // -> we use this middleware to talk program that: your routing depend on route written on the controller
+// -- we use this middleware to talk program that: your routing depend on route written on the controller
+app.MapControllers();
+#region Explaination
+//	-- In MVC We Used This Way For Routing
+//	app.UseRouting(); -> we use this middleware to match request to an endpoint
+//	app.UseEndpoints  -> we use this middleware to excute the matched endpoint
+//	(endpoints =>  
+//	{	
+//		endpoints.MapControllerRoute(
+//        name: "default",
+//        pattern: "{controller}/{action}"
+//        );
+//	});
+//	-- But We Use MapController Instead Of It Because We Create Routing On Controller Itself
+#endregion
 
 #endregion
 
