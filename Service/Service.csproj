@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.7" />
+    <PackageReference Include="Stripe.net" Version="45.9.0" />
   </ItemGroup>
 
   <ItemGroup>
