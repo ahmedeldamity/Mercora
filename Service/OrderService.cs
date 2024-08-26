@@ -17,7 +17,7 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         // 1. Get basket from basket repository
         var basket = await _basketRepository.GetBasketAsync(basketId);
 
-        if(basket is null || basket.DeliveryMethodId is null)
+        if(basket is null || basket.DeliveryMethodId is null || basket.PaymentIntentId is null)
             return null;
 
         // 2. Get Items at Basket from Product repository for get the real products price
@@ -43,12 +43,27 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         // 4. Get Delivery Method
         var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetByIdAsync(basket!.DeliveryMethodId.Value);
 
-        // 5. Create order
+        // 5. Check if exist order in database has the same Payment Intent will update it else will create new one
+
         var orderRepository = _unitOfWork.Repository<Order>();
 
-        var order = new Order(buyerEmail, shippingAddress, deliveryMethod!, orderitems, subTotal);
+        var orderSpec = new OrderWithPaymentIntentSpecifications(basket.PaymentIntentId);
 
-        await orderRepository.AddAsync(order);
+        var order = await orderRepository.GetByIdWithSpecAsync(orderSpec);
+
+        if (order is not null)  // Exist one before so we will update it
+        {
+            order.ShippingAddress = shippingAddress;
+            order.DeliveryMethod = deliveryMethod!;
+            order.SubTotal = subTotal;
+            orderRepository.UpdateAsync(order);
+        }
+        else    // Create New Order
+        {
+            order = new Order(buyerEmail, shippingAddress, deliveryMethod!, orderitems, subTotal, basket.PaymentIntentId);
+
+            await orderRepository.AddAsync(order);
+        }
 
         // 6. SaveChanges()
         var result = await _unitOfWork.CompleteAsync();

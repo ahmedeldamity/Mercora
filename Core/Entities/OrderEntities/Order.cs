@@ -2,13 +2,14 @@
 public class Order: BaseEntity
 {
     public Order() { /* we create this constractor because EF need it while migration to make instance from this class */ }
-    public Order(string buyerEmail, OrderAddress shippingAddress, OrderDeliveryMethod deliveryMethod, ICollection<OrderItem> items, decimal subTotal)
+    public Order(string buyerEmail, OrderAddress shippingAddress, OrderDeliveryMethod deliveryMethod, ICollection<OrderItem> items, decimal subTotal, string paymentIntentId)
     {
         BuyerEmail = buyerEmail;
         ShippingAddress = shippingAddress;
         DeliveryMethod = deliveryMethod;
         Items = items;
         SubTotal = subTotal;
+        PaymentIntentId = paymentIntentId;
     }
 
     public string BuyerEmail { get; set; } = null!;
@@ -58,5 +59,5 @@ public class Order: BaseEntity
     // -- second: with function
     #endregion
 
-    public string PaymentIntentId { get; set; } = ""; // removed
+    public string PaymentIntentId { get; set; }
 }
