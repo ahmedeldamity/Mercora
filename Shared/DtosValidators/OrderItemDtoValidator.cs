@@ -16,7 +16,6 @@ public class OrderItemDtoValidator: AbstractValidator<OrderItemDto>
             .GreaterThan(0)
             .WithMessage("ProductId must be valid");
 
-
         RuleFor(x => x.ProductName)
             .NotEmpty()
             .WithMessage("Product name is required")

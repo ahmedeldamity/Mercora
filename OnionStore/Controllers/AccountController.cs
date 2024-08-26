@@ -22,10 +22,10 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 	[ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
 	public async Task<ActionResult> Register(RegisterRequestDto model)
 	{
-		if (model is null || !IsValidEmail(model.Email))
-		{
-			return BadRequest(new ApiResponse(400, "Invalid registration data."));
-		}
+		//if (model is null || !IsValidEmail(model.Email))
+		//{
+		//	return BadRequest(new ApiResponse(400, "Invalid registration data."));
+		//}
 
 		var user = await _userManager.FindByEmailAsync(model.Email);
 
@@ -44,11 +44,11 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
 		var result = await _userManager.CreateAsync(newUser, model.Password);
 
-		if (result.Succeeded is false)
-		{
-			var error = result.Errors.Select(e => e.Description).FirstOrDefault();
-			return BadRequest(new ApiResponse(400, error));
-		}
+		//if (result.Succeeded is false)
+		//{
+		//	var error = result.Errors.Select(e => e.Description).FirstOrDefault();
+		//	return BadRequest(new ApiResponse(400, error));
+		//}
 
         var token = await _authService.CreateTokenAsync(newUser, _userManager);
 
@@ -181,10 +181,10 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> ChangePassword(ChangePasswordDto model)
     {
-        if (!IsValidEmail(model.email))
+        if (!IsValidEmail(model.Email))
             return BadRequest(new ApiResponse(400, "Invalid email format."));
 
-        var user = await _userManager.FindByEmailAsync(model.email);
+        var user = await _userManager.FindByEmailAsync(model.Email);
 
         if (user is null)
             return BadRequest(new ApiResponse(400, "Invalid Email."));

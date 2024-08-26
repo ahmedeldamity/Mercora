@@ -11,6 +11,7 @@ public static class StoreConfigurationsExtension
         // Register Store Context
         var serviceProvider = services.BuildServiceProvider();
         var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
+
         services.AddDbContext<StoreContext>(options =>
         {
             options.UseSqlServer(databaseConnections.StoreConnection);

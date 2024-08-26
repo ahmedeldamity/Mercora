@@ -32,6 +32,9 @@ builder.Services.AddRedis();
 // Add Store Context
 builder.Services.AddStoreContext();
 
+// Add Fluent Validation
+builder.Services.AddFluentValidation();
+
 // This Method Has All Application Services
 builder.Services.AddApplicationServices();
 
