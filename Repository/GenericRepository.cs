@@ -20,7 +20,7 @@ namespace Repository
             return await _storeContext.Set<T>().ToListAsync();
         }
 
-        public async Task<IReadOnlyList<T>> GetAllWithSpecAsync(ISpecifications<T> spec)
+        public async Task<IReadOnlyList<T>> GetAllAsync(ISpecifications<T> spec)
         {
             return await SpecificationsEvaluator<T>.GetQuery(_storeContext.Set<T>(), spec).ToListAsync();
         }
@@ -30,12 +30,12 @@ namespace Repository
             return await SpecificationsEvaluator<T>.GetQuery(_storeContext.Set<T>(), spec).CountAsync();
         }
 
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetEntityAsync(int id)
         {
             return await _storeContext.Set<T>().FindAsync(id);
         }
 
-        public async Task<T?> GetByIdWithSpecAsync(ISpecifications<T> spec)
+        public async Task<T?> GetEntityAsync(ISpecifications<T> spec)
         {
             return await SpecificationsEvaluator<T>.GetQuery(_storeContext.Set<T>(), spec).FirstOrDefaultAsync();
         }
@@ -45,12 +45,12 @@ namespace Repository
             await _storeContext.Set<T>().AddAsync(entity);
         }
 
-        public void DeleteAsync(T entity)
+        public void Delete(T entity)
         {
             _storeContext.Set<T>().Remove(entity);
         }
 
-        public void UpdateAsync(T entity)
+        public void Update(T entity)
         {
             _storeContext.Set<T>().Update(entity);
         }
