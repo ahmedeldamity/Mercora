@@ -22,7 +22,7 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
 
         if (basket.DeliveryMethodId.HasValue)
         {
-            var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetByIdAsync(basket.DeliveryMethodId.Value);
+            var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket.DeliveryMethodId.Value);
 
             if (deliveryMethod is null)
                 return null;
@@ -34,7 +34,7 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
         {
             foreach (var item in basket.Items)
             {
-                var product = await _unitOfWork.Repository<Product>().GetByIdAsync(item.Id);
+                var product = await _unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
 
                 if (product is null)
                     return null;
