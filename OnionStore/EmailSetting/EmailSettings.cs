@@ -17,7 +17,7 @@ namespace API.EmailSetting
             _logger = logger;
         }
 
-        public async Task SendEmailMessage(EmailSettingDto email)
+        public async Task SendEmailMessage(EmailResponse email)
         {
             var mail = new MimeMessage
             {

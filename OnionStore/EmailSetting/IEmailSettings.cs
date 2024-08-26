@@ -2,6 +2,6 @@
 {
     public interface IEmailSettings
     {
-        public Task SendEmailMessage(EmailSettingDto email);
+        public Task SendEmailMessage(EmailResponse email);
     }
 }
