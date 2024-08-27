@@ -3,14 +3,8 @@ using Core.Entities.Product_Entities;
 using Shared.Dtos;
 
 namespace DotNetCore_ECommerce.Helpers;
-public class ProductImagesResolver : IValueResolver<Product, ProductResponse, string[]>
+public class ProductImagesResolver(IConfiguration _configuration) : IValueResolver<Product, ProductResponse, string[]>
 {
-    private readonly IConfiguration _configuration;
-
-    public ProductImagesResolver(IConfiguration configuration)
-    {
-        _configuration = configuration;
-    }
     public string[] Resolve(Product source, ProductResponse destination, string[] destMember, ResolutionContext context)
     {
         string[] ImagesPath = new string[source.Images.Count()];

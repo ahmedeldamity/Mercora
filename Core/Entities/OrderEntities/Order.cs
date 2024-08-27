@@ -59,5 +59,5 @@ public class Order: BaseEntity
     // -- second: with function
     #endregion
 
-    public string PaymentIntentId { get; set; }
+    public string PaymentIntentId { get; set; } = null!;
 }

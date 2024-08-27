@@ -46,7 +46,8 @@ public class MappingProfiles : Profile
         CreateMap<OrderItem, OrderItemRequest>()
                 .ForMember(d => d.ProductId, o => o.MapFrom(s => s.Product.ProductId))
                 .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product.ProductName))
-                .ForMember(d => d.ImageCover, o => o.MapFrom(s => s.Product.ProductImageCover));
+                .ForMember(d => d.ImageCover, o => o.MapFrom(s => s.Product.ProductImageCover))
+                .ForMember(d => d.ImageCover, o => o.MapFrom<ProductImageCoverInOrderResolver>());
 
         CreateMap<UserAddressResponse, UserAddress>().ReverseMap();
     }
