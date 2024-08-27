@@ -11,7 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Add services to the container
 
-// Register API Controller
+// Add Controllers
 builder.Services.AddControllers();
 
 // Register Required Services For Swagger In Extension Method
@@ -31,6 +31,9 @@ builder.Services.AddRedis();
 
 // Add Store Context
 builder.Services.AddStoreContext();
+
+// Add Hangfire Services
+builder.Services.AddHangfireServices();
 
 // Add Fluent Validation
 builder.Services.AddFluentValidation();
@@ -53,9 +56,9 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 	{
 		// --- then we bring ModelState: Dictionary key/value pair for each parameter, and value has property Errors Array have all errors
 		// --- and we use where to bring dictionary key/value pair which is value has errors 
-		var errors = actionContext.ModelState.Where(P => P.Value.Errors.Count() > 0)
+		var errors = actionContext.ModelState.Where(P => P.Value!.Errors.Count() > 0)
 		// --- then we use SelectMany to make one array of all error  
-		.SelectMany(P => P.Value.Errors)
+		.SelectMany(P => P.Value!.Errors)
 		// --- then we use Select to bring from errors just ErrorMessages
 		.Select(E => E.ErrorMessage)
 		.ToArray();
@@ -142,6 +145,8 @@ app.MapControllers();
 //	});
 //	-- But We Use MapController Instead Of It Because We Create Routing On Controller Itself
 #endregion
+
+app.UseHangfireDashboard(builder.Services);
 
 #endregion
 

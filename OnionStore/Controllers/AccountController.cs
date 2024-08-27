@@ -8,12 +8,12 @@ using API.EmailSetting;
 using Repository.Identity;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
-using Newtonsoft.Json.Linq;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using AutoMapper;
 using Google.Apis.Auth;
+using Hangfire;
 
 namespace API.Controllers;
 public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IMapper _mapper,
@@ -98,7 +98,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
             await _identityContext.SaveChangesAsync();
 
-            await _emailSettings.SendEmailMessage(emailToSend);
+            BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
         }
         catch (Exception ex)
         {
@@ -207,7 +207,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
             await _identityContext.SaveChangesAsync();
 
-            await _emailSettings.SendEmailMessage(emailToSend);
+            BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
         }
         catch (Exception ex)
         {

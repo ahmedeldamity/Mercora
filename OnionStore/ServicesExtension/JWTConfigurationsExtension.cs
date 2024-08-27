@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.Cookies;
-using Microsoft.AspNetCore.Authentication.Google;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Shared.ConfigurationData;
@@ -13,7 +11,6 @@ public static class JWTConfigurationsExtension
     {
         var serviceProvider = services.BuildServiceProvider();
         var jwtData = serviceProvider.GetRequiredService<IOptions<JWTData>>().Value;
-        var googleData = serviceProvider.GetRequiredService<IOptions<GoogleData>>().Value;
 
         // AddAuthentication() : this method take one argument (Default Schema)
         // and when we using .AddJwtBearer(): this method can take from you another schema and options
@@ -25,7 +22,7 @@ public static class JWTConfigurationsExtension
 
         })
         .AddJwtBearer(options =>
-        {             
+        {
             options.TokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateAudience = true,
@@ -35,32 +32,14 @@ public static class JWTConfigurationsExtension
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SecretKey)),
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.FromMinutes(jwtData.DurationInMinutes),
+                ClockSkew = TimeSpan.Zero,
             };
         })
-        .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+        // If You need to doing some options on another schema
+        .AddJwtBearer("Bearer2", options =>
         {
-            options.ClientId = googleData.ClientId;
-            options.ClientSecret = googleData.ClientSecret;
+        
         });
-
-        services.AddAuthorization(options =>
-        {
-            options.AddPolicy("JwtPolicy", policy =>
-            {
-                policy.AuthenticationSchemes.Add(JwtBearerDefaults.AuthenticationScheme);
-                policy.RequireAuthenticatedUser();
-            });
-
-            options.AddPolicy("GooglePolicy", policy =>
-            {
-                policy.AuthenticationSchemes.Add(GoogleDefaults.AuthenticationScheme);
-                policy.RequireAuthenticatedUser();
-            });
-        });
-
-        services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-                .AddCookie();
 
         return services;
     }
