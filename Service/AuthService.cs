@@ -19,8 +19,8 @@ public class AuthService(IOptions<JWTData> jWTData) : IAuthService
         // Private Claims (user defined - can change from user to other)
         var authClaims = new List<Claim>()
         {
-            new Claim(ClaimTypes.GivenName, user.UserName),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.GivenName, user.UserName!),
+            new Claim(ClaimTypes.Email, user.Email!)
         };
 
         var userRoles = await userManager.GetRolesAsync(user);
