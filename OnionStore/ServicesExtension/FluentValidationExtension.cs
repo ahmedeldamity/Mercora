@@ -10,7 +10,6 @@ public static class FluentValidationExtension
         services.AddFluentValidationAutoValidation()
             .AddValidatorsFromAssemblyContaining<RegisterValidator>()
             .AddValidatorsFromAssemblyContaining<LoginValidator>()
-            .AddValidatorsFromAssemblyContaining<EmailValidator>()
             .AddValidatorsFromAssemblyContaining<CodeVerificationValidator>()
             .AddValidatorsFromAssemblyContaining<ChangePasswordValidator>()
             .AddValidatorsFromAssemblyContaining<BasketItemValidator>()

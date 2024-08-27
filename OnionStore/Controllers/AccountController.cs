@@ -15,7 +15,6 @@ using System.Security.Claims;
 using AutoMapper;
 
 namespace API.Controllers;
-
 public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IMapper _mapper,
              IdentityContext _identityContext, IEmailSettings _emailSettings, ILogger<AccountController> _logger, IAuthService _authService) : BaseController
 {
@@ -61,22 +60,28 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 		});
 	}
 
+    [Authorize]
     [HttpPost("sendemailverificationcode")]
     [ProducesResponseType(typeof(AppUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode(EmailRequest emailRequest)
+    public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode()
     {
-        if (await _userManager.FindByEmailAsync(emailRequest.Email) is not { } user)
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
             return Ok(new ApiResponse(200, "If your email is registered with us, a email verification code has been successfully sent."));
+
+        if (user.EmailConfirmed)
+            return Ok(new ApiResponse(200, "Your email is already confirmed."));
 
         var code = GenerateSecureCode();
 
         EmailResponse emailToSend = new()
         {
-            To = emailRequest.Email,
-            Subject = $"{emailRequest.Email.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address",
-            Body = EmailBody(code, emailRequest.Email.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration")
+            To = userEmail!,
+            Subject = $"{userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address",
+            Body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration")
         };
 
         try
@@ -103,12 +108,15 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
         return Ok(new ApiResponse(200, "If your email is registered with us, a email verification code has been successfully sent."));
     }
 
+    [Authorize]
     [ProducesResponseType(typeof(AppUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [HttpPost("verifyregistercode")]
     public async Task<ActionResult> VerifyRegisterCode(CodeVerificationRequest model)
     {
-        if(await _userManager.FindByEmailAsync(model.Email) is not { } user)
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+        if(await _userManager.FindByEmailAsync(userEmail!) is not { } user)
             return BadRequest(new ApiResponse(400, "Invalid Email."));
 
         var identityCode = await _identityContext.IdentityCodes
@@ -128,9 +136,13 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
             return BadRequest(new ApiResponse(400, "This code has expired."));
 
         identityCode.IsActive = false;
+
         _identityContext.IdentityCodes.Update(identityCode);
+
         user.EmailConfirmed = true;
+
         await _userManager.UpdateAsync(user);
+
         await _identityContext.SaveChangesAsync();
 
         return Ok(new ApiResponse(200, "Email verified successfully."));
@@ -160,21 +172,24 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 			Token = token
 		});
 	}
+
+    [Authorize]
     [HttpPost("SendPasswordResetEmail")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> SendPasswordResetEmail(EmailRequest emailDto)
+    public async Task<ActionResult> SendPasswordResetEmail()
     {
-        
-        if (await _userManager.FindByEmailAsync(emailDto.Email) is not { } user)
+        var email = User.FindFirstValue(ClaimTypes.Email);
+
+        if (await _userManager.FindByEmailAsync(email!) is not { } user)
             return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
 
         var code = GenerateSecureCode();
 
         EmailResponse emailToSend = new()
         {
-            To = emailDto.Email,
+            To = email!,
             Subject = $"{user.DisplayName}, Reset Your Password - Verification Code: {code}",
             Body = EmailBody(code, user.DisplayName, "Reset Password", "You have requested to reset your password.")
         };
@@ -202,12 +217,15 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
         return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
     }
 
+    [Authorize]
     [HttpPost("VerifyResetCode")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     public async Task<ActionResult> VerifyResetCode(CodeVerificationRequest model)
     {
-        if (await _userManager.FindByEmailAsync(model.Email) is not { } user)
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
             return BadRequest(new ApiResponse(400, "Invalid Email."));
 
         if (!user.EmailConfirmed)
@@ -232,21 +250,33 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
         if (identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
             return BadRequest(new ApiResponse(400, "This code has expired."));
 
+        user.EmailConfirmed = true;
+
         identityCode.IsActive = true;
+
+        identityCode.User = user;
+
         identityCode.ActivationTime = DateTime.UtcNow;
+
         _identityContext.IdentityCodes.Update(identityCode);
+
+        await _userManager.UpdateAsync(user);
+
         await _identityContext.SaveChangesAsync();
 
-        return Ok(new ApiResponse(200, "Code verified successfully."));
+        return Ok(new ApiResponse(200, "Code verified successfully. You have 30 minutes to change your password."));
     }
 
+    [Authorize]
     [HttpPost("changepassword")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> ChangePassword(ChangePasswordRequest model)
     {
-        if (await _userManager.FindByEmailAsync(model.Email) is not { } user)
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
             return BadRequest(new ApiResponse(400, "Invalid Email."));
 
         if (!user.EmailConfirmed)
@@ -277,10 +307,13 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
         try
         {
             identityCode.IsActive = false;
+
             _identityContext.IdentityCodes.Update(identityCode);
+
             await _identityContext.SaveChangesAsync();
 
             var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+
             if (!removePasswordResult.Succeeded)
             {
                 await transaction.RollbackAsync();
@@ -288,6 +321,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
             }
 
             var addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
+
             if (!addPasswordResult.Succeeded)
             {
                 await transaction.RollbackAsync();
@@ -309,6 +343,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
     [Authorize]
     [HttpGet]
+    [ProducesResponseType(typeof(AppUserResponse), StatusCodes.Status200OK)]
     public async Task<ActionResult<UserAddressResponse>> GetCurrentUser()
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
@@ -325,11 +360,16 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 
     [Authorize]
     [HttpGet("address")]
+    [ProducesResponseType(typeof(UserAddressResponse), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status404NotFound)]
     public async Task<ActionResult<UserAddressResponse>> GetCurrentUserAddress()
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
 
         var user = await _userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
+
+        if (user!.Address is null)
+            return NotFound(new ApiResponse(404, "Address not found."));
 
         return Ok(_mapper.Map<UserAddress, UserAddressResponse>(user.Address));
     }
@@ -488,7 +528,7 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
                             <p>If you did not request this verification, please ignore this email.</p>
                         </div>
                         <div class=""footer"">
-                            <p>&copy; 2024 TwoAxis. All rights reserved.</p>
+                            <p>&copy; 2024 OnionStore. All rights reserved.</p>
                         </div>
                     </div>
                 </body>

@@ -6,12 +6,6 @@ public class ChangePasswordValidator: AbstractValidator<ChangePasswordRequest>
 {
     public ChangePasswordValidator()
     {
-        RuleFor(x => x.Email)
-            .NotEmpty()
-            .WithMessage("Email is required")
-            .EmailAddress()
-            .WithMessage("Email is not valid");
-
         RuleFor(x => x.NewPassword)
             .NotEmpty()
             .WithMessage("Password is required.")

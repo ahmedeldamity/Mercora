@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Core.Entities;
 using Core.Entities.BasketEntities;
+using Core.Entities.IdentityEntities;
 using Core.Entities.OrderEntities;
 using Core.Entities.Product_Entities;
 using Shared.Dtos;
@@ -46,5 +47,7 @@ public class MappingProfiles : Profile
                 .ForMember(d => d.ProductId, o => o.MapFrom(s => s.Product.ProductId))
                 .ForMember(d => d.ProductName, o => o.MapFrom(s => s.Product.ProductName))
                 .ForMember(d => d.ImageCover, o => o.MapFrom(s => s.Product.ProductImageCover));
+
+        CreateMap<UserAddressResponse, UserAddress>().ReverseMap();
     }
 }

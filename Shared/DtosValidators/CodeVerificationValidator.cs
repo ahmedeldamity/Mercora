@@ -6,12 +6,6 @@ public class CodeVerificationValidator: AbstractValidator<CodeVerificationReques
 {
     public CodeVerificationValidator()
     {
-        RuleFor(x => x.Email)
-            .NotEmpty()
-            .WithMessage("Email is required")
-            .EmailAddress()
-            .WithMessage("Email is not valid");
-
         RuleFor(x => x.VerificationCode)
             .NotEmpty()
             .WithMessage("Verification code is required")
