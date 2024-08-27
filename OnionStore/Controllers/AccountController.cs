@@ -13,6 +13,7 @@ using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using System.Security.Claims;
 using AutoMapper;
+using Google.Apis.Auth;
 
 namespace API.Controllers;
 public class AccountController(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IMapper _mapper,
@@ -401,64 +402,48 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
     [HttpPost("googlelogin")]
     [ProducesResponseType(typeof(AppUserResponse), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult> GoogleLogin(TokenIdRequest tokenIdDto)
+    public async Task<ActionResult> GoogleLogin([FromBody] string credential)
     {
-        if (ValidateGoogleToken(tokenIdDto.TokenId, out JObject payload))
+        var settings = new GoogleJsonWebSignature.ValidationSettings()
         {
-            var userName = payload["name"]!.ToString();
-            var email = payload["email"]!.ToString();
+            Audience = [ "YOUR_CLIENT" ]
+        };
 
-            var user = await _userManager.FindByEmailAsync(email);
+        var payload = await GoogleJsonWebSignature.ValidateAsync(credential, settings);
 
-            if (user is null)
+        var user = await _userManager.FindByEmailAsync(payload.Email);
+
+        if (user is null)
+        {
+            user = new AppUser
             {
-                user = new AppUser
-                {
-                    UserName = email.Split('@')[0],
-                    Email = email,
-                    DisplayName = userName,
-                    EmailConfirmed = true
-                };
+                UserName = payload.Email.Split('@')[0],
+                Email = payload.Email,
+                DisplayName = payload.Name,
+                EmailConfirmed = true
+            };
 
-                var result = await _userManager.CreateAsync(user);
+            var result = await _userManager.CreateAsync(user);
 
-                if (!result.Succeeded)
-                {
-                    return BadRequest(new ApiResponse(400, "Failed to create user."));
-                }
+            if (!result.Succeeded)
+            {
+                return BadRequest(new ApiResponse(400, "Failed to create user."));
             }
-
-            user.EmailConfirmed = true;
-
-            await _userManager.UpdateAsync(user);
-
-            var token = await _authService.CreateTokenAsync(user, _userManager);
-
-            return Ok(new AppUserResponse
-            {
-                DisplayName = user.DisplayName,
-                Email = user!.Email,
-                Token = token
-            });
         }
-        else
+
+        user.EmailConfirmed = true;
+
+        await _userManager.UpdateAsync(user);
+
+        var token = await _authService.CreateTokenAsync(user, _userManager);
+
+        return Ok(new AppUserResponse
         {
-            return BadRequest(new ApiResponse(400, "Invalid Google token."));
-        }
-    }
+            DisplayName = user.DisplayName,
+            Email = user.Email!,
+            Token = token
+        });
 
-    private bool ValidateGoogleToken(string tokenId, out JObject payload)
-    {
-        var httpClient = new HttpClient();
-        var response = httpClient.GetAsync($"https://www.googleapis.com/oauth2/v1/userinfo?access_token={tokenId}").Result;
-        if (response.IsSuccessStatusCode)
-        {
-            var json = response.Content.ReadAsStringAsync().Result;
-            payload = JObject.Parse(json);
-            return true;
-        }
-        payload = null;
-        return false;
     }
 
     private string EmailBody(string code, string userName, string title, string message)
