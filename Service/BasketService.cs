@@ -15,7 +15,7 @@ public class BasketService(IBasketRepository _basketRepository, IMapper _mapper)
         var createdOrUpdated = await _basketRepository.CreateOrUpdateBasketAsync(basket);
 
         if (createdOrUpdated is null) 
-            return Result.Failure<BasketResponse>(new Error("400", "Basket could not be created or updated", 400));
+            return Result.Failure<BasketResponse>(new Error("Basket could not be created or updated", 400));
 
         var basketResponse = _mapper.Map<Basket, BasketResponse>(createdOrUpdated);
 

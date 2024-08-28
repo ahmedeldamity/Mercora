@@ -22,14 +22,14 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
         var basket = await _basketRepository.GetBasketAsync(basketId);
 
         if (basket is null)
-            return Result.Failure<BasketResponse>(new Error("NotFound", "Basket not found", 404));
+            return Result.Failure<BasketResponse>(new Error("Basket not found", 404));
 
         if (basket.DeliveryMethodId.HasValue)
         {
             var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket.DeliveryMethodId.Value);
 
             if (deliveryMethod is null)
-                return Result.Failure<BasketResponse>(new Error("NotFound", "Delivery method not found", 404));
+                return Result.Failure<BasketResponse>(new Error("Delivery method not found", 404));
 
             basket.ShippingPrice = deliveryMethod.Cost;
         }
@@ -41,7 +41,7 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
                 var product = await _unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
 
                 if (product is null)
-                    return Result.Failure<BasketResponse>(new Error("NotFound", "Product not found", 404));
+                    return Result.Failure<BasketResponse>(new Error("Product not found", 404));
 
                 if (item.Price != product.Price)
                     item.Price = product.Price;

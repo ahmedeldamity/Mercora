@@ -61,10 +61,10 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
         if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
-            return Result.FailureOrSuccessMessage(new Error("200", "If your email is registered with us, a email verification code has been successfully sent.", 200));
+            return Result.FailureOrSuccessMessage(new Error("If your email is registered with us, a email verification code has been successfully sent.", 200));
 
         if (user.EmailConfirmed)
-            return Result.FailureOrSuccessMessage(new Error("email-confirmed", "Your email is already confirmed.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Your email is already confirmed.", 400));
 
         var code = GenerateSecureCode();
 
@@ -88,7 +88,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
 
-        return Result.FailureOrSuccessMessage(new Error("200", "If your email is registered with us, a email verification code has been successfully sent.", 200));
+        return Result.FailureOrSuccessMessage(new Error("If your email is registered with us, a email verification code has been successfully sent.", 200));
     }
 
     public async Task<Result> VerifyRegisterCode(CodeVerificationRequest model, ClaimsPrincipal User)
@@ -96,7 +96,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
         if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
-            return Result.FailureOrSuccessMessage(new Error("400", "Invalid Email.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Invalid Email.", 400));
 
         var identityCode = await _identityContext.IdentityCodes
                             .Where(P => P.AppUserId == user.Id && P.ForRegisterationConfirmed)
@@ -104,15 +104,15 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
                             .LastOrDefaultAsync();
 
         if (identityCode is null)
-            return Result.FailureOrSuccessMessage(new Error("400", "No valid reset code found.", 400));
+            return Result.FailureOrSuccessMessage(new Error("No valid reset code found.", 400));
 
         var lastCode = identityCode.Code;
 
         if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
-            return Result.FailureOrSuccessMessage(new Error("400", "Invalid reset code.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Invalid reset code.", 400));
 
         if (!identityCode.IsActive || identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
-            return Result.FailureOrSuccessMessage(new Error("400", "This code has expired.", 400));
+            return Result.FailureOrSuccessMessage(new Error("This code has expired.", 400));
 
         identityCode.IsActive = false;
 
@@ -124,13 +124,13 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         await _identityContext.SaveChangesAsync();
 
-        return Result.Failure<Result>(new Error("200", "Email verified successfully.", 200));
+        return Result.Failure<Result>(new Error("Email verified successfully.", 200));
     }
 
     public async Task<Result> SendPasswordResetEmail(EmailRequest email)
     {
         if (await _userManager.FindByEmailAsync(email.Email) is not { } user)
-            return Result.FailureOrSuccessMessage(new Error("200", "If your email is registered with us, a password reset email has been successfully sent.", 200));
+            return Result.FailureOrSuccessMessage(new Error("If your email is registered with us, a password reset email has been successfully sent.", 200));
 
         var code = GenerateSecureCode();
 
@@ -153,7 +153,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
 
-        return Result.FailureOrSuccessMessage(new Error("200", "If your email is registered with us, a password reset email has been successfully sent.", 200));
+        return Result.FailureOrSuccessMessage(new Error("If your email is registered with us, a password reset email has been successfully sent.", 200));
     }
 
     public async Task<Result> VerifyResetCode(CodeVerificationRequest model, ClaimsPrincipal User)
@@ -161,10 +161,10 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
         if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
-            return Result.FailureOrSuccessMessage(new Error("400", "Invalid Email.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Invalid Email.", 400));
 
         if (!user.EmailConfirmed)
-            return Result.FailureOrSuccessMessage(new Error("200", "You need to confirm your email first.", 200));
+            return Result.FailureOrSuccessMessage(new Error("You need to confirm your email first.", 200));
 
         var identityCode = await _identityContext.IdentityCodes
                             .Where(P => P.AppUserId == user.Id && P.ForRegisterationConfirmed == false)
@@ -172,18 +172,18 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
                             .LastOrDefaultAsync();
 
         if (identityCode is null)
-            return Result.FailureOrSuccessMessage(new Error("400", "No valid reset code found.", 400));
+            return Result.FailureOrSuccessMessage(new Error("No valid reset code found.", 400));
 
         if (identityCode.IsActive)
-            return Result.FailureOrSuccessMessage(new Error("400", "You already have an active code.", 400));
+            return Result.FailureOrSuccessMessage(new Error("You already have an active code.", 400));
 
         var lastCode = identityCode.Code;
 
         if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
-            return Result.FailureOrSuccessMessage(new Error("400", "Invalid reset code.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Invalid reset code.", 400));
 
         if (identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
-            return Result.FailureOrSuccessMessage(new Error("400", "This code has expired.", 400));
+            return Result.FailureOrSuccessMessage(new Error("This code has expired.", 400));
 
         user.EmailConfirmed = true;
 
@@ -199,7 +199,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         await _identityContext.SaveChangesAsync();
 
-        return Result.FailureOrSuccessMessage(new Error("200", "Code verified successfully. You have 30 minutes to change your password.", 200));
+        return Result.FailureOrSuccessMessage(new Error("Code verified successfully. You have 30 minutes to change your password.", 200));
     }
 
     public async Task<Result> ChangePassword(ChangePasswordRequest model, ClaimsPrincipal User)
@@ -207,10 +207,10 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
         if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
-            return Result.FailureOrSuccessMessage(new Error("Invalid Email.", "Invalid Email.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Invalid Email.", 400));
 
         if (!user.EmailConfirmed)
-            return Result.FailureOrSuccessMessage(new Error("200", "You need to confirm your email first.", 200));
+            return Result.FailureOrSuccessMessage(new Error("You need to confirm your email first.", 200));
 
         var identityCode = await _identityContext.IdentityCodes
                             .Where(p => p.AppUserId == user.Id && p.IsActive && p.ForRegisterationConfirmed == false)
@@ -218,18 +218,18 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
                             .FirstOrDefaultAsync();
 
         if (identityCode is null)
-            return Result.FailureOrSuccessMessage(new Error("400", "No valid reset code found.", 400));
+            return Result.FailureOrSuccessMessage(new Error("No valid reset code found.", 400));
 
         var lastCode = identityCode.Code;
 
         if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
-            return Result.FailureOrSuccessMessage(new Error("400", "Invalid reset code.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Invalid reset code.", 400));
 
         if (identityCode is null)
-            return Result.FailureOrSuccessMessage(new Error("400", "No valid reset code found.", 400));
+            return Result.FailureOrSuccessMessage(new Error("No valid reset code found.", 400));
 
         if (identityCode.ActivationTime is null || identityCode.ActivationTime.Value.AddMinutes(30) < DateTime.UtcNow)
-            return Result.FailureOrSuccessMessage(new Error("400", "This code has expired.", 400));
+            return Result.FailureOrSuccessMessage(new Error("This code has expired.", 400));
 
         using var transaction = await _identityContext.Database.BeginTransactionAsync();
 
@@ -245,7 +245,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         {
             await transaction.RollbackAsync();
 
-            return Result.FailureOrSuccessMessage(new Error("400", "Failed to remove the old password.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Failed to remove the old password.", 400));
         }
 
         var addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
@@ -254,12 +254,12 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         {
             await transaction.RollbackAsync();
 
-            return Result.FailureOrSuccessMessage(new Error("400", "Failed to set the new password.", 400));
+            return Result.FailureOrSuccessMessage(new Error("Failed to set the new password.", 400));
         }
 
         await transaction.CommitAsync();
 
-        return Result.FailureOrSuccessMessage(new Error("200", "Password changed successfully.", 200));
+        return Result.FailureOrSuccessMessage(new Error("Password changed successfully.", 200));
     }
 
     private string EmailBody(string code, string userName, string title, string message)
