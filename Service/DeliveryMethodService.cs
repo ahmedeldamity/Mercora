@@ -1,7 +1,7 @@
 ﻿using Core.Entities.OrderEntities;
+using Core.ErrorHandling;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Shared.Helpers;
 
 namespace Service;
 public class DeliveryMethodService(IUnitOfWork _unitOfWork) : IDeliveryMethodService

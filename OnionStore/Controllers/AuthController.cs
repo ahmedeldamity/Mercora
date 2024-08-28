@@ -1,8 +1,8 @@
 ﻿using API.Extensions;
+using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Shared.Dtos;
 
 namespace API.Controllers;
 public class AuthController(IAuthService _authService) : BaseController

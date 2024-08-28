@@ -1,10 +1,11 @@
 ﻿using AutoMapper;
-using Shared.Dtos;
-using Shared.Helpers;
-using Core.Interfaces.Services;
-using Core.Interfaces.Repositories;
+using Core.Dtos;
 using Core.Entities.Product_Entities;
+using Core.ErrorHandling;
+using Core.Interfaces.Repositories;
+using Core.Interfaces.Services;
 using Core.Specifications.ProductSpecifications;
+using Shared.Helpers;
 
 namespace Service;
 public class ProductService(IUnitOfWork _unitOfWork, IMapper _mapper) : IProductService

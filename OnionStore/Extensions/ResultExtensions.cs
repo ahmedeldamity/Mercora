@@ -1,5 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Shared.Helpers;
+﻿using Core.ErrorHandling;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Extensions;
 public static class ResultExtensions

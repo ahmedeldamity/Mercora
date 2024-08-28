@@ -1,5 +1,5 @@
 ﻿using Core.Entities;
-using Shared.Helpers;
+using Core.ErrorHandling;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 

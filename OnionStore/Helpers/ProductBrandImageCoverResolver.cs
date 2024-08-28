@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Core.Dtos;
 using Core.Entities;
-using Shared.Dtos;
 
 namespace DotNetCore_ECommerce.Helpers;
 public class ProductBrandImageCoverResolver(IConfiguration _configuration) : IValueResolver<ProductBrand, ProductBrandResponse, string>

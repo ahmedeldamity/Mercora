@@ -1,6 +1,6 @@
-﻿using FluentValidation.AspNetCore;
+﻿using Core.DtosValidators;
 using FluentValidation;
-using Shared.DtosValidators;
+using FluentValidation.AspNetCore;
 
 namespace API.ServicesExtension;
 public static class FluentValidationExtension

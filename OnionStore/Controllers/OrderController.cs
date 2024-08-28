@@ -1,8 +1,8 @@
-﻿using Shared.Dtos;
-using Microsoft.AspNetCore.Mvc;
+﻿using API.Extensions;
+using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
-using API.Extensions;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 

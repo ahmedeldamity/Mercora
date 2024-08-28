@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using Core.Dtos;
 using Core.Entities.BasketEntities;
+using Core.ErrorHandling;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Shared.Dtos;
-using Shared.Helpers;
 
 namespace Service;
 public class BasketService(IBasketRepository _basketRepository, IMapper _mapper) : IBasketService

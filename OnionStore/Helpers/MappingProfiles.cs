@@ -1,10 +1,10 @@
 ﻿using AutoMapper;
+using Core.Dtos;
 using Core.Entities;
 using Core.Entities.BasketEntities;
 using Core.Entities.IdentityEntities;
 using Core.Entities.OrderEntities;
 using Core.Entities.Product_Entities;
-using Shared.Dtos;
 
 namespace DotNetCore_ECommerce.Helpers;
 public class MappingProfiles : Profile

@@ -1,7 +1,7 @@
-﻿using Core.Entities.IdentityEntities;
+﻿using Core.Dtos;
+using Core.Entities.IdentityEntities;
+using Core.ErrorHandling;
 using Microsoft.AspNetCore.Identity;
-using Shared.Dtos;
-using Shared.Helpers;
 using System.Security.Claims;
 
 namespace Core.Interfaces.Services;

@@ -1,4 +1,6 @@
-﻿using Core.Entities.IdentityEntities;
+﻿using Core.Dtos;
+using Core.Entities.IdentityEntities;
+using Core.ErrorHandling;
 using Core.Interfaces.Services;
 using Hangfire;
 using Microsoft.AspNetCore.Identity;
@@ -8,8 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using Repository.Identity;
 using Service.ConfigurationData;
 using Service.EmailSetting;
-using Shared.Dtos;
-using Shared.Helpers;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;

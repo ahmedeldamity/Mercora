@@ -1,6 +1,6 @@
-﻿using Core.Entities.Product_Entities;
+﻿using Core.Dtos;
+using Core.ErrorHandling;
 using Core.Specifications.ProductSpecifications;
-using Shared.Dtos;
 using Shared.Helpers;
 
 namespace Core.Interfaces.Services;

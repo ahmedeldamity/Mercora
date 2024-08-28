@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Core.Dtos;
 using Core.Entities.Product_Entities;
-using Shared.Dtos;
 
 namespace DotNetCore_ECommerce.Helpers;
 public class ProductImagesResolver(IConfiguration _configuration) : IValueResolver<Product, ProductResponse, string[]>

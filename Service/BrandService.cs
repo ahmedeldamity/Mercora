@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
+using Core.Dtos;
 using Core.Entities;
+using Core.ErrorHandling;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using Shared.Dtos;
-using Shared.Helpers;
 
 namespace Service;
 public class BrandService(IUnitOfWork _unitOfWork, IMapper _mapper): IBrandService

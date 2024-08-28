@@ -1,6 +1,6 @@
-﻿using Core.Entities.OrderEntities;
-using Shared.Dtos;
-using Shared.Helpers;
+﻿using Core.Dtos;
+using Core.Entities.OrderEntities;
+using Core.ErrorHandling;
 
 namespace Core.Interfaces.Services;
 public interface IPaymentService

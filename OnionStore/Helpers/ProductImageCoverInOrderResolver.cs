@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
+using Core.Dtos;
 using Core.Entities.OrderEntities;
-using Shared.Dtos;
 
 namespace DotNetCore_ECommerce.Helpers;
 public class ProductImageCoverInOrderResolver(IConfiguration _configuration) : IValueResolver<OrderItem, OrderItemRequest, string>

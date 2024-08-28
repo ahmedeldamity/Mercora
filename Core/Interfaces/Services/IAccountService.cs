@@ -1,5 +1,5 @@
-﻿using Shared.Dtos;
-using Shared.Helpers;
+﻿using Core.Dtos;
+using Core.ErrorHandling;
 using System.Security.Claims;
 
 namespace Core.Interfaces.Services;
