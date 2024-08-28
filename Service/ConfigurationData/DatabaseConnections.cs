@@ -1,4 +1,4 @@
-﻿namespace Shared.ConfigurationData;
+﻿namespace Service.ConfigurationData;
 public class DatabaseConnections
 {
     public string IdentityConnection { get; set; } = null!;

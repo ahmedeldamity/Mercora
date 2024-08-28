@@ -1,4 +1,4 @@
-﻿namespace Shared.ConfigurationData;
+﻿namespace Service.ConfigurationData;
 public class JWTData
 {
     public string SecretKey { get; set; } = null!;

@@ -3,7 +3,7 @@ using Core.Interfaces.Services;
 using DotNetCore_ECommerce.Helpers;
 using Repository;
 using Service;
-using Shared.EmailSetting;
+using Service.EmailSetting;
 
 namespace API.ServicesExtension;
 public static class ApplicationServicesExtension

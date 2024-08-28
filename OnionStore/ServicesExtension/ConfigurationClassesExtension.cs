@@ -1,4 +1,4 @@
-﻿using Shared.ConfigurationData;
+﻿using Service.ConfigurationData;
 
 namespace API.ServicesExtension;
 public static class ConfigurationClassesExtension

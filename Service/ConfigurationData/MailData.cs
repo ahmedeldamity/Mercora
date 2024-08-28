@@ -1,4 +1,4 @@
-﻿namespace Shared.ConfigurationData;
+﻿namespace Service.ConfigurationData;
 public class MailData
 {
     public string Email { get; set; } = null!;

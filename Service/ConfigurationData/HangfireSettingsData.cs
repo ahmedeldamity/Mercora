@@ -1,4 +1,4 @@
-﻿namespace Shared.ConfigurationData;
+﻿namespace Service.ConfigurationData;
 public class HangfireSettingsData
 {
     public string UserName { get; set; } = null!;

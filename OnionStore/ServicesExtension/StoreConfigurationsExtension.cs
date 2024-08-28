@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repository.Store;
-using Shared.ConfigurationData;
+using Service.ConfigurationData;
 
 namespace API.ServicesExtension;
 public static class StoreConfigurationsExtension

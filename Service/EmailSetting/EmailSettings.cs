@@ -2,9 +2,9 @@
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
-using Shared.ConfigurationData;
+using Service.ConfigurationData;
 
-namespace Shared.EmailSetting;
+namespace Service.EmailSetting;
 public class EmailSettings(IOptions<MailData> options) : IEmailSettings
 {
     private readonly MailData _options = options.Value;

@@ -1,5 +1,5 @@
 ﻿using Microsoft.Extensions.Options;
-using Shared.ConfigurationData;
+using Service.ConfigurationData;
 using StackExchange.Redis;
 
 namespace API.ServicesExtension;

@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Repository.Identity;
-using Shared.ConfigurationData;
+using Service.ConfigurationData;
 
 namespace API.ServicesExtension;
 public static class IdentityConfigurationsExtension
