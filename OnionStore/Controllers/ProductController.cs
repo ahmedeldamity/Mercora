@@ -21,4 +21,5 @@ public class ProductController(IProductService _productService) : BaseController
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
+
 }
