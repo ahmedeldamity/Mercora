@@ -174,23 +174,20 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
 		});
 	}
 
-    [Authorize]
     [HttpPost("SendPasswordResetEmail")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult> SendPasswordResetEmail()
+    public async Task<ActionResult> SendPasswordResetEmail(EmailRequest email)
     {
-        var email = User.FindFirstValue(ClaimTypes.Email);
-
-        if (await _userManager.FindByEmailAsync(email!) is not { } user)
+        if (await _userManager.FindByEmailAsync(email.Email) is not { } user)
             return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
 
         var code = GenerateSecureCode();
 
         EmailResponse emailToSend = new()
         {
-            To = email!,
+            To = email.Email,
             Subject = $"{user.DisplayName}, Reset Your Password - Verification Code: {code}",
             Body = EmailBody(code, user.DisplayName, "Reset Password", "You have requested to reset your password.")
         };
@@ -218,7 +215,6 @@ public class AccountController(UserManager<AppUser> _userManager, SignInManager<
         return Ok(new ApiResponse(200, "If your email is registered with us, a password reset email has been successfully sent."));
     }
 
-    [Authorize]
     [HttpPost("VerifyResetCode")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]

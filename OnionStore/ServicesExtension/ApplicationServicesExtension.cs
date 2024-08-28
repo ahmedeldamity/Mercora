@@ -37,6 +37,9 @@ public static class ApplicationServicesExtension
         // Register Payment Service
         services.AddScoped(typeof(IPaymentService), typeof(PaymentService));
 
+        // Register Delivery Method Service
+        services.AddScoped(typeof(IDeliveryMethodService), typeof(DeliveryMethodService));
+
         // --- Two Ways To Register AutoMapper
         // - First (harder)
         //builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));

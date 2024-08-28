@@ -1,24 +1,33 @@
-﻿using Core.Entities.OrderEntities;
+﻿using AutoMapper;
+using Core.Entities.OrderEntities;
 using Core.Entities.Product_Entities;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Specifications.OrderSpecifications;
+using Microsoft.AspNetCore.Http;
+using Shared.Dtos;
+using Shared.Helpers;
+using System.Security.Claims;
 
 namespace Service;
-public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepository) : IOrderService
+public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepository, IMapper _mapper, IHttpContextAccessor _httpContextAccessor) : IOrderService
 {
     #region Why We Take OrderAddress
     // In my thinking before, I was thinking to take buyerEmail and bring user address from database
     // but this is not good idea because it is not always the user take the order to his address
     // it can be take the order to another address like whrn he buy gift to another person
     #endregion
-    public async Task<Order?> CreateOrderAsync(string buyerEmail, string basketId, OrderAddress shippingAddress)
+    public async Task<Result<OrderResponse>> CreateOrderAsync(string basketId, OrderAddressRequest orderAddress)
     {
+        var buyerEmail = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
+
+        var address = _mapper.Map<OrderAddressRequest, OrderAddress>(orderAddress);
+
         // 1. Get basket from basket repository
         var basket = await _basketRepository.GetBasketAsync(basketId);
 
-        if(basket is null || basket.DeliveryMethodId is null || basket.PaymentIntentId is null)
-            return null;
+        if (basket is null || basket.DeliveryMethodId is null || basket.PaymentIntentId is null)
+            return Result.Failure<OrderResponse>(new Error("Not Found", "Invalid Basket", 404));
 
         // 2. Get Items at Basket from Product repository for get the real products price
         var orderitems = new List<OrderItem>();
@@ -53,14 +62,17 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
 
         if (order is not null)  // Exist one before so we will update it
         {
-            order.ShippingAddress = shippingAddress;
+            order.ShippingAddress = address;
+
             order.DeliveryMethod = deliveryMethod!;
+
             order.SubTotal = subTotal;
+
             orderRepository.Update(order);
         }
         else    // Create New Order
         {
-            order = new Order(buyerEmail, shippingAddress, deliveryMethod!, orderitems, subTotal, basket.PaymentIntentId);
+            order = new Order(buyerEmail!, address, deliveryMethod!, orderitems, subTotal, basket.PaymentIntentId);
 
             await orderRepository.AddAsync(order);
         }
@@ -69,36 +81,44 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         var result = await _unitOfWork.CompleteAsync();
 
         if (result <= 0)
-            return null;
+            return Result.Failure<OrderResponse>(new Error("Not Found", "Invalid Basket", 404));
 
-        return order;
+        var orderRespone = _mapper.Map<Order, OrderResponse>(order);
+
+        return Result.Success(orderRespone);
     }
-    public async Task<IReadOnlyList<Order>> GetOrdersForUserAsync(string buyerEmail)
+
+    public async Task<Result<IReadOnlyList<OrderResponse>>> GetOrdersForUserAsync()
     {
+        var buyerEmail = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
+
         var ordersRepo = _unitOfWork.Repository<Order>();
 
-        var spec = new OrderSpecification(buyerEmail);
+        var spec = new OrderSpecification(buyerEmail!);
 
         var orders = await ordersRepo.GetAllAsync(spec);
 
-        return orders;
+        var ordersResponse = _mapper.Map<IReadOnlyList<Order>, IReadOnlyList<OrderResponse>>(orders);
+
+        return Result.Success(ordersResponse);
     }
-    public async Task<Order?> GetSpecificOrderForUserAsync(int orderId, string buyerEmail)
+
+    public async Task<Result<OrderResponse>> GetSpecificOrderForUserAsync(int orderId)
     {
+        var buyerEmail = _httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
+
         var ordersRepo = _unitOfWork.Repository<Order>();
 
-        var spec = new OrderSpecification(buyerEmail, orderId);
+        var spec = new OrderSpecification(buyerEmail!, orderId);
 
         var order = await ordersRepo.GetEntityAsync(spec);
 
-        return order;
-    }
-    public async Task<IReadOnlyList<OrderDeliveryMethod>> GetAllDeliveryMethodsAsync()
-    {
-        var deliveryMethodsRepo = _unitOfWork.Repository<OrderDeliveryMethod>();
+        if (order is null)
+            return Result.Failure<OrderResponse>(new Error("Not Found", "Order not found", 404));
 
-        var deliveryMethods = await deliveryMethodsRepo.GetAllAsync();
+        var orderResponse = _mapper.Map<Order, OrderResponse>(order);
 
-        return deliveryMethods;
+        return Result.Success(orderResponse);
     }
+
 }

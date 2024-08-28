@@ -10,7 +10,9 @@ public class LoginValidator: AbstractValidator<LoginRequest>
             .NotEmpty()
             .WithMessage("Email is required")
             .EmailAddress()
-            .WithMessage("Email is not valid");
+            .WithMessage("Email is not valid")
+            .MaximumLength(50)
+            .WithMessage("Email must not exceed 50 characters.");
 
         RuleFor(x => x.Password)
             .NotEmpty()
