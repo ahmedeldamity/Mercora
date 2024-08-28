@@ -2,14 +2,7 @@
 using System.Net;
 using System.Text.Json;
 
-namespace API.Middlewares;
-public class ExceptionMiddleware
-{
-    private readonly RequestDelegate next;
-    private readonly ILogger<ExceptionMiddleware> logger;
-    private readonly IHostEnvironment env;
-
-    #region Explanation
+#region Explanation
 // -- When We Need To Create Middleware With Inconvention Way We Must:
 // ---- 1. Class Name End With (Middleware)
 // ---- 2. Ask Clr To Bring (RequestDelegate next) To Move The Next Middleware
@@ -21,12 +14,12 @@ public class ExceptionMiddleware
 // ------ If We In Development Environment Three Parameters (Status Code, Exception Message, Exception Details) To FrontEnd
 // ------ If We In Production Environment One Parameter (Status Code) To Client And We Send (Exception Message, Exception Details) To Database | File -> To Backend Developer
 #endregion
-    public ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
-    {
-        this.next = next;
-        this.logger = logger;
-        this.env = env;
-    }
+namespace API.Middlewares;
+public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
+{
+    private readonly RequestDelegate next = next;
+    private readonly ILogger<ExceptionMiddleware> logger = logger;
+    private readonly IHostEnvironment env = env;
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
@@ -51,7 +44,7 @@ public class ExceptionMiddleware
             // .... If We In Development Environment: We Send (Status Code, Exception Message, Exception Details) To FrontEnd
             // .... If We In Production Environment: We Send (Status Code) To Client And We Send (Exception Message, Exception Details) To Database | File
             var response = env.IsDevelopment() ?
-                new ApiExceptionResponse((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace.ToString()) :
+                new ApiExceptionResponse((int)HttpStatusCode.InternalServerError, ex.Message, ex.StackTrace!.ToString()) :
                 new ApiExceptionResponse((int)HttpStatusCode.InternalServerError);
 
             // Here We Create Options To Make Json Be Camel Case And We Send This Options To JsonSerializer 

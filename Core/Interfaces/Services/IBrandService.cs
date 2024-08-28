@@ -1,7 +1,8 @@
-﻿using Core.Entities;
+﻿using Shared.Dtos;
+using Shared.Helpers;
 
 namespace Core.Interfaces.Services;
 public interface IBrandService
 {
-    Task<IReadOnlyList<ProductBrand>> GetBrandsAsync();
+    Task<Result<IReadOnlyList<ProductBrandResponse>>> GetBrandsAsync();
 }

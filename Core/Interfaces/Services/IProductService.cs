@@ -1,10 +1,11 @@
 ﻿using Core.Entities.Product_Entities;
 using Core.Specifications.ProductSpecifications;
+using Shared.Dtos;
+using Shared.Helpers;
 
 namespace Core.Interfaces.Services;
 public interface IProductService
 {
-    Task<IReadOnlyList<Product>> GetProductsAsync(ProductSpecificationParameters specParams);
-    Task<int> GetProductCount(ProductSpecificationParameters specParams);
-    Task<Product?> GetProductAsync(int id);
+    Task<Result<PaginationToReturn<ProductResponse>>> GetProductsAsync(ProductSpecificationParameters specParams);
+    Task<Result<ProductResponse>> GetProductAsync(int id);
 }

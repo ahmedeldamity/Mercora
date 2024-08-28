@@ -1,13 +1,19 @@
-﻿using Core.Entities;
+﻿using AutoMapper;
+using Core.Entities;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
+using Shared.Dtos;
+using Shared.Helpers;
 
 namespace Service;
-public class BrandService(IUnitOfWork _unitOfWork): IBrandService
+public class BrandService(IUnitOfWork _unitOfWork, IMapper _mapper): IBrandService
 {
-    public async Task<IReadOnlyList<ProductBrand>> GetBrandsAsync()
+    public async Task<Result<IReadOnlyList<ProductBrandResponse>>> GetBrandsAsync()
     {
         var brands = await _unitOfWork.Repository<ProductBrand>().GetAllAsync();
-        return brands;
+
+        var brandsDto = _mapper.Map<IReadOnlyList<ProductBrand>, IReadOnlyList<ProductBrandResponse>>(brands);
+
+        return Result.Success(brandsDto);
     }
 }

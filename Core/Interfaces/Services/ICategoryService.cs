@@ -1,7 +1,8 @@
 ﻿using Core.Entities;
+using Shared.Helpers;
 
 namespace Core.Interfaces.Services;
 public interface ICategoryService
 {
-    Task<IReadOnlyList<ProductCategory>> GetCategoriesAsync();
+    Task<Result<IReadOnlyList<ProductCategory>>> GetCategoriesAsync();
 }

@@ -62,6 +62,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 		// --- then we use Select to bring from errors just ErrorMessages
 		.Select(E => E.ErrorMessage)
 		.ToArray();
+
 		// --- then we insert this errors to the class we made
 		var validationErrorResponse = new ApiValidationErrorResponse()
 		{

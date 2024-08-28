@@ -1,27 +1,49 @@
-﻿using Core.Entities.Product_Entities;
-using Core.Interfaces.Repositories;
+﻿using AutoMapper;
+using Shared.Dtos;
+using Shared.Helpers;
 using Core.Interfaces.Services;
+using Core.Interfaces.Repositories;
+using Core.Entities.Product_Entities;
 using Core.Specifications.ProductSpecifications;
 
 namespace Service;
-public class ProductService(IUnitOfWork _unitOfWork) : IProductService
+public class ProductService(IUnitOfWork _unitOfWork, IMapper _mapper) : IProductService
 {
-    public async Task<IReadOnlyList<Product>> GetProductsAsync(ProductSpecificationParameters specParams)
+    public async Task<Result<PaginationToReturn<ProductResponse>>> GetProductsAsync(ProductSpecificationParameters specParams)
     {
         var spec = new ProductWithBrandAndCategorySpecifications(specParams);
+
         var products = await _unitOfWork.Repository<Product>().GetAllAsync(spec);
-        return products;
+
+        var productsDto = _mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductResponse>>(products);
+
+        var productsCount = await GetProductCount(specParams);
+
+        var productsWithPagination = new PaginationToReturn<ProductResponse>(specParams.PageIndex, specParams.PageSize, productsCount, productsDto);
+
+        return Result.Success(productsWithPagination);
     }
-    public async Task<int> GetProductCount(ProductSpecificationParameters specParams)
+
+    private async Task<int> GetProductCount(ProductSpecificationParameters specParams)
     {
         var spec = new ProductCountSpecification(specParams);
+
         var productsCount = await _unitOfWork.Repository<Product>().GetCountAsync(spec);
+
         return productsCount;
     }
-    public async Task<Product?> GetProductAsync(int id)
+
+    public async Task<Result<ProductResponse>> GetProductAsync(int id)
     {
         var spec = new ProductWithBrandAndCategorySpecifications(id);
+
         var product = await _unitOfWork.Repository<Product>().GetEntityAsync(spec);
-        return product;
+
+        if (product is null)
+            return Result.Failure<ProductResponse>(new Error("NotFound", "Product not found", 404));
+
+        var productDto = _mapper.Map<Product, ProductResponse>(product);
+
+        return Result.Success(productDto);
     }
 }
