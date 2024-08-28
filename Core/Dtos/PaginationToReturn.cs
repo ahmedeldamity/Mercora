@@ -1,4 +1,4 @@
-﻿namespace Shared.Helpers;
+﻿namespace Core.Dtos;
 public class PaginationToReturn<T>(int pageIndex, int pageSize, int count, IReadOnlyList<T> data)
 {
     public int PageIndex { get; set; } = pageIndex;
