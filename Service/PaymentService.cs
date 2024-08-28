@@ -1,16 +1,19 @@
-﻿using Core.Entities.BasketEntities;
+﻿using AutoMapper;
+using Core.Entities.BasketEntities;
 using Core.Entities.OrderEntities;
 using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Specifications.OrderSpecifications;
 using Microsoft.Extensions.Configuration;
+using Shared.Dtos;
+using Shared.Helpers;
 using Stripe;
 using Product = Core.Entities.Product_Entities.Product;
 
 namespace Service;
-public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepository, IConfiguration _configuration) : IPaymentService
+public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepository, IConfiguration _configuration, IMapper _mapper) : IPaymentService
 {
-    public async Task<Basket?> CreateOrUpdatePaymentIntent(string basketId)
+    public async Task<Result<BasketResponse>> CreateOrUpdatePaymentIntent(string basketId)
     {
         // ser secret key of stripe
         StripeConfiguration.ApiKey = _configuration["StripeSettings:Secretkey"];
@@ -19,14 +22,14 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
         var basket = await _basketRepository.GetBasketAsync(basketId);
 
         if (basket is null)
-            return null;
+            return Result.Failure<BasketResponse>(new Error("NotFound", "Basket not found", 404));
 
         if (basket.DeliveryMethodId.HasValue)
         {
             var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket.DeliveryMethodId.Value);
 
             if (deliveryMethod is null)
-                return null;
+                return Result.Failure<BasketResponse>(new Error("NotFound", "Delivery method not found", 404));
 
             basket.ShippingPrice = deliveryMethod.Cost;
         }
@@ -38,7 +41,7 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
                 var product = await _unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
 
                 if (product is null)
-                    return null;
+                    return Result.Failure<BasketResponse>(new Error("NotFound", "Product not found", 404));
 
                 if (item.Price != product.Price)
                     item.Price = product.Price;
@@ -80,7 +83,9 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
 
         await _basketRepository.CreateOrUpdateBasketAsync(basket);
 
-        return basket;
+        var basketResponse = _mapper.Map<Basket, BasketResponse>(basket);
+
+        return Result.Success(basketResponse);
     }
 
     public async Task<Order> UpdatePaymentIntentToSucceededOrFailed(string paymentIntentId, bool isSucceeded)

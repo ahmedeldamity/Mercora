@@ -1,4 +1,4 @@
-﻿using API.Errors;
+﻿using API.Extensions;
 using Core.Entities.BasketEntities;
 using Core.Entities.OrderEntities;
 using Core.Interfaces.Services;
@@ -11,18 +11,13 @@ public class PaymentController(IPaymentService _paymentService, ILogger<PaymentC
 {
     private const string _webhookSecret = "whsec_f7cb2a38fa3f766b411c6184763756a8c944a4f0cf869208b10e3153c3dc5962";
 
-    [ProducesResponseType(typeof(Basket), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ApiResponse), StatusCodes.Status400BadRequest)]
-    [HttpPost("{basketId}")]
     [Authorize]
+    [HttpPost("{basketId}")]
     public async Task<ActionResult<Basket>> CreateOrUpdatePaymentIntend(string basketId)
     {
-        var basket = await _paymentService.CreateOrUpdatePaymentIntent(basketId);
+        var result = await _paymentService.CreateOrUpdatePaymentIntent(basketId);
 
-        if (basket is null)
-            return BadRequest(new ApiResponse(400, "An error with your basket"));
-
-        return Ok(basket);
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [HttpPost("webhook")]
@@ -30,8 +25,7 @@ public class PaymentController(IPaymentService _paymentService, ILogger<PaymentC
     {
         var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
 
-        var stripeEvent = EventUtility.ConstructEvent(json,
-            Request.Headers["Stripe-Signature"], _webhookSecret);
+        var stripeEvent = EventUtility.ConstructEvent(json, Request.Headers["Stripe-Signature"], _webhookSecret);
 
         var paymentIntent = (PaymentIntent)stripeEvent.Data.Object;
 
@@ -43,6 +37,7 @@ public class PaymentController(IPaymentService _paymentService, ILogger<PaymentC
                 order = await _paymentService.UpdatePaymentIntentToSucceededOrFailed(paymentIntent.Id, true);
                 _logger.LogInformation("Payment Is Succeeded. Order ID: {OrderId}", order?.Id);
                 break;
+
             case Events.PaymentIntentPaymentFailed:
                 order = await _paymentService.UpdatePaymentIntentToSucceededOrFailed(paymentIntent.Id, false);
                 _logger.LogError("Payment Is Failed. Order ID: {OrderId}", order?.Id);
