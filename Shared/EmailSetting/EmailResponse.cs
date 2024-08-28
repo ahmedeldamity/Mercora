@@ -1,4 +1,6 @@
-﻿namespace API.EmailSetting;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Shared.EmailSetting;
 public class EmailResponse
 {
     public string Subject { get; set; } = null!;

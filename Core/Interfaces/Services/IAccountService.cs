@@ -9,6 +9,8 @@ public interface IAccountService
 
     Task<Result<AppUserResponse>> Login(LoginRequest model);
 
+    Task<Result<AppUserResponse>> GetCurrentUser(ClaimsPrincipal User);
+
     Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal User);
 
     Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal User);

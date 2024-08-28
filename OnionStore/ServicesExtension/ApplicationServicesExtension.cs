@@ -1,9 +1,9 @@
-﻿using API.EmailSetting;
-using Core.Interfaces.Repositories;
+﻿using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using DotNetCore_ECommerce.Helpers;
 using Repository;
 using Service;
+using Shared.EmailSetting;
 
 namespace API.ServicesExtension;
 public static class ApplicationServicesExtension
@@ -42,6 +42,9 @@ public static class ApplicationServicesExtension
 
         // Register Basket Service
         services.AddScoped(typeof(IBasketService), typeof(BasketService));
+
+        // Register Account Service 
+        services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
         // --- Two Ways To Register AutoMapper
         // - First (harder)

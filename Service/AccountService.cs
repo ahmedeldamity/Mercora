@@ -74,6 +74,22 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         return Result.Success(userResponse);
     }
 
+    public async Task<Result<AppUserResponse>> GetCurrentUser(ClaimsPrincipal User)
+    {
+        var email = User.FindFirstValue(ClaimTypes.Email);
+
+        var user = await _userManager.FindByEmailAsync(email!);
+
+        var userResponse = new AppUserResponse
+        {
+            DisplayName = user!.DisplayName,
+            Email = user.Email!,
+            Token = await _authService.CreateTokenAsync(user, _userManager)
+        };
+
+        return Result.Success(userResponse);
+    }
+
     public async Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal User)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
