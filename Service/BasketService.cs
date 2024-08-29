@@ -15,7 +15,7 @@ public class BasketService(IBasketRepository _basketRepository, IMapper _mapper)
         var createdOrUpdated = await _basketRepository.CreateOrUpdateBasketAsync(basket);
 
         if (createdOrUpdated is null) 
-            return Result.Failure<BasketResponse>(new Error("Basket could not be created or updated", 400));
+            return Result.Failure<BasketResponse>(400, "Basket could not be created or updated");
 
         var basketResponse = _mapper.Map<Basket, BasketResponse>(createdOrUpdated);
 
@@ -24,10 +24,7 @@ public class BasketService(IBasketRepository _basketRepository, IMapper _mapper)
 
     public async Task<Result<BasketResponse>> GetBasketAsync(string id)
     {
-        var basket = await _basketRepository.GetBasketAsync(id);
-
-        if (basket is null)
-            basket = new Basket(id);
+        var basket = await _basketRepository.GetBasketAsync(id) ?? new Basket(id);
 
         var basketResponse = _mapper.Map<Basket, BasketResponse>(basket);
 
@@ -38,4 +35,5 @@ public class BasketService(IBasketRepository _basketRepository, IMapper _mapper)
     {
         await _basketRepository.DeleteBasketAsync(id);
     }
+
 }

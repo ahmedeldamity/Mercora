@@ -16,7 +16,8 @@ public static class FluentValidationExtension
             .AddValidatorsFromAssemblyContaining<OrderAddressValidator>()
             .AddValidatorsFromAssemblyContaining<OrderItemValidator>()
             .AddValidatorsFromAssemblyContaining<OrderValidator>()
-            .AddValidatorsFromAssemblyContaining<UserAddressValidator>();
+            .AddValidatorsFromAssemblyContaining<UserAddressValidator>()
+            .AddValidatorsFromAssemblyContaining<EmailValidator>();
 
         return services;
     }

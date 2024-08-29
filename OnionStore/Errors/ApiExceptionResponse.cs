@@ -1,13 +1,9 @@
-﻿namespace API.Errors
-{
-    public class ApiExceptionResponse : ApiResponse
-    {
-        public string? Details { get; set; }
+﻿using Core.ErrorHandling;
 
-        public ApiExceptionResponse(int statusCode, string? message = null, string? details = null) :
-            base(statusCode, message)
-        {
-            Details = details;
-        }
+namespace API.Errors
+{
+    public class ApiExceptionResponse(int statusCode, string? message = null, string? errors = null) : ApiResponse(statusCode, message)
+    {
+        public string? Errors { get; set; } = errors;
     }
 }

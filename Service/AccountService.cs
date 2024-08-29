@@ -18,7 +18,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         // Check if the email is already registered and confirmed 
         if (user is not null && user.EmailConfirmed is true)
         {
-            return Result.Failure<AppUserResponse>(new Error("This email has already been used.", 400));
+            return Result.Failure<AppUserResponse>(400, "This email has already been used.");
         }
 
         var newUser = new AppUser()
@@ -34,8 +34,9 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
 
         if (result.Succeeded is false)
         {
-            var error = result.Errors.Select(e => e.Description).FirstOrDefault();
-            return Result.Failure<AppUserResponse>(new Error(error is null ? "Failed to register user." : error, 400));
+            var error = result.Errors.Select(e => e.Description);
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return Result.Failure<AppUserResponse>(400, errors);
         }
 
         var token = await _authService.CreateTokenAsync(newUser, _userManager);
@@ -55,12 +56,12 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         var user = await _userManager.FindByEmailAsync(model.Email);
 
         if (user is null || model.Password is null)
-            return Result.Failure<AppUserResponse>(new Error("Invalid email or password.", 400));
+            return Result.Failure<AppUserResponse>(400, "Invalid email or password.");
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
         if (result.Succeeded is false)
-            return Result.Failure<AppUserResponse>(new Error("Invalid email or password.", 400));
+            return Result.Failure<AppUserResponse>(400, "Invalid email or password.");
 
         var token = await _authService.CreateTokenAsync(user, _userManager);
 
@@ -97,7 +98,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         var user = await _userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
 
         if (user!.Address is null)
-            return Result.Failure<UserAddressResponse>(new Error("Address not found.", 404));
+            return Result.Failure<UserAddressResponse>(404, "Address not found.");
 
         var address = _mapper.Map<UserAddress, UserAddressResponse>(user.Address);
 
@@ -121,7 +122,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         var result = await _userManager.UpdateAsync(user);
 
         if (!result.Succeeded)
-            return Result.Failure<UserAddressResponse>(new Error("Failed to update address.", 400));
+            return Result.Failure<UserAddressResponse>(400, "Failed to update address.");
 
         return Result.Success(updatedAddress);
     }
@@ -150,7 +151,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
             var result = await _userManager.CreateAsync(user);
 
             if (!result.Succeeded)
-                return Result.Failure<AppUserResponse>(new Error("Failed to login with Google.", 400));
+                return Result.Failure<AppUserResponse>(400, "Failed to login with Google.");
         }
 
         user.EmailConfirmed = true;

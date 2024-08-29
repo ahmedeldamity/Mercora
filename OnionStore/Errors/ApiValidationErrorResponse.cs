@@ -1,4 +1,6 @@
-﻿namespace API.Errors
+﻿using Core.ErrorHandling;
+
+namespace API.Errors
 {
 	public class ApiValidationErrorResponse: ApiResponse
 	{
@@ -7,6 +9,6 @@
 
 		}
 
-		public IEnumerable<string> Errors { get; set; } = new List<string>();
+		public IEnumerable<string> Errors { get; set; } = [];
 	}
 }

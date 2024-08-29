@@ -56,7 +56,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 	{
 		// --- then we bring ModelState: Dictionary key/value pair for each parameter, and value has property Errors Array have all errors
 		// --- and we use where to bring dictionary key/value pair which is value has errors 
-		var errors = actionContext.ModelState.Where(P => P.Value!.Errors.Count() > 0)
+		var errors = actionContext.ModelState.Where(P => P.Value!.Errors.Count > 0)
 		// --- then we use SelectMany to make one array of all error  
 		.SelectMany(P => P.Value!.Errors)
 		// --- then we use Select to bring from errors just ErrorMessages

@@ -13,7 +13,7 @@ public class AccountController(IAccountService _accountService) : BaseController
 	{
         var result = await _accountService.Register(model);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
 	}
 
     [HttpPost("login")]
@@ -21,7 +21,7 @@ public class AccountController(IAccountService _accountService) : BaseController
 	{
 		var result = await _accountService.Login(model);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
 	}
 
     [HttpGet]
@@ -30,7 +30,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.GetCurrentUser(User);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
     }
 
     [Authorize]
@@ -39,7 +39,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.GetCurrentUserAddress(User);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
     }
 
     [Authorize]
@@ -48,7 +48,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.UpdateUserAddress(updatedAddress, User);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
     }
 
     [HttpPost("googlelogin")]
@@ -56,7 +56,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.GoogleLogin(credential);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
     }
 
 }

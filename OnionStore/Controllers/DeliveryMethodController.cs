@@ -1,4 +1,5 @@
-﻿using Core.Entities.OrderEntities;
+﻿using API.Extensions;
+using Core.Entities.OrderEntities;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ public class DeliveryMethodController(IDeliveryMethodService _deliveryMethodServ
     {
         var result = await _deliveryMethodService.GetAllDeliveryMethodsAsync();
 
-        return Ok(result.Value);
+        return result.ToSuccess();
     }
+
 }

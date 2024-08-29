@@ -11,7 +11,7 @@ public class ProductController(IProductService _productService) : BaseController
     {
         var result = await _productService.GetProductsAsync(specParams);
 
-        return Ok(result.Value);
+        return result.ToSuccess();
     }
 
     [HttpGet("{id}")]
@@ -19,7 +19,7 @@ public class ProductController(IProductService _productService) : BaseController
     {
         var result = await _productService.GetProductAsync(id);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
     }
 
 }

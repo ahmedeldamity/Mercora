@@ -40,7 +40,7 @@ public class ProductService(IUnitOfWork _unitOfWork, IMapper _mapper) : IProduct
         var product = await _unitOfWork.Repository<Product>().GetEntityAsync(spec);
 
         if (product is null)
-            return Result.Failure<ProductResponse>(new Error("Product not found", 404));
+            return Result.Failure<ProductResponse>(404, "Product not found");
 
         var productDto = _mapper.Map<Product, ProductResponse>(product);
 

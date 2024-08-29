@@ -1,9 +1,11 @@
-﻿namespace Core.ErrorHandling;
+﻿using Microsoft.AspNetCore.Http;
+
+namespace Core.ErrorHandling;
 public class Result
 {
-    public Result(bool isSuccess, Error error)
+    public Result(bool isSuccess, ApiResponse error)
     {
-        if (isSuccess && error != Error.None || !isSuccess && error == Error.None)
+        if (isSuccess && error.StatusCode != 200 || !isSuccess && error.StatusCode == 200)
             throw new InvalidOperationException();
 
         IsSuccess = isSuccess;
@@ -12,13 +14,13 @@ public class Result
 
     public bool IsSuccess { get; }
     public bool IsFailure => !IsSuccess;
-    public Error Error { get; } = default!;
+    public ApiResponse Error { get; } = default!;
 
-    public static Result Success() => new(true, Error.None);
-    public static Result FailureOrSuccessMessage(Error error) => new(false, error);
+    public static Result Success(string? title) => new(true, new ApiResponse(200, title));
+    public static Result Failure(int statusCode, string? title) => new(false, new ApiResponse(statusCode, title));
 
-    public static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
-    public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
+    public static Result<TValue> Success<TValue>(TValue value) => new(value, true, new ApiResponse(200));
+    public static Result<TValue> Failure<TValue>(int statusCode, string title) => new(default, false, new ApiResponse(statusCode, title));
 }
 
 
@@ -26,7 +28,7 @@ public class Result<TValue> : Result
 {
     private readonly TValue? _value;
 
-    public Result(TValue? value, bool isSuccess, Error error) : base(isSuccess, error)
+    public Result(TValue? value, bool isSuccess, ApiResponse error) : base(isSuccess, error)
     {
         _value = value;
     }

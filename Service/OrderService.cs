@@ -7,6 +7,7 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Specifications.OrderSpecifications;
 using Microsoft.AspNetCore.Http;
+using System.Net;
 using System.Security.Claims;
 
 namespace Service;
@@ -27,7 +28,7 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         var basket = await _basketRepository.GetBasketAsync(basketId);
 
         if (basket is null || basket.DeliveryMethodId is null || basket.PaymentIntentId is null)
-            return Result.Failure<OrderResponse>(new Error("Invalid Basket", 404));
+            return Result.Failure<OrderResponse>(404, "Invalid Basket Data");
 
         // 2. Get Items at Basket from Product repository for get the real products price
         var orderitems = new List<OrderItem>();
@@ -81,7 +82,7 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         var result = await _unitOfWork.CompleteAsync();
 
         if (result <= 0)
-            return Result.Failure<OrderResponse>(new Error("Invalid Basket", 404));
+            return Result.Failure<OrderResponse>(400, "An unexpected error occurred during order creation.");
 
         var orderRespone = _mapper.Map<Order, OrderResponse>(order);
 
@@ -114,7 +115,7 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         var order = await ordersRepo.GetEntityAsync(spec);
 
         if (order is null)
-            return Result.Failure<OrderResponse>(new Error("Order not found", 404));
+            return Result.Failure<OrderResponse>(404, "Order not found");
 
         var orderResponse = _mapper.Map<Order, OrderResponse>(order);
 
