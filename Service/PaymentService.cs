@@ -22,14 +22,16 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
         var basket = await _basketRepository.GetBasketAsync(basketId);
 
         if (basket is null)
-            return Result.Failure<BasketResponse>(404, "Basket not found");
+            return Result.Failure<BasketResponse>(404, "The specified basket could not be found. Please check the basket details and try again.");
 
         if (basket.DeliveryMethodId.HasValue)
         {
             var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket.DeliveryMethodId.Value);
 
             if (deliveryMethod is null)
-                return Result.Failure<BasketResponse>(404, "Delivery method not found");
+            {
+                return Result.Failure<BasketResponse>(404, "The specified delivery method could not be found. Please check the basket details and try again.");
+            }
 
             basket.ShippingPrice = deliveryMethod.Cost;
         }
@@ -41,14 +43,18 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
                 var product = await _unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
 
                 if (product is null)
-                    return Result.Failure<BasketResponse>(404, "Product not found");
+                {
+                    return Result.Failure<BasketResponse>(404, $"Product with ID {item.Id} was not found. Please review your basket.");
+                }
 
                 if (item.Price != product.Price)
+                {
                     item.Price = product.Price;
+                }
             }
         }
 
-        PaymentIntentService paymentIntentService = new PaymentIntentService();
+        PaymentIntentService paymentIntentService = new();
 
         PaymentIntent paymentIntent;
 

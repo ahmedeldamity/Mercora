@@ -12,12 +12,14 @@ public class BasketService(IBasketRepository _basketRepository, IMapper _mapper)
     {
         var basket = _mapper.Map<BasketRequest, Basket>(basketDto);
 
-        var createdOrUpdated = await _basketRepository.CreateOrUpdateBasketAsync(basket);
+        var createdOrUpdatedBasket = await _basketRepository.CreateOrUpdateBasketAsync(basket);
 
-        if (createdOrUpdated is null) 
-            return Result.Failure<BasketResponse>(400, "Basket could not be created or updated");
+        if (createdOrUpdatedBasket is null)
+        {
+            return Result.Failure<BasketResponse>(400, "Failed to create or update the basket. Please try again.");
+        }
 
-        var basketResponse = _mapper.Map<Basket, BasketResponse>(createdOrUpdated);
+        var basketResponse = _mapper.Map<Basket, BasketResponse>(createdOrUpdatedBasket);
 
         return Result.Success(basketResponse);
     }
