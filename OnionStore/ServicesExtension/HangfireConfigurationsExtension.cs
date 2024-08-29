@@ -1,4 +1,5 @@
-﻿using Hangfire;
+﻿using API.Extensions;
+using Hangfire;
 using HangfireBasicAuthenticationFilter;
 using Microsoft.Extensions.Options;
 using Service.ConfigurationData;
@@ -21,7 +22,7 @@ public static class HangfireConfigurationsExtension
         return services;
 	}
 
-    public static WebApplication UseHangfireDashboard(this WebApplication app, IServiceCollection services)
+    public static WebApplication UseHangfireDashboardAndRecurringJob(this WebApplication app, IServiceCollection services)
     {
         var serviceProvider = services.BuildServiceProvider();
 
@@ -40,6 +41,8 @@ public static class HangfireConfigurationsExtension
             DashboardTitle = hangfireData.ServerName,
 
         });
+
+        RecurringJob.AddOrUpdate<DataDeletionJob>("data-deletion-job", x => x.Execute(), Cron.Monthly(1));
 
         return app;
     }

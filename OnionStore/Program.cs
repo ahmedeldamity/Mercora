@@ -147,7 +147,7 @@ app.MapControllers();
 //	-- But We Use MapController Instead Of It Because We Create Routing On Controller Itself
 #endregion
 
-app.UseHangfireDashboard(builder.Services);
+app.UseHangfireDashboardAndRecurringJob(builder.Services);
 
 #endregion
 
