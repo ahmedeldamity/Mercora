@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Repository.Data;
 using Repository.Identity;
 using Repository.Store;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -40,6 +41,12 @@ builder.Services.AddFluentValidation();
 
 // This Method Has All Application Services
 builder.Services.AddApplicationServices();
+
+builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+{
+	loggerConfiguration
+		.ReadFrom.Configuration(hostingContext.Configuration);
+});
 
 // This to allow any host from front-end
 builder.Services.AddCorsPolicy();
@@ -118,6 +125,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 // -- Add Swagger Middelwares In Extension Method
 app.UseSwaggerMiddleware();
+
+app.UseSerilogRequestLogging();
 
 // -- To this application can resolve on any static file like (html, wwwroot, etc..)
 app.UseStaticFiles();
