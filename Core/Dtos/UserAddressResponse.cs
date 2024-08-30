@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class UserAddressResponse
+public record UserAddressResponse
 {
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;

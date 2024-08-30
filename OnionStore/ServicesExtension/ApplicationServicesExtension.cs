@@ -45,6 +45,9 @@ public static class ApplicationServicesExtension
         // Register Account Service 
         services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
+        // Register Caching service
+        services.AddSingleton(typeof(IResponseCacheService), typeof(ResponseCacheService));
+
         // --- Two Ways To Register AutoMapper
         // - First (harder)
         //builder.Services.AddAutoMapper(M => M.AddProfile(new MappingProfiles()));

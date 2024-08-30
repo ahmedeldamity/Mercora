@@ -17,7 +17,7 @@ public class PaymentController(IPaymentService _paymentService, ILogger<PaymentC
     {
         var result = await _paymentService.CreateOrUpdatePaymentIntent(basketId);
 
-        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
     }
 
     [HttpPost("webhook")]

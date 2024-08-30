@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class OrderAddressRequest
+public record OrderAddressRequest
 {
     public string FirstName { get; set; } = null!;
     public string LastName { get; set; } = null!;

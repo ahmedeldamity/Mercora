@@ -12,7 +12,6 @@ WORKDIR /src
 COPY ["OnionStore/API.csproj", "OnionStore/"]
 COPY ["Repository/Repository.csproj", "Repository/"]
 COPY ["Core/Core.csproj", "Core/"]
-COPY ["Shared/Shared.csproj", "Shared/"]
 COPY ["Service/Service.csproj", "Service/"]
 RUN dotnet restore "./OnionStore/API.csproj"
 COPY . .

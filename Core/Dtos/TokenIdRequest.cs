@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class TokenIdRequest
+public record TokenIdRequest
 {
     public string TokenId { get; set; } = null!;
 }

@@ -19,4 +19,5 @@ public static class StoreConfigurationsExtension
 
         return services;
     }
+
 }

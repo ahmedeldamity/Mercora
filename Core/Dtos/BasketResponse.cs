@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class BasketResponse
+public record BasketResponse
 {
     public string Id { get; set; } = null!;
     public List<BasketItemResponse> Items { get; set; } = [];

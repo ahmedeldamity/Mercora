@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Core.Interfaces.Services;
-using API.Extensions;
+﻿using Core.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 public class BrandController(IBrandService _brandService) : BaseController
@@ -10,7 +9,7 @@ public class BrandController(IBrandService _brandService) : BaseController
     {
         var result = await _brandService.GetBrandsAsync();
 
-        return result.ToSuccess();
+        return Ok(result.Value);
     }
 
 }

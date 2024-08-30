@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class ProductBrandResponse
+public record ProductBrandResponse
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;
