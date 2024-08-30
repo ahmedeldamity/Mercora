@@ -10,7 +10,7 @@ public class CategoryController(ICategoryService _categoryService) : BaseControl
     {
         var result = await _categoryService.GetCategoriesAsync();
 
-        return result.ToSuccess();
+        return Ok(result.Value);
     }
 
 }

@@ -1,4 +1,5 @@
 ﻿using API.Extensions;
+using API.Helpers;
 using Core.Interfaces.Services;
 using Core.Specifications.ProductSpecifications;
 using Microsoft.AspNetCore.Mvc;
@@ -6,12 +7,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 public class ProductController(IProductService _productService) : BaseController
 {
+    [Cached(600)]
     [HttpGet]
     public async Task<ActionResult> GetProducts([FromQuery] ProductSpecificationParameters specParams)
     {
         var result = await _productService.GetProductsAsync(specParams);
 
-        return result.ToSuccess();
+        return Ok(result.Value);
     }
 
     [HttpGet("{id}")]
@@ -19,7 +21,7 @@ public class ProductController(IProductService _productService) : BaseController
     {
         var result = await _productService.GetProductAsync(id);
 
-        return result.IsSuccess ? result.ToSuccess() : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
     }
 
 }

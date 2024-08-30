@@ -11,7 +11,7 @@ public class DeliveryMethodController(IDeliveryMethodService _deliveryMethodServ
     {
         var result = await _deliveryMethodService.GetAllDeliveryMethodsAsync();
 
-        return result.ToSuccess();
+        return Ok(result.Value);
     }
 
 }

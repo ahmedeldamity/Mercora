@@ -10,7 +10,7 @@ public class BrandController(IBrandService _brandService) : BaseController
     {
         var result = await _brandService.GetBrandsAsync();
 
-        return result.ToSuccess();
+        return Ok(result.Value);
     }
 
 }
