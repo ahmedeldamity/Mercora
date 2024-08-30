@@ -6,7 +6,7 @@ using System.Collections.Concurrent;
 namespace Repository;
 public class UnitOfWork(StoreContext _storeContext) : IUnitOfWork
 {
-    private readonly ConcurrentDictionary<string, object> _repositories = new ConcurrentDictionary<string, object>();
+    private readonly ConcurrentDictionary<string, object> _repositories = new();
 
     public IGenericRepository<T> Repository<T>() where T : BaseEntity
     {

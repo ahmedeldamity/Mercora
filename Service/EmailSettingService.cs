@@ -1,11 +1,13 @@
-﻿using MailKit.Net.Smtp;
+﻿using Core.Dtos;
+using Core.Interfaces.Services;
+using MailKit.Net.Smtp;
 using MailKit.Security;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using Service.ConfigurationData;
 
-namespace Service.EmailSetting;
-public class EmailSettings(IOptions<MailData> options) : IEmailSettings
+namespace Service;
+public class EmailSettingService(IOptions<MailData> options) : IEmailSettingService
 {
     private readonly MailData _options = options.Value;
 

@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-
-namespace Core.ErrorHandling;
+﻿namespace Core.ErrorHandling;
 public class Result
 {
     public Result(bool isSuccess, ApiResponse error)
@@ -13,7 +11,6 @@ public class Result
     }
 
     public bool IsSuccess { get; }
-    public bool IsFailure => !IsSuccess;
     public ApiResponse Error { get; } = default!;
 
     public static Result Success(string? title) => new(true, new ApiResponse(200, title));
@@ -24,14 +21,9 @@ public class Result
 }
 
 
-public class Result<TValue> : Result
+public class Result<TValue>(TValue? value, bool isSuccess, ApiResponse error) : Result(isSuccess, error)
 {
-    private readonly TValue? _value;
-
-    public Result(TValue? value, bool isSuccess, ApiResponse error) : base(isSuccess, error)
-    {
-        _value = value;
-    }
+    private readonly TValue? _value = value;
 
     public TValue Value => IsSuccess ? _value! : throw new InvalidOperationException("Failure results cannot have value");
 }

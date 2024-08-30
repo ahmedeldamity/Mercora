@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 
-namespace Service.EmailSetting;
+namespace Core.Dtos;
 public class EmailResponse
 {
     public string Subject { get; set; } = null!;

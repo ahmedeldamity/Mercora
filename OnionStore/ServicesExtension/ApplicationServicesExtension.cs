@@ -3,7 +3,6 @@ using Core.Interfaces.Services;
 using DotNetCore_ECommerce.Helpers;
 using Repository;
 using Service;
-using Service.EmailSetting;
 
 namespace API.ServicesExtension;
 public static class ApplicationServicesExtension
@@ -14,7 +13,7 @@ public static class ApplicationServicesExtension
         services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
 
         // Register EmailSettings
-        services.AddTransient(typeof(IEmailSettings), typeof(EmailSettings));
+        services.AddTransient(typeof(IEmailSettingService), typeof(EmailSettingService));
 
         // Register AuthService
         services.AddScoped(typeof(IAuthService), typeof(AuthService));

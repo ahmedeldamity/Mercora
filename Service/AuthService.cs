@@ -9,14 +9,13 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Repository.Identity;
 using Service.ConfigurationData;
-using Service.EmailSetting;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Service;
-public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userManager, IdentityContext _identityContext, IEmailSettings _emailSettings) : IAuthService
+public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userManager, IdentityContext _identityContext, IEmailSettingService _emailSettings) : IAuthService
 {
     private readonly JWTData _jWTData = jWTData.Value;
 
