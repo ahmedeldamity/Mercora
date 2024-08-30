@@ -51,7 +51,7 @@ public class AccountController(IAccountService _accountService) : BaseController
         return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
     }
 
-    [HttpPost("googlelogin")]
+    [HttpPost("google-login")]
     public async Task<ActionResult<AppUserResponse>> GoogleLogin([FromBody] string credential)
     {
         var result = await _accountService.GoogleLogin(credential);

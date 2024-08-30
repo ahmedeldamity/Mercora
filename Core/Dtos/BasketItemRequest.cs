@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class BasketItemRequest
+public record BasketItemRequest
 {
     public int Id { get; set; }
     public string Name { get; set; } = null!;

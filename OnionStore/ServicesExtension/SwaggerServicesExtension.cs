@@ -45,4 +45,5 @@ public static class SwaggerServicesExtension
 
 		return app;
 	}
+
 }

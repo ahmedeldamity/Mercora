@@ -1,7 +1,5 @@
-﻿using API.Errors;
-using API.Extensions;
+﻿using API.Extensions;
 using Core.ErrorHandling;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
@@ -16,8 +14,6 @@ public class ErrorController : ControllerBase
 {
     public ActionResult Error(int code)
     {
-        //return NotFound(new ResponseAPI(code));
-
         var result = new Result(false, new ApiResponse(code));
 
         return result.ToProblemOrSuccessMessage();

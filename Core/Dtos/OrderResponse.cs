@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class OrderResponse
+public record OrderResponse
 {
     public int Id { get; set; }
     public string BuyerEmail { get; set; } = null!;

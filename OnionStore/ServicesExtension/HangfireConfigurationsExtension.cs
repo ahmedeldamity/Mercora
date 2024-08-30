@@ -46,4 +46,5 @@ public static class HangfireConfigurationsExtension
 
         return app;
     }
+
 }

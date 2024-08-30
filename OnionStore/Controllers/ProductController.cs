@@ -7,8 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers;
 public class ProductController(IProductService _productService) : BaseController
 {
-    [Cached(600)]
     [HttpGet]
+    [Cached(600)]
     public async Task<ActionResult> GetProducts([FromQuery] ProductSpecificationParameters specParams)
     {
         var result = await _productService.GetProductsAsync(specParams);
@@ -17,6 +17,7 @@ public class ProductController(IProductService _productService) : BaseController
     }
 
     [HttpGet("{id}")]
+    [Cached(600)]
     public async Task<ActionResult> GetProduct(int id)
     {
         var result = await _productService.GetProductAsync(id);

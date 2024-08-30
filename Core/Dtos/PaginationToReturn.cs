@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class PaginationToReturn<T>(int pageIndex, int pageSize, int count, IReadOnlyList<T> data)
+public record PaginationToReturn<T>(int pageIndex, int pageSize, int count, IReadOnlyList<T> data)
 {
     public int PageIndex { get; set; } = pageIndex;
     public int PageSize { get; set; } = pageSize;

@@ -1,6 +1,5 @@
 ﻿namespace Core.Dtos;
-
-public class AppUserResponse
+public record AppUserResponse
 {
     public string DisplayName { get; set; } = null!;
     public string Email { get; set; } = null!;

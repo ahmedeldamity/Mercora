@@ -17,4 +17,5 @@ public static class RedisConfigurationExtension
 
         return services;
     }
+
 }

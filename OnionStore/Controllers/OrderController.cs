@@ -1,4 +1,5 @@
 ﻿using API.Extensions;
+using API.Helpers;
 using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
@@ -18,6 +19,7 @@ public class OrderController(IOrderService _orderService) : BaseController
     }
 
     [HttpGet]
+    [Cached(600)]
     public async Task<ActionResult<IReadOnlyList<OrderResponse>>> GetOrdersForUser()
     {
         var result = await _orderService.GetOrdersForUserAsync();
@@ -26,6 +28,7 @@ public class OrderController(IOrderService _orderService) : BaseController
     }
 
     [HttpGet("{orderId}")]
+    [Cached(600)]
     public async Task<ActionResult<OrderResponse>> GetSpecificOrderForUser(int orderId)
     {
         var result = await _orderService.GetSpecificOrderForUserAsync(orderId);

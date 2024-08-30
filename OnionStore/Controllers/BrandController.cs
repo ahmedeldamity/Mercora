@@ -1,6 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Core.Interfaces.Services;
-using API.Extensions;
+﻿using Core.Interfaces.Services;
+using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 public class BrandController(IBrandService _brandService) : BaseController

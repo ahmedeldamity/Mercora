@@ -43,4 +43,5 @@ public static class JWTConfigurationsExtension
 
         return services;
     }
+
 }

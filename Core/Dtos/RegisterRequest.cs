@@ -1,5 +1,5 @@
 ﻿namespace Core.Dtos;
-public class RegisterRequest
+public record RegisterRequest
 {
 	public string DisplayName { get; set; } = null!;
 	public string Email { get; set; } = null!;
