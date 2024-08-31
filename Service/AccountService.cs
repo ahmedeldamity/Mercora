@@ -4,13 +4,23 @@ using Core.Entities.IdentityEntities;
 using Core.ErrorHandling;
 using Core.Interfaces.Services;
 using Google.Apis.Auth;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using Service.ConfigurationData;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Service;
-public class AccountService(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IAuthService _authService, IMapper _mapper) : IAccountService
+public class AccountService(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IAuthService _authService,
+    IMapper _mapper, IOptions<JWTData> jWTData, IHttpContextAccessor _httpContextAccessor) : IAccountService
 {
+    private readonly JWTData _jWTData = jWTData.Value;
+
     public async Task<Result<AppUserResponse>> Register(RegisterRequest model)
     {
         var user = await _userManager.FindByEmailAsync(model.Email);
@@ -38,7 +48,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
             return Result.Failure<AppUserResponse>(400, errors);
         }
 
-        var token = await _authService.CreateTokenAsync(newUser, _userManager);
+        var token = await GenerateTokenAsync(newUser);
 
         var userResponse = new AppUserResponse
         {
@@ -46,6 +56,23 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
             Email = newUser.Email,
             Token = token
         };
+
+        if (user!.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
+        {
+            var refreshToken = user.RefreshTokens.First(t => t.IsActive);
+            userResponse.RefreshToken = refreshToken.Token;
+            userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
+        }
+        else
+        {
+            var refreshToken = GenerateRefreshToken();
+            userResponse.RefreshToken = refreshToken.Token;
+            userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
+            user.RefreshTokens!.Add(refreshToken);
+            await _userManager.UpdateAsync(user);
+        }
+
+        SetRefreshTokenInCookie(userResponse.RefreshToken, userResponse.RefreshTokenExpireAt);
 
         return Result.Success(userResponse);
     }
@@ -65,7 +92,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
             return Result.Failure<AppUserResponse>(400, errors);
         }
 
-        var token = await _authService.CreateTokenAsync(user, _userManager);
+        var token = await GenerateTokenAsync(user);
 
         var userResponse = new AppUserResponse
         {
@@ -77,6 +104,41 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         return Result.Success(userResponse);
     }
 
+    public async Task<string> GenerateTokenAsync(AppUser user)
+    {
+
+        // Private Claims (user defined - can change from user to other)
+        var authClaims = new List<Claim>()
+        {
+            new (ClaimTypes.GivenName, user.UserName!),
+            new (ClaimTypes.Email, user.Email!)
+        };
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+
+        foreach (var role in userRoles)
+        {
+            authClaims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        // secret key
+        var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jWTData.SecretKey));
+
+        // Token Object
+        var token = new JwtSecurityToken(
+        // Registered Claims
+            issuer: _jWTData.ValidIssuer,
+            audience: _jWTData.ValidAudience,
+            expires: DateTime.UtcNow.AddMinutes(_jWTData.DurationInMinutes),
+            // Private Claims
+            claims: authClaims,
+            // Signature Key
+            signingCredentials: new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature)
+        );
+
+        // Create Token And Return It
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
     public async Task<Result<AppUserResponse>> GetCurrentUser(ClaimsPrincipal User)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
@@ -87,7 +149,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         {
             DisplayName = user!.DisplayName,
             Email = user.Email!,
-            Token = await _authService.CreateTokenAsync(user, _userManager)
+            Token = await GenerateTokenAsync(user, _userManager)
         };
 
         return Result.Success(userResponse);
@@ -166,7 +228,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
 
         await _userManager.UpdateAsync(user);
 
-        var token = await _authService.CreateTokenAsync(user, _userManager);
+        var token = await GenerateTokenAsync(user, _userManager);
 
         var userResponse = new AppUserResponse
         {
@@ -176,6 +238,73 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         };
 
         return Result.Success(userResponse);
+    }
+
+    private RefreshToken GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+
+        using var generator = new RNGCryptoServiceProvider();
+
+        generator.GetBytes(randomNumber);
+
+        return new RefreshToken
+        {
+            Token = Convert.ToBase64String(randomNumber),
+            ExpireAt = DateTime.UtcNow.AddDays(_jWTData.RefreshTokenExpirationInDays)
+        };
+    }
+
+    private void SetRefreshTokenInCookie(string token, DateTime expireAt)
+    {
+        var cookieOptions = new CookieOptions
+        {
+            HttpOnly = true,
+            Expires = expireAt.ToLocalTime()
+        };
+
+        _httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", token, cookieOptions);
+    }
+
+
+    // access token become not valid so the front-end give me user refresh token to validate it and if it be okay I will generate access token and sent it 
+    public async Task<Result<AppUserResponse>> RefreshTokenAsync()
+    {
+        var token = _httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
+
+        var authModel = new AppUserResponse();
+
+        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == token));  //
+
+        if (user is null || user.RefreshTokens is null) //
+            return Result.Failure<AppUserResponse>(400, "Invalid token");
+
+        var refreshToken = user.RefreshTokens.Single(t => t.Token == token);
+
+        if (!refreshToken.IsActive)
+            return Result.Failure<AppUserResponse>(400, "Invalid token");
+
+        refreshToken.RevokedAt = DateTime.UtcNow;
+
+        var newRefreshToken = GenerateRefreshToken();
+
+        user.RefreshTokens.Add(newRefreshToken);
+
+        await _userManager.UpdateAsync(user);
+
+        var jwtToken = await GenerateTokenAsync(user);
+
+        //authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtToken); 
+
+        authModel.DisplayName = user.DisplayName;
+        authModel.Email = user.Email!;
+        authModel.Token = jwtToken;
+        authModel.RefreshToken = newRefreshToken.Token;
+        authModel.RefreshTokenExpireAt = newRefreshToken.ExpireAt;
+
+        SetRefreshTokenInCookie(newRefreshToken.Token, newRefreshToken.ExpireAt);
+
+        return Result.Success(authModel);
     }
 
 }

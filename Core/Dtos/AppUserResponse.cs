@@ -10,5 +10,5 @@ public record AppUserResponse
     [JsonIgnore]
     public string? RefreshToken { get; set; }
 
-    public DateOnly RefreshTokenExpireAt { get; set; }
+    public DateTime RefreshTokenExpireAt { get; set; }
 }

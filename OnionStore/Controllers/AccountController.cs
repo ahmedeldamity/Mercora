@@ -3,6 +3,7 @@ using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Service;
 
 namespace API.Controllers;
 public class AccountController(IAccountService _accountService) : BaseController
@@ -23,6 +24,14 @@ public class AccountController(IAccountService _accountService) : BaseController
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
 	}
+
+    [HttpGet("refresh-token")]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var result = await _accountService.RefreshTokenAsync();
+
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+    }
 
     [HttpGet]
     [Authorize]

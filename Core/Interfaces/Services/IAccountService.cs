@@ -1,4 +1,5 @@
 ﻿using Core.Dtos;
+using Core.Entities.IdentityEntities;
 using Core.ErrorHandling;
 using System.Security.Claims;
 
@@ -8,6 +9,10 @@ public interface IAccountService
     Task<Result<AppUserResponse>> Register(RegisterRequest model);
 
     Task<Result<AppUserResponse>> Login(LoginRequest model);
+
+    Task<string> GenerateTokenAsync(AppUser user);
+
+    Task<Result<AppUserResponse>> RefreshTokenAsync();
 
     Task<Result<AppUserResponse>> GetCurrentUser(ClaimsPrincipal User);
 

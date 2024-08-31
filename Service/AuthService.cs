@@ -19,42 +19,6 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 {
     private readonly JWTData _jWTData = jWTData.Value;
 
-    public async Task<string> CreateTokenAsync(AppUser user, UserManager<AppUser> userManager)
-    {
-
-        // Private Claims (user defined - can change from user to other)
-        var authClaims = new List<Claim>()
-        {
-            new (ClaimTypes.GivenName, user.UserName!),
-            new (ClaimTypes.Email, user.Email!)
-        };
-
-        var userRoles = await userManager.GetRolesAsync(user);
-
-        foreach (var role in userRoles)
-        {
-            authClaims.Add(new Claim(ClaimTypes.Role, role));
-        }
-
-        // secret key
-        var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jWTData.SecretKey));
-
-        // Token Object
-        var token = new JwtSecurityToken(
-            // Registered Claims
-            issuer: _jWTData.ValidIssuer,
-            audience: _jWTData.ValidAudience,
-            expires: DateTime.UtcNow.AddMinutes(_jWTData.DurationInMinutes),
-            // Private Claims
-            claims: authClaims,
-            // Signature Key
-            signingCredentials: new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature)
-        );
-
-        // Create Token And Return It
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
-
     public async Task<Result> SendEmailVerificationCode(ClaimsPrincipal User)
     {
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -369,5 +333,4 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         }
         return result == 0;
     }
-
 }
