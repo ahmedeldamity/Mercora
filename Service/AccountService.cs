@@ -17,10 +17,11 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Service;
-public class AccountService(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager,
-    IMapper _mapper, IOptions<JWTData> jWTData, IHttpContextAccessor _httpContextAccessor) : IAccountService
+public class AccountService(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IMapper _mapper,
+IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor _httpContextAccessor) : IAccountService
 {
     private readonly JWTData _jWTData = jWTData.Value;
+    private readonly GoogleData _googleData = googleData.Value;
 
     public async Task<Result<AppUserResponse>> Register(RegisterRequest model)
     {
@@ -172,10 +173,13 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
     {
         var settings = new GoogleJsonWebSignature.ValidationSettings()
         {
-            Audience = ["YOUR_CLIENT"]
+            Audience = [ _googleData.ClientId ]
         };
 
         var payload = await GoogleJsonWebSignature.ValidateAsync(credential, settings);
+
+        if (string.IsNullOrEmpty(payload.Email))
+            return Result.Failure<AppUserResponse>(400, "Invalid payload: Email is missing.");
 
         var user = await _userManager.FindByEmailAsync(payload.Email);
 
