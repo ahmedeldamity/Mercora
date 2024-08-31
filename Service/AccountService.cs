@@ -16,7 +16,7 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Service;
-public class AccountService(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IAuthService _authService,
+public class AccountService(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager,
     IMapper _mapper, IOptions<JWTData> jWTData, IHttpContextAccessor _httpContextAccessor) : IAccountService
 {
     private readonly JWTData _jWTData = jWTData.Value;
@@ -48,12 +48,47 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
             return Result.Failure<AppUserResponse>(400, errors);
         }
 
-        var token = await GenerateTokenAsync(newUser);
+        var token = await GenerateAccessTokenAsync(newUser);
 
         var userResponse = new AppUserResponse
         {
             DisplayName = newUser.DisplayName,
             Email = newUser.Email,
+            Token = token
+        };
+
+        var refreshToken = GenerateRefreshToken();
+        userResponse.RefreshToken = refreshToken.Token;
+        userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
+        user!.RefreshTokens!.Add(refreshToken);
+        await _userManager.UpdateAsync(user);
+
+        SetRefreshTokenInCookie(userResponse.RefreshToken, userResponse.RefreshTokenExpireAt);
+
+        return Result.Success(userResponse);
+    }
+
+    public async Task<Result<AppUserResponse>> Login(LoginRequest model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+
+        if (user is null || model.Password is null)
+            return Result.Failure<AppUserResponse>(400, "The email or password you entered is incorrect, Check your credentials and try again.");
+
+        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+
+        if (result.Succeeded is false)
+        {
+            var errors = string.Join(", ", "The email or password you entered is incorrect, Check your credentials and try again.");
+            return Result.Failure<AppUserResponse>(400, errors);
+        }
+
+        var token = await GenerateAccessTokenAsync(user);
+
+        var userResponse = new AppUserResponse
+        {
+            DisplayName = user.DisplayName,
+            Email = user.Email!,
             Token = token
         };
 
@@ -77,68 +112,6 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         return Result.Success(userResponse);
     }
 
-    public async Task<Result<AppUserResponse>> Login(LoginRequest model)
-    {
-        var user = await _userManager.FindByEmailAsync(model.Email);
-
-        if (user is null || model.Password is null)
-            return Result.Failure<AppUserResponse>(400, "The email or password you entered is incorrect, Check your credentials and try again.");
-
-        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
-        if (result.Succeeded is false)
-        {
-            var errors = string.Join(", ", "The email or password you entered is incorrect, Check your credentials and try again.");
-            return Result.Failure<AppUserResponse>(400, errors);
-        }
-
-        var token = await GenerateTokenAsync(user);
-
-        var userResponse = new AppUserResponse
-        {
-            DisplayName = user.DisplayName,
-            Email = user.Email!,
-            Token = token
-        };
-
-        return Result.Success(userResponse);
-    }
-
-    public async Task<string> GenerateTokenAsync(AppUser user)
-    {
-
-        // Private Claims (user defined - can change from user to other)
-        var authClaims = new List<Claim>()
-        {
-            new (ClaimTypes.GivenName, user.UserName!),
-            new (ClaimTypes.Email, user.Email!)
-        };
-
-        var userRoles = await _userManager.GetRolesAsync(user);
-
-        foreach (var role in userRoles)
-        {
-            authClaims.Add(new Claim(ClaimTypes.Role, role));
-        }
-
-        // secret key
-        var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jWTData.SecretKey));
-
-        // Token Object
-        var token = new JwtSecurityToken(
-        // Registered Claims
-            issuer: _jWTData.ValidIssuer,
-            audience: _jWTData.ValidAudience,
-            expires: DateTime.UtcNow.AddMinutes(_jWTData.DurationInMinutes),
-            // Private Claims
-            claims: authClaims,
-            // Signature Key
-            signingCredentials: new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature)
-        );
-
-        // Create Token And Return It
-        return new JwtSecurityTokenHandler().WriteToken(token);
-    }
     public async Task<Result<AppUserResponse>> GetCurrentUser(ClaimsPrincipal User)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
@@ -149,7 +122,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         {
             DisplayName = user!.DisplayName,
             Email = user.Email!,
-            Token = await GenerateTokenAsync(user, _userManager)
+            Token = await GenerateAccessTokenAsync(user)
         };
 
         return Result.Success(userResponse);
@@ -228,7 +201,7 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
 
         await _userManager.UpdateAsync(user);
 
-        var token = await GenerateTokenAsync(user, _userManager);
+        var token = await GenerateAccessTokenAsync(user);
 
         var userResponse = new AppUserResponse
         {
@@ -240,17 +213,118 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         return Result.Success(userResponse);
     }
 
+    // access token become not valid so the front-end give me user refresh token to validate it and if it be okay I will generate access token and sent it 
+    public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
+    {
+        var refreshTokenFromCookie = _httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
+
+        var user = await _userManager.Users
+            .SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == refreshTokenFromCookie));
+
+        if (user is null || user.RefreshTokens is null)
+            return Result.Failure<AppUserResponse>(401, "Invalid or inactive refresh token.");
+
+        var refreshToken = user.RefreshTokens.Single(t => t.Token == refreshTokenFromCookie);
+
+        if (refreshToken.IsActive is false)
+            return Result.Failure<AppUserResponse>(401, "Invalid or inactive refresh token.");
+
+        refreshToken.RevokedAt = DateTime.UtcNow;
+
+        var newRefreshToken = GenerateRefreshToken();
+
+        user.RefreshTokens.Add(newRefreshToken);
+
+        await _userManager.UpdateAsync(user);
+
+        var accessToken = await GenerateAccessTokenAsync(user);
+
+        AppUserResponse userResponse = new()
+        {
+            DisplayName = user.DisplayName,
+            Email = user.Email!,
+            Token = accessToken,
+            RefreshToken = newRefreshToken.Token,
+            RefreshTokenExpireAt = newRefreshToken.ExpireAt
+        };
+
+        SetRefreshTokenInCookie(newRefreshToken.Token, newRefreshToken.ExpireAt);
+
+        return Result.Success(userResponse);
+    }
+
+    public async Task<Result> RevokeRefreshTokenAsync()
+    {
+        var refreshTokenFromCookie = _httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
+
+        var user = await _userManager.Users
+            .SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == refreshTokenFromCookie));
+
+        if (user is null || user.RefreshTokens is null)
+            return Result.Failure(401, "Invalid or inactive refresh token.");
+
+        var refreshToken = user.RefreshTokens.Single(t => t.Token == refreshTokenFromCookie);
+
+        if (refreshToken.IsActive is false)
+            return Result.Failure(401, "Invalid or inactive refresh token.");
+
+        refreshToken.RevokedAt= DateTime.UtcNow;
+
+        await _userManager.UpdateAsync(user);
+
+        return Result.Success("Refresh token revoked successfully.");
+    }
+
+    private async Task<string> GenerateAccessTokenAsync(AppUser user)
+    {
+
+        // Private Claims (user defined - can change from user to other)
+        var authClaims = new List<Claim>()
+        {
+            new (ClaimTypes.GivenName, user.UserName!),
+            new (ClaimTypes.Email, user.Email!)
+        };
+
+        var userRoles = await _userManager.GetRolesAsync(user);
+
+        foreach (var role in userRoles)
+        {
+            authClaims.Add(new Claim(ClaimTypes.Role, role));
+        }
+
+        // secret key
+        var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jWTData.SecretKey));
+
+        // Token Object
+        var token = new JwtSecurityToken(
+        // Registered Claims
+            issuer: _jWTData.ValidIssuer,
+            audience: _jWTData.ValidAudience,
+            expires: DateTime.UtcNow.AddMinutes(_jWTData.DurationInMinutes),
+            // Private Claims
+            claims: authClaims,
+            // Signature Key
+            signingCredentials: new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature)
+        );
+
+        // Create Token And Return It
+        return new JwtSecurityTokenHandler().WriteToken(token);
+    }
+
     private RefreshToken GenerateRefreshToken()
     {
-        var randomNumber = new byte[32];
+        const int tokenLength = 32;
+        byte[] randomNumber = new byte[tokenLength];
 
-        using var generator = new RNGCryptoServiceProvider();
+        using var generator = RandomNumberGenerator.Create();
 
         generator.GetBytes(randomNumber);
 
+        string token = Convert.ToBase64String(randomNumber);
+
         return new RefreshToken
         {
-            Token = Convert.ToBase64String(randomNumber),
+            Token = token,
             ExpireAt = DateTime.UtcNow.AddDays(_jWTData.RefreshTokenExpirationInDays)
         };
     }
@@ -264,47 +338,6 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         };
 
         _httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", token, cookieOptions);
-    }
-
-
-    // access token become not valid so the front-end give me user refresh token to validate it and if it be okay I will generate access token and sent it 
-    public async Task<Result<AppUserResponse>> RefreshTokenAsync()
-    {
-        var token = _httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
-
-        var authModel = new AppUserResponse();
-
-        var user = await _userManager.Users.SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == token));  //
-
-        if (user is null || user.RefreshTokens is null) //
-            return Result.Failure<AppUserResponse>(400, "Invalid token");
-
-        var refreshToken = user.RefreshTokens.Single(t => t.Token == token);
-
-        if (!refreshToken.IsActive)
-            return Result.Failure<AppUserResponse>(400, "Invalid token");
-
-        refreshToken.RevokedAt = DateTime.UtcNow;
-
-        var newRefreshToken = GenerateRefreshToken();
-
-        user.RefreshTokens.Add(newRefreshToken);
-
-        await _userManager.UpdateAsync(user);
-
-        var jwtToken = await GenerateTokenAsync(user);
-
-        //authModel.Token = new JwtSecurityTokenHandler().WriteToken(jwtToken); 
-
-        authModel.DisplayName = user.DisplayName;
-        authModel.Email = user.Email!;
-        authModel.Token = jwtToken;
-        authModel.RefreshToken = newRefreshToken.Token;
-        authModel.RefreshTokenExpireAt = newRefreshToken.ExpireAt;
-
-        SetRefreshTokenInCookie(newRefreshToken.Token, newRefreshToken.ExpireAt);
-
-        return Result.Success(authModel);
     }
 
 }

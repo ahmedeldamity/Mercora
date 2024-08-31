@@ -25,14 +25,6 @@ public class AccountController(IAccountService _accountService) : BaseController
         return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
 	}
 
-    [HttpGet("refresh-token")]
-    public async Task<IActionResult> RefreshToken()
-    {
-        var result = await _accountService.RefreshTokenAsync();
-
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
-    }
-
     [HttpGet]
     [Authorize]
     public async Task<ActionResult<AppUserResponse>> GetCurrentUser()
@@ -66,6 +58,22 @@ public class AccountController(IAccountService _accountService) : BaseController
         var result = await _accountService.GoogleLogin(credential);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+    }
+
+    [HttpGet("refresh-token")]
+    public async Task<IActionResult> CreateAccessTokenByRefreshToken()
+    {
+        var result = await _accountService.CreateAccessTokenByRefreshTokenAsync();
+
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+    }
+
+    [HttpPost("revoke-token")]
+    public async Task<IActionResult> RevokeRefreshToken()
+    {
+        var result = await _accountService.RevokeRefreshTokenAsync();
+
+        return result.IsSuccess ? Ok() : result.ToProblemOrSuccessMessage();
     }
 
 }
