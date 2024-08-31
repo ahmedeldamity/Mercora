@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Service.ConfigurationData;
+using Service.Utility;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
@@ -295,20 +296,21 @@ public class AccountService(UserManager<AppUser> _userManager, SignInManager<App
         // secret key
         var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jWTData.SecretKey));
 
-        // Token Object
-        var token = new JwtSecurityToken(
-        // Registered Claims
-            issuer: _jWTData.ValidIssuer,
-            audience: _jWTData.ValidAudience,
-            expires: DateTime.UtcNow.AddMinutes(_jWTData.DurationInMinutes),
-            // Private Claims
-            claims: authClaims,
-            // Signature Key
-            signingCredentials: new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature)
-        );
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Issuer = _jWTData.ValidIssuer,
+            Audience = _jWTData.ValidAudience,
+            Expires = DateTime.UtcNow.AddMinutes(_jWTData.DurationInMinutes),
+            Claims = authClaims.ToDictionary(c => c.Type, c => (object)c.Value),
+            SigningCredentials = new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature),
+            EncryptingCredentials = new EncryptingCredentials(TokenEncryption._rsaKey, SecurityAlgorithms.RsaOAEP, SecurityAlgorithms.Aes128CbcHmacSha256)
+        };
 
-        // Create Token And Return It
-        return new JwtSecurityTokenHandler().WriteToken(token);
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        // Create and return the encrypted JWT (JWE)
+        return tokenHandler.WriteToken(token);
     }
 
     private RefreshToken GenerateRefreshToken()
