@@ -2,6 +2,7 @@
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Service.ConfigurationData;
+using Service.Utility;
 using System.Text;
 
 namespace API.ServicesExtension;
@@ -33,6 +34,7 @@ public static class JWTConfigurationsExtension
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SecretKey)),
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero,
+                TokenDecryptionKey = TokenEncryption._rsaKey
             };
         })
         // If You need to doing some options on another schema

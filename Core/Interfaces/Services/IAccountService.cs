@@ -17,4 +17,8 @@ public interface IAccountService
 
     Task<Result<AppUserResponse>> GoogleLogin(string credential);
 
+    Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync();
+
+    Task<Result> RevokeRefreshTokenAsync();
+
 }
