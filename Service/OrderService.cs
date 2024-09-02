@@ -7,7 +7,6 @@ using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
 using Core.Specifications.OrderSpecifications;
 using Microsoft.AspNetCore.Http;
-using System.Net;
 using System.Security.Claims;
 
 namespace Service;

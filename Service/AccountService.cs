@@ -65,11 +65,116 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
 
-        user!.RefreshTokens!.Add(refreshToken);
+        newUser.RefreshTokens!.Add(refreshToken);
 
-        await _userManager.UpdateAsync(user);
+        await _userManager.UpdateAsync(newUser);
 
-        SetRefreshTokenInCookie(userResponse.RefreshToken, userResponse.RefreshTokenExpireAt);
+        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
+
+        return Result.Success(userResponse);
+    }
+
+    public async Task<Result<AppUserResponseV20>> RegisterV20(RegisterRequest model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+
+        // Check if the email is already registered and confirmed 
+        if (user is not null && user.EmailConfirmed is true)
+        {
+            return Result.Failure<AppUserResponseV20>(new Error(400, "The email address you entered is already taken, Please try a different one."));
+        }
+
+        var newUser = new AppUser()
+        {
+            DisplayName = model.DisplayName,
+            Email = model.Email,
+            UserName = model.Email.Split('@')[0],
+            PhoneNumber = model.PhoneNumber,
+            EmailConfirmed = false
+        };
+
+        var result = await _userManager.CreateAsync(newUser, model.Password);
+
+        if (result.Succeeded is false)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return Result.Failure<AppUserResponseV20>(new Error(400, errors));
+        }
+
+        var token = await GenerateAccessTokenAsync(newUser);
+
+        var userResponse = new AppUserResponseV20
+        {
+            DisplayName = newUser.DisplayName,
+            Email = newUser.Email,
+            PhoneNumber = newUser.PhoneNumber,
+            Token = token
+        };
+
+        var refreshToken = GenerateRefreshToken();
+
+        userResponse.RefreshToken = refreshToken.Token;
+
+        userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm");
+
+        newUser.RefreshTokens!.Add(refreshToken);
+
+        await _userManager.UpdateAsync(newUser);
+
+        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
+
+        return Result.Success(userResponse);
+    }
+
+    public async Task<Result<AppUserResponseV21>> RegisterV21(RegisterRequest model)
+    {
+        var user = await _userManager.FindByEmailAsync(model.Email);
+
+        // Check if the email is already registered and confirmed 
+        if (user is not null && user.EmailConfirmed is true)
+        {
+            return Result.Failure<AppUserResponseV21>(new Error(400, "The email address you entered is already taken, Please try a different one."));
+        }
+
+        var newUser = new AppUser()
+        {
+            DisplayName = model.DisplayName,
+            Email = model.Email,
+            UserName = model.Email.Split('@')[0],
+            PhoneNumber = model.PhoneNumber,
+            EmailConfirmed = false
+        };
+
+        var result = await _userManager.CreateAsync(newUser, model.Password);
+
+        if (result.Succeeded is false)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return Result.Failure<AppUserResponseV21>(new Error(400, errors));
+        }
+
+        var token = await GenerateAccessTokenAsync(newUser);
+
+        var userResponse = new AppUserResponseV21
+        {
+            FirstName = model.DisplayName.Trim().Split(' ')[0],
+            LastName = model.DisplayName.Trim().Split(' ')[1],
+            Email = newUser.Email,
+            PhoneNumber = newUser.PhoneNumber,
+            Token = token
+        };
+
+        var refreshToken = GenerateRefreshToken();
+
+        userResponse.RefreshToken = refreshToken.Token;
+
+        userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
+
+        newUser.RefreshTokens!.Add(refreshToken);
+
+        await _userManager.UpdateAsync(newUser);
+
+        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
         return Result.Success(userResponse);
     }
