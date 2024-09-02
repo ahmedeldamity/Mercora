@@ -68,7 +68,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         {
             To = userEmail!,
             Subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address",
-            Body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration")
+            Body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password."),
         };
 
         await _identityContext.IdentityCodes.AddAsync(new IdentityCode()

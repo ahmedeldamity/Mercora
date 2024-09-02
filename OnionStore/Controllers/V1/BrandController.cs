@@ -1,7 +1,7 @@
 ﻿using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 public class BrandController(IBrandService _brandService) : BaseController
 {
     [HttpGet]

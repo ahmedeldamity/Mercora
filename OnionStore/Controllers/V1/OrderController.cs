@@ -5,7 +5,7 @@ using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 
 [Authorize]
 public class OrderController(IOrderService _orderService) : BaseController

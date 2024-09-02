@@ -4,7 +4,7 @@ using Core.Interfaces.Services;
 using Core.Specifications.ProductSpecifications;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 public class ProductController(IProductService _productService) : BaseController
 {
     [HttpGet]

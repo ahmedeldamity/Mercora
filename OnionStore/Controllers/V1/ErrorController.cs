@@ -2,7 +2,7 @@
 using Core.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 
 [Route("error/{code}")]
 [ApiController]
