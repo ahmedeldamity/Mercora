@@ -9,6 +9,7 @@ public interface IAccountService
     Task<Result<AppUserResponseV20>> RegisterV20(RegisterRequest model);
     Task<Result<AppUserResponseV21>> RegisterV21(RegisterRequest model);
     Task<Result<AppUserResponse>> Login(LoginRequest model);
+    Task<Result<AppUserResponseV20>> LoginV20(LoginRequest model);
     Task<Result<AppUserResponse>> GetCurrentUser(ClaimsPrincipal User);
     Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal User);
     Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal User);

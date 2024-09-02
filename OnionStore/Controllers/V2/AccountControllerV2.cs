@@ -31,4 +31,13 @@ public class AccountControllerV2(IAccountService _accountService) : BaseControll
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
+    [HttpPost("login")]
+    [MapToApiVersion("2.0")]
+    public async Task<ActionResult<AppUserResponseV20>> Login(LoginRequest model)
+    {
+        var result = await _accountService.LoginV20(model);
+
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
+
 }
