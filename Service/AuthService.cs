@@ -152,6 +152,35 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         return Result.Success();
     }
 
+    public async Task<Result> SendPasswordResetEmailV2(EmailRequest email)
+    {
+        if (await _userManager.FindByEmailAsync(email.Email) is not { } user)
+            return Result.Success("If your email is registered with us, a password reset email has been successfully sent.");
+
+        var code = GenerateSecureCode();
+
+        EmailResponse emailToSend = new()
+        {
+            To = email.Email,
+            Subject = $"✅ {user.DisplayName}, Reset Your Password - Verification Code: {code}",
+            Body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password."),
+        };
+
+        await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
+        {
+            Code = HashCode(code),
+            User = user,
+            AppUserId = user.Id,
+            ForRegisterationConfirmed = false,
+        });
+
+        await _identityContext.SaveChangesAsync();
+
+        BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
+
+        return Result.Success("If your email is registered with us, a password reset email has been successfully sent.");
+    }
+
     public async Task<Result> VerifyResetCode(CodeVerificationRequest model, ClaimsPrincipal User)
     {
         var userEmail = User.FindFirstValue(ClaimTypes.Email);
@@ -257,6 +286,20 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         await transaction.CommitAsync();
 
         return Result.Success();
+    }
+
+    private string LoadEmailTemplate(string filePath, string code, string userName, string title, string message)
+    {
+        string template = File.ReadAllText(filePath);
+
+        // Replace placeholders with actual values
+        template = template.Replace("{{Code}}", code)
+                           .Replace("{{UserName}}", userName)
+                           .Replace("{{Title}}", title)
+                           .Replace("{{Message}}", message)
+                           .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+        return template;
     }
 
     private string EmailBody(string code, string userName, string title, string message)

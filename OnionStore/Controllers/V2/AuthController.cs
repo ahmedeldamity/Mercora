@@ -14,11 +14,19 @@ public class AuthController(IAuthService _authService) : ControllerBase
 {
     [Authorize]
     [HttpPost("send-email-verification-code")]
-    [MapToApiVersion("2.0")]
     public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCodeV2()
     {
         var result = await _authService.SendEmailVerificationCodeV2(User);
 
         return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
     }
+
+    [HttpPost("send-password-verification-code")]
+    public async Task<ActionResult> SendPasswordResetEmailV2(EmailRequest email)
+    {
+        var result = await _authService.SendPasswordResetEmailV2(email);
+
+        return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
+    }
+
 }

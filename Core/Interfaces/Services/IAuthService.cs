@@ -9,6 +9,7 @@ public interface IAuthService
     Task<Result> SendEmailVerificationCodeV2(ClaimsPrincipal User);
     Task<Result> VerifyRegisterCode(CodeVerificationRequest model, ClaimsPrincipal User);
     Task<Result> SendPasswordResetEmail(EmailRequest email);
+    Task<Result> SendPasswordResetEmailV2(EmailRequest email);
     Task<Result> VerifyResetCode(CodeVerificationRequest model, ClaimsPrincipal User);
     Task<Result> ChangePassword(ChangePasswordRequest model, ClaimsPrincipal User);
 }
