@@ -5,29 +5,28 @@ using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
-public class AccountControllerV2(IAccountService _accountService) : ControllerBase
+public class AccountController(IAccountService _accountService) : ControllerBase
 {
-
-	[HttpPost("register")]
-	public async Task<ActionResult<AppUserResponse>> Register(RegisterRequest model)
-	{
+    [HttpPost("register")]
+    public async Task<ActionResult<AppUserResponse>> Register(RegisterRequest model)
+    {
         var result = await _accountService.Register(model);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-	}
+    }
 
     [HttpPost("login")]
-	public async Task<ActionResult<AppUserResponse>> Login(LoginRequest model)
-	{
-		var result = await _accountService.Login(model);
+    public async Task<ActionResult<AppUserResponse>> Login(LoginRequest model)
+    {
+        var result = await _accountService.Login(model);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-	}
+    }
 
     [HttpGet]
     [Authorize]
@@ -79,5 +78,4 @@ public class AccountControllerV2(IAccountService _accountService) : ControllerBa
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
-
 }

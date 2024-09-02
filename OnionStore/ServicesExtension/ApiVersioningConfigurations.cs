@@ -12,6 +12,7 @@ public static class ApiVersioningConfigurations
             options.ReportApiVersions = true;					// the response headers will include information about the available API versions. This can be useful for clients to know what versions are supported.
             options.ApiVersionReader = new HeaderApiVersionReader("x-api-version"); // This determines how the API version will be read from the request.
         })
+        .AddMvc()
         .AddApiExplorer(options =>
         {
             options.GroupNameFormat = "'v'V";	// This controls how the API version will be represented in the Swagger UI (or any other API documentation). The format 'v'V means that the version will be displayed as v1, v2, etc.

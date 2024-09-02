@@ -52,6 +52,41 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         return Result.Success();
     }
 
+    public async Task<Result> SendEmailVerificationCodeV2(ClaimsPrincipal User)
+    {
+        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
+            return Result.Success("If your email is registered with us, a email verification code has been successfully sent.");
+
+        if (user.EmailConfirmed)
+            return Result.Failure(new Error(400, "Your email is already confirmed."));
+
+        var code = GenerateSecureCode();
+
+        EmailResponse emailToSend = new()
+        {
+            To = userEmail!,
+            Subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address",
+            Body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration")
+        };
+
+        await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
+        {
+            Code = HashCode(code),
+            IsActive = true,
+            User = user,
+            AppUserId = user.Id,
+            ForRegisterationConfirmed = true
+        });
+
+        await _identityContext.SaveChangesAsync();
+
+        BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
+
+        return Result.Success("If your email is registered with us, a email verification code has been successfully sent.");
+    }
+
     public async Task<Result> VerifyRegisterCode(CodeVerificationRequest model, ClaimsPrincipal User)
     {
         var userEmail = User.FindFirstValue(ClaimTypes.Email);

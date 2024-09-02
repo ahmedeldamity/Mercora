@@ -10,9 +10,8 @@ namespace API.Controllers.V2;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("2.0")]
 [ApiVersion("2.1")]
-public class AccountControllerV2(IAccountService _accountService) : BaseController
+public class AccountController(IAccountService _accountService) : ControllerBase
 {
-
     [HttpPost("register")]
     [MapToApiVersion("2.0")]
     public async Task<ActionResult<AppUserResponseV20>> RegisterV20(RegisterRequest model)
@@ -33,11 +32,10 @@ public class AccountControllerV2(IAccountService _accountService) : BaseControll
 
     [HttpPost("login")]
     [MapToApiVersion("2.0")]
-    public async Task<ActionResult<AppUserResponseV20>> Login(LoginRequest model)
+    public async Task<ActionResult<AppUserResponseV20>> LoginV20(LoginRequest model)
     {
         var result = await _accountService.LoginV20(model);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
-
 }
