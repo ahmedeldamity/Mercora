@@ -14,8 +14,8 @@ public class ErrorController : ControllerBase
 {
     public ActionResult Error(int code)
     {
-        var result = new Result(false, new ApiResponse(code));
+        var result = new Result(false, new Error(code));
 
-        return result.ToProblemOrSuccessMessage();
+        return result.ToProblem();
     }
 }

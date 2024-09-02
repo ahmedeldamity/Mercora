@@ -22,7 +22,7 @@ public class ProductController(IProductService _productService) : BaseController
     {
         var result = await _productService.GetProductAsync(id);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
 }

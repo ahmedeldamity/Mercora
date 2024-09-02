@@ -13,7 +13,7 @@ public class AuthController(IAuthService _authService) : BaseController
     {
         var result = await _authService.SendEmailVerificationCode(User);
 
-        return result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 
     [Authorize]
@@ -22,7 +22,7 @@ public class AuthController(IAuthService _authService) : BaseController
     {
         var result = await _authService.VerifyRegisterCode(model, User);
 
-        return result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 
     [HttpPost("send-password-verification-code")]
@@ -30,7 +30,7 @@ public class AuthController(IAuthService _authService) : BaseController
     {
         var result = await _authService.SendPasswordResetEmail(email);
 
-        return result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 
     [HttpPost("Verify-Reset-Code")]
@@ -38,7 +38,7 @@ public class AuthController(IAuthService _authService) : BaseController
     {
         var result = await _authService.VerifyResetCode(model, User);
 
-        return result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 
     [Authorize]
@@ -47,7 +47,7 @@ public class AuthController(IAuthService _authService) : BaseController
     {
         var result = await _authService.ChangePassword(model, User);
 
-        return result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 
 }

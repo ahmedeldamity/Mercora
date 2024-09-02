@@ -1,9 +1,9 @@
 ﻿namespace Core.ErrorHandling;
 public class Result
 {
-    public Result(bool isSuccess, ApiResponse error)
+    public Result(bool isSuccess, Error error)
     {
-        if (isSuccess && error.StatusCode != 200 || !isSuccess && error.StatusCode == 200)
+        if ((isSuccess && error != Error.None) || (!isSuccess && error == Error.None))
             throw new InvalidOperationException();
 
         IsSuccess = isSuccess;
@@ -11,17 +11,17 @@ public class Result
     }
 
     public bool IsSuccess { get; }
-    public ApiResponse Error { get; } = default!;
+    public Error Error { get; } = default!;
 
-    public static Result Success(string? title) => new(true, new ApiResponse(200, title));
-    public static Result Failure(int statusCode, string? title) => new(false, new ApiResponse(statusCode, title));
+    public static Result Success() => new(true, Error.None);
+    public static Result Failure(Error error) => new(false, error);
 
-    public static Result<TValue> Success<TValue>(TValue value) => new(value, true, new ApiResponse(200));
-    public static Result<TValue> Failure<TValue>(int statusCode, string title) => new(default, false, new ApiResponse(statusCode, title));
+    public static Result<TValue> Success<TValue>(TValue value) => new(value, true, Error.None);
+    public static Result<TValue> Failure<TValue>(Error error) => new(default, false, error);
 }
 
 
-public class Result<TValue>(TValue? value, bool isSuccess, ApiResponse error) : Result(isSuccess, error)
+public class Result<TValue>(TValue? value, bool isSuccess, Error error) : Result(isSuccess, error)
 {
     private readonly TValue? _value = value;
 

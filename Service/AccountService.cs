@@ -30,7 +30,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         // Check if the email is already registered and confirmed 
         if (user is not null && user.EmailConfirmed is true)
         {
-            return Result.Failure<AppUserResponse>(400, "The email address you entered is already taken, Please try a different one.");
+            return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
         }
 
         var newUser = new AppUser()
@@ -47,7 +47,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         if (result.Succeeded is false)
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            return Result.Failure<AppUserResponse>(400, errors);
+            return Result.Failure<AppUserResponse>(new Error(400, errors));
         }
 
         var token = await GenerateAccessTokenAsync(newUser);
@@ -60,9 +60,13 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         };
 
         var refreshToken = GenerateRefreshToken();
+
         userResponse.RefreshToken = refreshToken.Token;
+
         userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
+
         user!.RefreshTokens!.Add(refreshToken);
+
         await _userManager.UpdateAsync(user);
 
         SetRefreshTokenInCookie(userResponse.RefreshToken, userResponse.RefreshTokenExpireAt);
@@ -75,14 +79,14 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         var user = await _userManager.FindByEmailAsync(model.Email);
 
         if (user is null || model.Password is null)
-            return Result.Failure<AppUserResponse>(400, "The email or password you entered is incorrect, Check your credentials and try again.");
+            return Result.Failure<AppUserResponse>(new Error(400, "The email or password you entered is incorrect, Check your credentials and try again."));
 
         var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
         if (result.Succeeded is false)
         {
             var errors = string.Join(", ", "The email or password you entered is incorrect, Check your credentials and try again.");
-            return Result.Failure<AppUserResponse>(400, errors);
+            return Result.Failure<AppUserResponse>(new Error(400, errors));
         }
 
         var token = await GenerateAccessTokenAsync(user);
@@ -137,7 +141,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         var user = await _userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
 
         if (user!.Address is null)
-            return Result.Failure<UserAddressResponse>(404, "The address is not available in our system.");
+            return Result.Failure<UserAddressResponse>(new Error(404, "The address is not available in our system."));
 
         var address = _mapper.Map<UserAddress, UserAddressResponse>(user.Address);
 
@@ -163,7 +167,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         if (!result.Succeeded)
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            return Result.Failure<UserAddressResponse>(400, errors);
+            return Result.Failure<UserAddressResponse>(new Error(400, errors));
         }
 
         return Result.Success(updatedAddress);
@@ -179,7 +183,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         var payload = await GoogleJsonWebSignature.ValidateAsync(credential, settings);
 
         if (string.IsNullOrEmpty(payload.Email))
-            return Result.Failure<AppUserResponse>(400, "Invalid payload: Email is missing.");
+            return Result.Failure<AppUserResponse>(new Error(400, "Invalid payload: Email is missing."));
 
         var user = await _userManager.FindByEmailAsync(payload.Email);
 
@@ -198,7 +202,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             if (result.Succeeded is false)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                return Result.Failure<AppUserResponse>(400, errors);
+                return Result.Failure<AppUserResponse>(new Error(400, errors));
             }
         }
 
@@ -227,12 +231,12 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             .SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == refreshTokenFromCookie));
 
         if (user is null || user.RefreshTokens is null)
-            return Result.Failure<AppUserResponse>(401, "Invalid or inactive refresh token.");
+            return Result.Failure<AppUserResponse>(new Error(401, "Invalid or inactive refresh token."));
 
         var refreshToken = user.RefreshTokens.Single(t => t.Token == refreshTokenFromCookie);
 
         if (refreshToken.IsActive is false)
-            return Result.Failure<AppUserResponse>(401, "Invalid or inactive refresh token.");
+            return Result.Failure<AppUserResponse>(new Error(401, "Invalid or inactive refresh token."));
 
         refreshToken.RevokedAt = DateTime.UtcNow;
 
@@ -266,12 +270,12 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             .SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == refreshTokenFromCookie));
 
         if (user is null || user.RefreshTokens is null)
-            return Result.Failure(401, "Invalid or inactive refresh token.");
+            return Result.Failure(new Error(401, "Invalid or inactive refresh token."));
 
         var refreshToken = user.RefreshTokens.Single(t => t.Token == refreshTokenFromCookie);
 
         if (refreshToken.IsActive is false)
-            return Result.Failure(401, "Invalid or inactive refresh token.");
+            return Result.Failure(new Error(401, "Invalid or inactive refresh token."));
 
         refreshToken.RevokedAt= DateTime.UtcNow;
 

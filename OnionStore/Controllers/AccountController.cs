@@ -3,7 +3,6 @@ using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Service;
 
 namespace API.Controllers;
 public class AccountController(IAccountService _accountService) : BaseController
@@ -14,7 +13,7 @@ public class AccountController(IAccountService _accountService) : BaseController
 	{
         var result = await _accountService.Register(model);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
     [HttpPost("login")]
@@ -22,7 +21,7 @@ public class AccountController(IAccountService _accountService) : BaseController
 	{
 		var result = await _accountService.Login(model);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
     [HttpGet]
@@ -31,7 +30,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.GetCurrentUser(User);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [Authorize]
@@ -40,7 +39,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.GetCurrentUserAddress(User);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [Authorize]
@@ -49,7 +48,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.UpdateUserAddress(updatedAddress, User);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [HttpPost("google-login")]
@@ -57,7 +56,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.GoogleLogin(credential);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [HttpGet("refresh-token")]
@@ -65,7 +64,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.CreateAccessTokenByRefreshTokenAsync();
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [HttpPost("revoke-token")]
@@ -73,7 +72,7 @@ public class AccountController(IAccountService _accountService) : BaseController
     {
         var result = await _accountService.RevokeRefreshTokenAsync();
 
-        return result.IsSuccess ? Ok() : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok() : result.ToProblem();
     }
 
 }

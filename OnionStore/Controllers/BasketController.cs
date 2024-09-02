@@ -11,7 +11,7 @@ public class BasketController(IBasketService _basketService) : BaseController
     {
         var result = await _basketService.CreateOrUpdateBasketAsync(basketDto);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [HttpGet]

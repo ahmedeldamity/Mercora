@@ -15,7 +15,7 @@ public class OrderController(IOrderService _orderService) : BaseController
     {
         var result = await _orderService.CreateOrderAsync(orderDto.BasketId, orderDto.ShippingAddress);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [HttpGet]
@@ -33,7 +33,7 @@ public class OrderController(IOrderService _orderService) : BaseController
     {
         var result = await _orderService.GetSpecificOrderForUserAsync(orderId);
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblemOrSuccessMessage();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
 }

@@ -4,8 +4,11 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Extensions;
 public static class ResultExtensions
 {
-    public static ActionResult ToProblemOrSuccessMessage(this Result result)
+    public static ActionResult ToProblem(this Result result)
     {
+        if (result.IsSuccess)
+            throw new InvalidOperationException("Cannot convert success result to a problem");
+
         var problem = Results.Problem(statusCode: result.Error.StatusCode, title: result.Error.Title.Split(", ")[0]);
 
         var problemDetails = problem.GetType().GetProperty(nameof(ProblemDetails))!.GetValue(problem) as ProblemDetails;

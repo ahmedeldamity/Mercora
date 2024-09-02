@@ -1,10 +1,12 @@
 ﻿namespace Core.ErrorHandling;
-public class ApiResponse
+public class Error
 {
+    public static readonly Error None = new(0, string.Empty);
+
     public int StatusCode { get; set; }
     public string Title { get; set; }
 
-    public ApiResponse(int statusCode, string? title = null)
+    public Error(int statusCode, string? title = null)
     {
         StatusCode = statusCode;
         Title = title ?? GetDefaultMessageForStatusCode(statusCode);
@@ -14,7 +16,6 @@ public class ApiResponse
     {
         return statusCode switch
         {
-            200 => "Success",
             400 => "A bad request, you have made!",
             401 => "Authorized, you are not!",
             404 => "Resourse was not found!",

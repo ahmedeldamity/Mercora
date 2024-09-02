@@ -28,7 +28,7 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         var basket = await _basketRepository.GetBasketAsync(basketId);
 
         if (basket is null || basket.DeliveryMethodId is null || basket.PaymentIntentId is null)
-            return Result.Failure<OrderResponse>(404, "Invalid basket data. Ensure that the basket, delivery method, and payment intent are properly provided.");
+            return Result.Failure<OrderResponse>(new Error(404, "Invalid basket data. Ensure that the basket, delivery method, and payment intent are properly provided."));
 
         // 2. Get Items at Basket from Product repository for get the real products price
         var orderitems = new List<OrderItem>();
@@ -82,7 +82,7 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         var result = await _unitOfWork.CompleteAsync();
 
         if (result <= 0)
-            return Result.Failure<OrderResponse>(400, "Failed to complete the order creation process. Please try again or contact support if the issue persists.");
+            return Result.Failure<OrderResponse>(new Error(400, "Failed to complete the order creation process. Please try again or contact support if the issue persists."));
 
         var orderRespone = _mapper.Map<Order, OrderResponse>(order);
 
@@ -115,7 +115,7 @@ public class OrderService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepo
         var order = await ordersRepo.GetEntityAsync(spec);
 
         if (order is null)
-            return Result.Failure<OrderResponse>(404, "The requested order was not found. Please verify the order details and try again.");
+            return Result.Failure<OrderResponse>(new Error(404, "The requested order was not found. Please verify the order details and try again."));
 
         var orderResponse = _mapper.Map<Order, OrderResponse>(order);
 

@@ -16,7 +16,7 @@ public class BasketService(IBasketRepository _basketRepository, IMapper _mapper)
 
         if (createdOrUpdatedBasket is null)
         {
-            return Result.Failure<BasketResponse>(400, "Failed to create or update the basket. Please try again.");
+            return Result.Failure<BasketResponse>(new Error(400, "Failed to create or update the basket. Please try again."));
         }
 
         var basketResponse = _mapper.Map<Basket, BasketResponse>(createdOrUpdatedBasket);
