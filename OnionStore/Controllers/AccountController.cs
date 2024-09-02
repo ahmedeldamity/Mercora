@@ -1,15 +1,20 @@
 ﻿using API.Extensions;
+using Asp.Versioning;
 using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
-public class AccountController(IAccountService _accountService) : BaseController
+
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+public class AccountControllerV2(IAccountService _accountService) : ControllerBase
 {
 
 	[HttpPost("register")]
-	public async Task<ActionResult> Register(RegisterRequest model)
+	public async Task<ActionResult<AppUserResponse>> Register(RegisterRequest model)
 	{
         var result = await _accountService.Register(model);
 
