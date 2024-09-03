@@ -1,23 +1,16 @@
 ﻿using Core.Entities.IdentityEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Repository.Identity;
-using Service.ConfigurationData;
 
 namespace API.ServicesExtension;
 public static class IdentityConfigurationsExtension
 {
-	public static IServiceCollection AddIdentityConfigurations(this IServiceCollection services)
+	public static IServiceCollection AddIdentityConfigurations(this IServiceCollection services, string identityConnection)
 	{
-		// Identity Context
-		var serviceProvider = services.BuildServiceProvider();
-
-		var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
-
 		services.AddDbContext<IdentityContext>(options =>
 		{
-			options.UseSqlServer(databaseConnections.IdentityConnection);
+			options.UseSqlServer(identityConnection);
 		});
 
 		// We need to register three services of identity (UserManager - RoleManager - SignInManager)

@@ -1,6 +1,9 @@
+using API;
 using API.Errors;
 using API.Middlewares;
 using API.ServicesExtension;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository.Data;
@@ -12,47 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Add services to the container
 
-// Add Controllers
-builder.Services.AddControllers();
-
-// Register Required Services For Swagger In Extension Method
-builder.Services.AddSwaggerServices();
-
-// Add Api Versioning Configurations
-builder.Services.AddApiVersioningConfigurations();
-
-// Configure Appsetting Data
-builder.Services.ConfigureAppsettingData(builder.Configuration);
-
-// Add Identity Context and Configurations
-builder.Services.AddIdentityConfigurations();
-
-// Add JWT Configurations
-builder.Services.AddJWTConfigurations();
-
-// Add Redis Configuration
-builder.Services.AddRedis();
-
-// Add Store Context
-builder.Services.AddStoreContext();
-
-// Add Hangfire Services
-builder.Services.AddHangfireServices();
-
-// Add Fluent Validation
-builder.Services.AddFluentValidation();
-
-// This Method Has All Application Services
-builder.Services.AddApplicationServices();
-
-builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
-{
-	loggerConfiguration
-		.ReadFrom.Configuration(hostingContext.Configuration);
-});
-
-// This to allow any host from front-end
-builder.Services.AddCorsPolicy();
+builder.AddDependencies();
 
 #endregion
 
@@ -123,16 +86,22 @@ catch (Exception ex)
 
 #region Configure the Kestrel pipeline
 
-// -- Server Error Middleware (we catch it in class ExceptionMiddleware)
+// Server Error Middleware (we catch it in class ExceptionMiddleware)
 app.UseMiddleware<ExceptionMiddleware>();
 
-// -- Add Swagger Middelwares In Extension Method
+// Add Swagger Middelwares In Extension Method
 app.UseSwaggerMiddleware();
 
 app.UseSerilogRequestLogging();
 
-// -- To this application can resolve on any static file like (html, wwwroot, etc..)
+// To this application can resolve on any static file like (html, wwwroot, etc..)
 app.UseStaticFiles();
+
+// Add Health Check Middleware
+app.UseHealthChecks("/_health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 // -- Add Cors Policy Middleware
 app.UseCors("CorsPolicy");
