@@ -2,6 +2,8 @@ using API;
 using API.Errors;
 using API.Middlewares;
 using API.ServicesExtension;
+using HealthChecks.UI.Client;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository.Data;
@@ -13,7 +15,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 #region Add services to the container
 
-builder.Services.AddDependencies(builder.Configuration);
+builder.AddDependencies();
 
 #endregion
 
@@ -94,6 +96,12 @@ app.UseSerilogRequestLogging();
 
 // To this application can resolve on any static file like (html, wwwroot, etc..)
 app.UseStaticFiles();
+
+// Add Health Check Middleware
+app.UseHealthChecks("/_health", new HealthCheckOptions
+{
+    ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+});
 
 // -- Add Cors Policy Middleware
 app.UseCors("CorsPolicy");

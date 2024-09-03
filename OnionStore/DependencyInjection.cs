@@ -1,12 +1,19 @@
 ﻿using API.ServicesExtension;
 using Microsoft.Extensions.Options;
+using Serilog;
 using Service.ConfigurationData;
 
 namespace API;
 public static class DependencyInjection
 {
-    public static IServiceCollection AddDependencies(this IServiceCollection services, IConfiguration configuration)
+    public static WebApplicationBuilder AddDependencies(this WebApplicationBuilder builder)
     {
+        var services = builder.Services;
+
+        var configuration = builder.Configuration;
+
+        services.ConfigureAppsettingData(configuration);
+
         var serviceProvider = services.BuildServiceProvider();
 
         var jwtData = serviceProvider.GetRequiredService<IOptions<JWTData>>().Value;
@@ -18,8 +25,6 @@ public static class DependencyInjection
         services.AddSwaggerServices();
 
         services.AddApiVersioningConfigurations();
-
-        services.ConfigureAppsettingData(configuration);
 
         services.AddIdentityConfigurations(databaseConnections.IdentityConnection);
 
@@ -35,8 +40,16 @@ public static class DependencyInjection
 
         services.AddApplicationServices();
 
+        services.AddHealthCheckConfigurations(databaseConnections);
+
         services.AddCorsPolicy();
 
-        return services;
+        builder.Host.UseSerilog((hostingContext, loggerConfiguration) =>
+        {
+            loggerConfiguration
+                .ReadFrom.Configuration(hostingContext.Configuration);
+        });
+
+        return builder;
     }
 }
