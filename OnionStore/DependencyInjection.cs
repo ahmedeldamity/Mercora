@@ -24,6 +24,8 @@ public static class DependencyInjection
 
         services.AddSwaggerServices();
 
+        services.AddRateLimitingConfigurations();
+
         services.AddApiVersioningConfigurations();
 
         services.AddIdentityConfigurations(databaseConnections.IdentityConnection);

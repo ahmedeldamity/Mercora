@@ -3,6 +3,7 @@ using Asp.Versioning;
 using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.Controllers.V2;
 
@@ -10,6 +11,7 @@ namespace API.Controllers.V2;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("2.0")]
 [ApiVersion("2.1")]
+[EnableRateLimiting("FixedWindowPolicy")]
 public class AccountController(IAccountService _accountService) : ControllerBase
 {
     [HttpPost("register")]

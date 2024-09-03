@@ -92,6 +92,10 @@ app.UseMiddleware<ExceptionMiddleware>();
 // Add Swagger Middelwares In Extension Method
 app.UseSwaggerMiddleware();
 
+// Add Rate Limiter Middleware
+app.UseRateLimiter();
+
+// Add Serilog Middleware
 app.UseSerilogRequestLogging();
 
 // To this application can resolve on any static file like (html, wwwroot, etc..)
@@ -103,16 +107,16 @@ app.UseHealthChecks("/_health", new HealthCheckOptions
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
-// -- Add Cors Policy Middleware
+// Add Cors Policy Middleware
 app.UseCors("CorsPolicy");
 
-// -- To Redirect Any Http Request To Https
+// To Redirect Any Http Request To Https
 app.UseHttpsRedirection();
 
-// -- Error Not Found End Point: Here When This Error Thrown: It Redirect To This End Point in (Controller: Errors)
+// Error Not Found End Point: Here When This Error Thrown: It Redirect To This End Point in (Controller: Errors)
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 
-// -- we use this middleware to talk program that: your routing depend on route written on the controller
+// we use this middleware to talk program that: your routing depend on route written on the controller
 app.MapControllers();
 #region Explaination
 //	-- In MVC We Used This Way For Routing
