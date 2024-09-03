@@ -12,12 +12,22 @@ namespace API.ServicesExtension
                 rateLimiterOptions.AddFixedWindowLimiter("FixedWindowPolicy", options =>
                 {
                     options.Window = TimeSpan.FromSeconds(5);
-                    options.PermitLimit = 5;
-                    options.QueueLimit = 10;
-                    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                    options.PermitLimit = 5; // 5 requests are allowed
+                    options.QueueLimit = 10; // 10 requests can be queued if the limit is reached
+                    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst; // oldest requests are processed first
                 }).RejectionStatusCode = 429;
+
+                rateLimiterOptions.AddSlidingWindowLimiter("SlidingWindowPolicy", options =>
+                {
+                    options.Window = TimeSpan.FromSeconds(5); // every 5 seconds
+                    options.PermitLimit = 5; // 5 requests are allowed
+                    options.QueueLimit = 10; // 10 requests can be queued if the limit is reached
+                    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst; // oldest requests are processed first
+                    options.SegmentsPerWindow = 5; // 5 segments in the window
+                }).RejectionStatusCode = 429;
+
             });
-                
+
             return services;
         }
     }

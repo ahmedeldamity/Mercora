@@ -4,12 +4,14 @@ using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.Controllers.V1;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+[EnableRateLimiting("SlidingWindowPolicy")]
 public class AccountController(IAccountService _accountService) : ControllerBase
 {
     [HttpPost("register")]
