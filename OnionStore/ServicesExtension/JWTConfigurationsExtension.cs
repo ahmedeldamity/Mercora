@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Service.ConfigurationData;
 using Service.Utility;
@@ -8,11 +7,8 @@ using System.Text;
 namespace API.ServicesExtension;
 public static class JWTConfigurationsExtension
 {
-    public static IServiceCollection AddJWTConfigurations(this IServiceCollection services)
+    public static IServiceCollection AddJWTConfigurations(this IServiceCollection services, JWTData jWTData)
     {
-        var serviceProvider = services.BuildServiceProvider();
-        var jwtData = serviceProvider.GetRequiredService<IOptions<JWTData>>().Value;
-
         // AddAuthentication() : this method take one argument (Default Schema)
         // and when we using .AddJwtBearer(): this method can take from you another schema and options
         // and can take just options and this options worked on the default schema that you written it in AddAuthentication()
@@ -27,11 +23,11 @@ public static class JWTConfigurationsExtension
             options.TokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateAudience = true,
-                ValidAudience = jwtData.ValidAudience,
+                ValidAudience = jWTData.ValidAudience,
                 ValidateIssuer = true,
-                ValidIssuer = jwtData.ValidIssuer,
+                ValidIssuer = jWTData.ValidIssuer,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtData.SecretKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jWTData.SecretKey)),
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero,
                 TokenDecryptionKey = TokenEncryption._rsaKey

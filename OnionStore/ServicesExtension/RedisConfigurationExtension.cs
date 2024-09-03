@@ -1,18 +1,13 @@
-﻿using Microsoft.Extensions.Options;
-using Service.ConfigurationData;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 
 namespace API.ServicesExtension;
 public static class RedisConfigurationExtension
 {
-    public static IServiceCollection AddRedis(this IServiceCollection services)
+    public static IServiceCollection AddRedis(this IServiceCollection services, string redisConnection)
     {
-        var serviceProvider = services.BuildServiceProvider();
-        var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
-
         services.AddSingleton<IConnectionMultiplexer>(sp =>
         {
-            return ConnectionMultiplexer.Connect(databaseConnections.RedisConnection);
+            return ConnectionMultiplexer.Connect(redisConnection);
         });
 
         return services;

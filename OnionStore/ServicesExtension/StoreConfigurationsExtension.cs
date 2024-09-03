@@ -1,20 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Repository.Store;
-using Service.ConfigurationData;
 
 namespace API.ServicesExtension;
 public static class StoreConfigurationsExtension
 {
-    public static IServiceCollection AddStoreContext(this IServiceCollection services)
+    public static IServiceCollection AddStoreContext(this IServiceCollection services, string storeConnection)
     {
-        // Register Store Context
-        var serviceProvider = services.BuildServiceProvider();
-        var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
-
         services.AddDbContext<StoreContext>(options =>
         {
-            options.UseSqlServer(databaseConnections.StoreConnection);
+            options.UseSqlServer(storeConnection);
         });
 
         return services;

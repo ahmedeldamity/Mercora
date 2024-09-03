@@ -21,4 +21,5 @@ public static class ApiVersioningConfigurations
 
         return services;
     }
+
 }
