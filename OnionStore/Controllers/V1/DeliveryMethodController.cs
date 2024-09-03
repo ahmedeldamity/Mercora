@@ -3,7 +3,7 @@ using Core.Entities.OrderEntities;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 public class DeliveryMethodController(IDeliveryMethodService _deliveryMethodService) : BaseController
 {
     [HttpGet]

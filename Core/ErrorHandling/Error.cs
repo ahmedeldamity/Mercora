@@ -1,7 +1,7 @@
 ﻿namespace Core.ErrorHandling;
 public class Error
 {
-    public static readonly Error None = new(0, string.Empty);
+    public static readonly Error None = new(200, string.Empty);
 
     public int StatusCode { get; set; }
     public string Title { get; set; }

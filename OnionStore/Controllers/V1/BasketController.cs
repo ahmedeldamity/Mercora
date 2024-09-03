@@ -3,7 +3,7 @@ using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 public class BasketController(IBasketService _basketService) : BaseController
 {
     [HttpPost]

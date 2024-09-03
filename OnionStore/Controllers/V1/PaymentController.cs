@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 public class PaymentController(IPaymentService _paymentService, ILogger<PaymentController> _logger) : BaseController
 {
     private const string _webhookSecret = "whsec_f7cb2a38fa3f766b411c6184763756a8c944a4f0cf869208b10e3153c3dc5962";

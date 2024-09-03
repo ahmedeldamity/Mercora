@@ -18,6 +18,9 @@ builder.Services.AddControllers();
 // Register Required Services For Swagger In Extension Method
 builder.Services.AddSwaggerServices();
 
+// Add Api Versioning Configurations
+builder.Services.AddApiVersioningConfigurations();
+
 // Configure Appsetting Data
 builder.Services.ConfigureAppsettingData(builder.Configuration);
 

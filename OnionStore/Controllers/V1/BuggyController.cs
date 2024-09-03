@@ -3,7 +3,7 @@ using Core.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
 using Repository.Store;
 
-namespace API.Controllers;
+namespace API.Controllers.V1;
 public class BuggyController(StoreContext _storeContext) : BaseController
 {
     [HttpGet("notfound")]

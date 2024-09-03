@@ -27,4 +27,18 @@ public static class ResultExtensions
 
         return new ObjectResult(problemDetails);
     }
+
+    public static ActionResult ToSuccess(this Result result)
+    {
+        if (!result.IsSuccess)
+            throw new InvalidOperationException("Cannot convert success result to a problem");
+
+        var problem = Results.Problem(statusCode: result.Error.StatusCode, title: result.SuccessMessage);
+
+        var problemDetails = problem.GetType().GetProperty(nameof(ProblemDetails))!.GetValue(problem) as ProblemDetails;
+
+        problemDetails!.Type = null;
+
+        return new ObjectResult(problemDetails);
+    }
 }

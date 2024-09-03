@@ -1,11 +1,16 @@
 ﻿using API.Extensions;
+using Asp.Versioning;
 using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class AuthController(IAuthService _authService) : BaseController
+namespace API.Controllers.V1;
+
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+public class AuthController(IAuthService _authService) : ControllerBase
 {
     [Authorize]
     [HttpPost("send-email-verification-code")]
@@ -49,5 +54,4 @@ public class AuthController(IAuthService _authService) : BaseController
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
-
 }

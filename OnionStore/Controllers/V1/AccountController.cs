@@ -1,28 +1,32 @@
 ﻿using API.Extensions;
+using Asp.Versioning;
 using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers;
-public class AccountController(IAccountService _accountService) : BaseController
-{
+namespace API.Controllers.V1;
 
-	[HttpPost("register")]
-	public async Task<ActionResult> Register(RegisterRequest model)
-	{
+[ApiController]
+[Route("api/v{version:apiVersion}/[controller]")]
+[ApiVersion("1.0")]
+public class AccountController(IAccountService _accountService) : ControllerBase
+{
+    [HttpPost("register")]
+    public async Task<ActionResult<AppUserResponse>> Register(RegisterRequest model)
+    {
         var result = await _accountService.Register(model);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-	}
+    }
 
     [HttpPost("login")]
-	public async Task<ActionResult<AppUserResponse>> Login(LoginRequest model)
-	{
-		var result = await _accountService.Login(model);
+    public async Task<ActionResult<AppUserResponse>> Login(LoginRequest model)
+    {
+        var result = await _accountService.Login(model);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-	}
+    }
 
     [HttpGet]
     [Authorize]
@@ -74,5 +78,4 @@ public class AccountController(IAccountService _accountService) : BaseController
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
-
 }
