@@ -26,6 +26,13 @@ namespace API.ServicesExtension
                     options.SegmentsPerWindow = 5; // 5 segments in the window
                 }).RejectionStatusCode = 429;
 
+                rateLimiterOptions.AddConcurrencyLimiter("ConcurrencyPolicy", options =>
+                {
+                    options.PermitLimit = 1; // 5 requests are allowed for each user
+                    options.QueueLimit = 2; // 10 requests can be queued if the limit is reached
+                    options.QueueProcessingOrder = QueueProcessingOrder.OldestFirst; // oldest requests are processed first
+                }).RejectionStatusCode = 429;
+
             });
 
             return services;

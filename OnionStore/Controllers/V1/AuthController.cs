@@ -16,6 +16,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
 {
     [Authorize]
     [HttpPost("send-email-verification-code")]
+    [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode()
     {
         var result = await _authService.SendEmailVerificationCode(User);
@@ -25,6 +26,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
 
     [Authorize]
     [HttpPost("verify-register-code")]
+    [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult> VerifyRegisterCode(CodeVerificationRequest model)
     {
         var result = await _authService.VerifyRegisterCode(model, User);
