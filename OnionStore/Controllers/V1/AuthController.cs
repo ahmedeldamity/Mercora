@@ -4,16 +4,19 @@ using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace API.Controllers.V1;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
+
 public class AuthController(IAuthService _authService) : ControllerBase
 {
     [Authorize]
     [HttpPost("send-email-verification-code")]
+    [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode()
     {
         var result = await _authService.SendEmailVerificationCode(User);
@@ -23,6 +26,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
 
     [Authorize]
     [HttpPost("verify-register-code")]
+    [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult> VerifyRegisterCode(CodeVerificationRequest model)
     {
         var result = await _authService.VerifyRegisterCode(model, User);
