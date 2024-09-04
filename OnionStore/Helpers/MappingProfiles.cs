@@ -29,6 +29,8 @@ public class MappingProfiles : Profile
         CreateMap<ProductBrand, ProductBrandResponse>()
             .ForMember(d => d.ImageCover, o => o.MapFrom<ProductBrandImageCoverResolver>());
 
+        CreateMap<ProductBrandRequest, ProductBrand>();
+
         CreateMap<BasketRequest, Basket>();
 
         CreateMap<BasketItemRequest, BasketItem>();
