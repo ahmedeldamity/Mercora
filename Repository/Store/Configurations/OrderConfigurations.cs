@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Core.Entities.OrderEntities;
 
 namespace Repository.Store.Configurations;
-public class OrderConfigurations: IEntityTypeConfiguration<Order>
+public class OrderConfigurations : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)
     {
@@ -30,6 +30,6 @@ public class OrderConfigurations: IEntityTypeConfiguration<Order>
 
         builder.HasOne(O => O.DeliveryMethod)
             .WithMany()
-            .OnDelete(DeleteBehavior.SetNull);
+            .OnDelete(DeleteBehavior.NoAction);
     }
 }

@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Repository.Store.Configurations;
-public class OrderDeliveryMethodConfigurations: IEntityTypeConfiguration<OrderDeliveryMethod>
+public class OrderDeliveryMethodConfigurations : IEntityTypeConfiguration<OrderDeliveryMethod>
 {
     public void Configure(EntityTypeBuilder<OrderDeliveryMethod> builder)
     {
