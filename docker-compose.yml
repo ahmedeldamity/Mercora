@@ -7,18 +7,26 @@ volumes:
   sqlserver_data:
 
 services:
-  onionstoreDB:
-    container_name: onionstoreDB
+  store_database:
+    container_name: store_database
     image: mcr.microsoft.com/mssql/server:2019-latest
     ports:
-      - 8002:1433
+      - 8001:1433
     environment:
       - ACCEPT_EULA=Y
       - SA_PASSWORD=PAssWord**
       - MSSQL_PID=Express
     networks:
       - onionstorenetwork
-  onionstore:
+  redis_image:
+    image: redis:latest
+    container_name: cache
+    restart: always
+    ports:
+      - 6379:6379
+    networks:
+      - onionstorenetwork
+  onion_store:
     container_name: onionstore
     image: ${DOCKER_REGISTRY-}onionstoreproject
     ports:
@@ -27,7 +35,8 @@ services:
       context: .
       dockerfile: OnionStore/Dockerfile
     depends_on:
-      - onionstoreDB 
+      - store_database
+      - redis_image
     networks:
       - onionstorenetwork 
     volumes:

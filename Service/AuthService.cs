@@ -6,14 +6,14 @@ using Hangfire;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using Repository.Identity;
+using Repository.Store;
 using Service.ConfigurationData;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace Service;
-public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userManager, IdentityContext _identityContext, IEmailSettingService _emailSettings) : IAuthService
+public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userManager, StoreContext _storeContext, IEmailSettingService _emailSettings) : IAuthService
 {
     private readonly JWTData _jWTData = jWTData.Value;
 
@@ -36,7 +36,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             Body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration")
         };
 
-        await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
+        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             IsActive = true,
@@ -45,7 +45,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             ForRegisterationConfirmed = true
         });
 
-        await _identityContext.SaveChangesAsync();
+        await _storeContext.SaveChangesAsync();
 
         BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
 
@@ -71,7 +71,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             Body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password."),
         };
 
-        await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
+        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             IsActive = true,
@@ -80,7 +80,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             ForRegisterationConfirmed = true
         });
 
-        await _identityContext.SaveChangesAsync();
+        await _storeContext.SaveChangesAsync();
 
         BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
 
@@ -94,7 +94,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
             return Result.Failure(new Error(400, "No account found with the provided email address."));
 
-        var identityCode = await _identityContext.IdentityCodes
+        var identityCode = await _storeContext.IdentityCodes
                             .Where(P => P.AppUserId == user.Id && P.ForRegisterationConfirmed)
                             .OrderBy(d => d.CreationTime)
                             .LastOrDefaultAsync();
@@ -112,13 +112,13 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         identityCode.IsActive = false;
 
-        _identityContext.IdentityCodes.Update(identityCode);
+        _storeContext.IdentityCodes.Update(identityCode);
 
         user.EmailConfirmed = true;
 
         await _userManager.UpdateAsync(user);
 
-        await _identityContext.SaveChangesAsync();
+        await _storeContext.SaveChangesAsync();
 
         return Result.Success();
     }
@@ -137,7 +137,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             Body = EmailBody(code, user.DisplayName, "Reset Password", "You have requested to reset your password.")
         };
 
-        await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
+        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             User = user,
@@ -145,7 +145,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             ForRegisterationConfirmed = false,
         });
 
-        await _identityContext.SaveChangesAsync();
+        await _storeContext.SaveChangesAsync();
 
         BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
 
@@ -166,7 +166,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             Body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password."),
         };
 
-        await _identityContext.IdentityCodes.AddAsync(new IdentityCode()
+        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             User = user,
@@ -174,7 +174,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             ForRegisterationConfirmed = false,
         });
 
-        await _identityContext.SaveChangesAsync();
+        await _storeContext.SaveChangesAsync();
 
         BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
 
@@ -191,7 +191,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         if (user.EmailConfirmed is false)
             return Result.Failure(new Error(400, "Please verify your email address before proceeding."));
 
-        var identityCode = await _identityContext.IdentityCodes
+        var identityCode = await _storeContext.IdentityCodes
                             .Where(P => P.AppUserId == user.Id && P.ForRegisterationConfirmed == false)
                             .OrderBy(d => d.CreationTime)
                             .LastOrDefaultAsync();
@@ -218,11 +218,11 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         identityCode.ActivationTime = DateTime.UtcNow;
 
-        _identityContext.IdentityCodes.Update(identityCode);
+        _storeContext.IdentityCodes.Update(identityCode);
 
         await _userManager.UpdateAsync(user);
 
-        await _identityContext.SaveChangesAsync();
+        await _storeContext.SaveChangesAsync();
 
         return Result.Success();
     }
@@ -237,7 +237,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         if (user.EmailConfirmed is false) 
             return Result.Failure(new Error(400, "Please verify your email address before proceeding."));
 
-        var identityCode = await _identityContext.IdentityCodes
+        var identityCode = await _storeContext.IdentityCodes
                             .Where(p => p.AppUserId == user.Id && p.IsActive && p.ForRegisterationConfirmed == false)
                             .OrderByDescending(p => p.CreationTime)
                             .FirstOrDefaultAsync();
@@ -253,13 +253,13 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         if (identityCode.ActivationTime is null || identityCode.ActivationTime.Value.AddMinutes(30) < DateTime.UtcNow)
             return Result.Failure(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
 
-        using var transaction = await _identityContext.Database.BeginTransactionAsync();
+        using var transaction = await _storeContext.Database.BeginTransactionAsync();
 
         identityCode.IsActive = false;
 
-        _identityContext.IdentityCodes.Update(identityCode);
+        _storeContext.IdentityCodes.Update(identityCode);
 
-        await _identityContext.SaveChangesAsync();
+        await _storeContext.SaveChangesAsync();
 
         var removePasswordResult = await _userManager.RemovePasswordAsync(user);
 

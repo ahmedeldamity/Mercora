@@ -9,7 +9,7 @@ public class OrderItem: BaseEntity
         Quantity = quantity;
     }
 
-    public ProductOrderItem Product { get; set; } = new();
+    public ProductOrderItem Product { get; set; } = null!;
     #region explain
     // this is a navigation property
     // so EF will mapped it to database

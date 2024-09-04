@@ -10,6 +10,15 @@ public static class RedisConfigurationExtension
             return ConnectionMultiplexer.Connect(redisConnection);
         });
 
+        //services.AddStackExchangeRedisCache(options => options.Configuration = redisConnection);
+
+        //services.AddOutputCache(options =>
+        //{
+        //    options.AddBasePolicy(x => x.Expire(TimeSpan.FromSeconds(60)));
+
+        //    options.AddPolicy("MyCustom", x => x.Expire(TimeSpan.FromSeconds(10)));
+        //});
+
         return services;
     }
 

@@ -23,7 +23,7 @@ public class Order: BaseEntity
     // so we create configuration for it
     #endregion
 
-    public OrderAddress ShippingAddress { get; set; } = new();
+    public OrderAddress ShippingAddress { get; set; } = null!;
     #region Explaination
     // this is a navigation property
     // so EF will mapped it to database
@@ -32,7 +32,7 @@ public class Order: BaseEntity
     // so will make configration for that :)
     #endregion
 
-    public OrderDeliveryMethod DeliveryMethod { get; set; } = new();
+    public OrderDeliveryMethod DeliveryMethod { get; set; } = null!;
     #region Explaination
     // this is navagation property one to many
     // so EF will take PK of many as FK in one
