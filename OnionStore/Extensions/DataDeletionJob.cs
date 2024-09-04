@@ -1,10 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Repository.Identity;
+using Repository.Store;
 
 namespace API.Extensions;
-public class DataDeletionJob(IdentityContext identityContext)
+public class DataDeletionJob(StoreContext identityContext)
 {
-    private readonly IdentityContext _identityContext = identityContext;
+    private readonly StoreContext _identityContext = identityContext;
 
     public async Task Execute()
     {

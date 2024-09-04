@@ -7,10 +7,10 @@ using Service.ConfigurationData;
 namespace API.ServicesExtension;
 public static class HangfireConfigurationsExtension
 {
-	public static IServiceCollection AddHangfireServices(this IServiceCollection services, string identityConnection)
+	public static IServiceCollection AddHangfireServices(this IServiceCollection services, string storeConnection)
 	{
         // Add Hangfire Services
-        services.AddHangfire(x => x.UseSqlServerStorage(identityConnection));
+        services.AddHangfire(x => x.UseSqlServerStorage(storeConnection));
 
         // Register Hangfire Services
         services.AddHangfireServer();
