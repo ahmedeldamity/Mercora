@@ -37,7 +37,7 @@ public class BuggyController(StoreContext _storeContext) : BaseController
     public ActionResult GetServerError()
     {
         var product = _storeContext.Products.Find(100);
-        var productToReturn = product.ToString();
+        var productToReturn = product!.ToString();
         return Ok(productToReturn);
     }
 

@@ -8,7 +8,7 @@ namespace API.Controllers.V1;
 public class ProductController(IProductService _productService) : BaseController
 {
     [HttpGet]
-    [Cached(600)]
+    //[Cached(600)]
     public async Task<ActionResult> GetProducts([FromQuery] ProductSpecificationParameters specParams)
     {
         var result = await _productService.GetProductsAsync(specParams);

@@ -2,6 +2,7 @@
 using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.OutputCaching;
 
 namespace API.Controllers.V1;
 public class BasketController(IBasketService _basketService) : BaseController

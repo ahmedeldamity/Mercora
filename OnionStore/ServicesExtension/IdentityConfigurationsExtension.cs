@@ -1,18 +1,13 @@
 ﻿using Core.Entities.IdentityEntities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Repository.Identity;
+using Repository.Store;
 
 namespace API.ServicesExtension;
 public static class IdentityConfigurationsExtension
 {
-	public static IServiceCollection AddIdentityConfigurations(this IServiceCollection services, string identityConnection)
+	public static IServiceCollection AddIdentityConfigurations(this IServiceCollection services)
 	{
-		services.AddDbContext<IdentityContext>(options =>
-		{
-			options.UseSqlServer(identityConnection);
-		});
-
 		// We need to register three services of identity (UserManager - RoleManager - SignInManager)
 		// but we don't need to register all them one by one
 		// because we have method (AddIdentity) that will register the three services
@@ -25,7 +20,7 @@ public static class IdentityConfigurationsExtension
 			option.Password.RequireNonAlphanumeric = true;
 			option.Password.RequiredUniqueChars = 3;
 			option.Password.RequiredLength = 6;
-		}).AddEntityFrameworkStores<IdentityContext>();
+		}).AddEntityFrameworkStores<StoreContext>();
 		// ? this because the three services talking to another Store Services
 		// such as (UserManager talk to IUserStore to take all services like createAsync)
 		// so we allowed dependency injection to this services too

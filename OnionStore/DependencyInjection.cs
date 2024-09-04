@@ -28,7 +28,7 @@ public static class DependencyInjection
 
         services.AddApiVersioningConfigurations();
 
-        services.AddIdentityConfigurations(databaseConnections.IdentityConnection);
+        services.AddIdentityConfigurations();
 
         services.AddJWTConfigurations(jwtData);
 
@@ -36,7 +36,7 @@ public static class DependencyInjection
 
         services.AddStoreContext(databaseConnections.StoreConnection);
 
-        services.AddHangfireServices(databaseConnections.IdentityConnection);
+        services.AddHangfireServices(databaseConnections.StoreConnection);
 
         services.AddFluentValidation();
 

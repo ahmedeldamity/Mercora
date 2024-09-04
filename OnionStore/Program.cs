@@ -6,8 +6,6 @@ using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Repository.Data;
-using Repository.Identity;
 using Repository.Store;
 using Serilog;
 
@@ -61,16 +59,11 @@ var services = scope.ServiceProvider;
 
 // --> Bring Object Of StoreContext For Update His Migration
 var _storeContext = services.GetRequiredService<StoreContext>();
-// --> Bring Object Of IdentityContext For Update His Migration
-var _identiyContext = services.GetRequiredService<IdentityContext>();
 // --> Bring Object Of ILoggerFactory For Good Show Error In Console
 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
 
 try
 {
-	// Migrate IdentityContext
-	await _identiyContext.Database.MigrateAsync();
-
     // Migrate StoreContext
     await _storeContext.Database.MigrateAsync();
     // Seeding Data For StoreContext
@@ -91,6 +84,8 @@ app.UseMiddleware<ExceptionMiddleware>();
 
 // Add Swagger Middelwares In Extension Method
 app.UseSwaggerMiddleware();
+
+//app.UseOutputCache();
 
 // Add Rate Limiter Middleware
 app.UseRateLimiter();
