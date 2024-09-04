@@ -66,6 +66,8 @@ public class BrandService(IUnitOfWork _unitOfWork, IMapper _mapper): IBrandServi
 
         _mapper.Map(brandRequest, brand);
 
+        _unitOfWork.Repository<ProductBrand>().Update(brand);
+
         var result = await _unitOfWork.CompleteAsync();
 
         if (result <= 0)
