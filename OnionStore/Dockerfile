@@ -23,4 +23,5 @@ FROM base AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY ["Repository/Store/DataSeeding", "/app/DataSeeding"]
+COPY ["OnionStore/Templates", "/app/Templates"]
 ENTRYPOINT ["dotnet", "API.dll"]
