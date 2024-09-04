@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Core.Dtos;
+using Core.Entities;
 using Core.Entities.Product_Entities;
 using Core.ErrorHandling;
 using Core.Interfaces.Repositories;
@@ -46,4 +47,87 @@ public class ProductService(IUnitOfWork _unitOfWork, IMapper _mapper) : IProduct
 
         return Result.Success(productDto);
     }
+
+    public async Task<Result<ProductResponse>> CreateProductAsync(ProductRequest productRequest)
+    {
+        var product = _mapper.Map<ProductRequest, Product>(productRequest);
+
+        var productBrand = await _unitOfWork.Repository<ProductBrand>().GetEntityAsync(productRequest.BrandId);
+
+        if (productBrand is null)
+            return Result.Failure<ProductResponse>(new Error(404, "The brand you are looking for does not exist. Please check the brand ID and try again."));
+
+        var productCategory = await _unitOfWork.Repository<ProductCategory>().GetEntityAsync(productRequest.CategoryId);
+
+        if (productCategory is null)
+            return Result.Failure<ProductResponse>(new Error(404, "The category you are looking for does not exist. Please check the category ID and try again."));
+
+        product.Brand = productBrand;
+        product.Category = productCategory;
+
+
+        await _unitOfWork.Repository<Product>().AddAsync(product);
+
+        var result = await _unitOfWork.CompleteAsync();
+
+        if (result <= 0)
+            return Result.Failure<ProductResponse>(new Error(500, "An error occurred while creating the product. Please try again."));
+
+        var productDto = _mapper.Map<Product, ProductResponse>(product);
+
+        return Result.Success(productDto);
+    }
+
+    public async Task<Result<ProductResponse>> UpdateProductAsync(int id, ProductRequest productRequest)
+    {
+        var product = await _unitOfWork.Repository<Product>().GetEntityAsync(id);
+
+        if (product is null)
+            return Result.Failure<ProductResponse>(new Error(404, "The product you are looking for does not exist. Please check the product ID and try again."));
+
+        var productBrand = await _unitOfWork.Repository<ProductBrand>().GetEntityAsync(productRequest.BrandId);
+
+        if (productBrand is null)
+            return Result.Failure<ProductResponse>(new Error(404, "The brand you are looking for does not exist. Please check the brand ID and try again."));
+
+        var productCategory = await _unitOfWork.Repository<ProductCategory>().GetEntityAsync(productRequest.CategoryId);
+
+        if (productCategory is null)
+            return Result.Failure<ProductResponse>(new Error(404, "The category you are looking for does not exist. Please check the category ID and try again."));
+
+        var newProduct = _mapper.Map<ProductRequest, Product>(productRequest);
+
+        _unitOfWork.Repository<Product>().Update(newProduct);
+
+        var result = await _unitOfWork.CompleteAsync();
+
+        if (result <= 0)
+            return Result.Failure<ProductResponse>(new Error(500, "An error occurred while updating the product. Please try again."));
+
+        var productDto = _mapper.Map<Product, ProductResponse>(newProduct);
+
+        return Result.Success(productDto);
+    }
+
+    public async Task<Result<ProductResponse>> DeleteProductAsync(int id)
+    {
+        var productResp = _unitOfWork.Repository<Product>();
+
+        var product = await productResp.GetEntityAsync(id);
+
+        if (product is null)
+            return Result.Failure<ProductResponse>(new Error(404, "The product you are looking for does not exist. Please check the product ID and try again."));
+
+        productResp.Delete(product);
+
+        var result = await _unitOfWork.CompleteAsync();
+
+        if (result <= 0)
+            return Result.Failure<ProductResponse>(new Error(500, "An error occurred while deleting the product. Please try again."));
+
+        var productDto = _mapper.Map<Product, ProductResponse>(product);
+
+        return Result.Success(productDto);
+    }
+
 }

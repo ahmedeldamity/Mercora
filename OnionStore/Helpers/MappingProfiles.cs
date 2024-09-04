@@ -26,6 +26,8 @@ public class MappingProfiles : Profile
             .ForMember(d => d.ImageCover, o => o.MapFrom<ProductImageCoverResolver>())
             .ForMember(d => d.Images, o => o.MapFrom<ProductImagesResolver>());
 
+        CreateMap<ProductRequest, Product>();
+
         CreateMap<ProductBrand, ProductBrandResponse>()
             .ForMember(d => d.ImageCover, o => o.MapFrom<ProductBrandImageCoverResolver>());
 
