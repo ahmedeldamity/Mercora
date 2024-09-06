@@ -1,7 +1,7 @@
 ﻿using Core.Dtos;
 using FluentValidation;
 
-namespace Core.DtosValidators;
+namespace API.DtosValidators; 
 public class OrderAddressValidator: AbstractValidator<OrderAddressRequest>
 {
     public OrderAddressValidator()
