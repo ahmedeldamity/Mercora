@@ -1,8 +1,8 @@
 ﻿using Core.Dtos;
 using FluentValidation;
 
-namespace Core.DtosValidators;
-public class EmailValidator: AbstractValidator<EmailRequest>
+namespace API.DtosValidators;
+public class EmailValidator : AbstractValidator<EmailRequest>
 {
     public EmailValidator()
     {
