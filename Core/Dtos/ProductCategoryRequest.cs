@@ -1,5 +1,4 @@
 ﻿namespace Core.Dtos;
-public record ProductCategoryRequest
-{
-    public string Name { get; set; } = null!;
-}
+public record ProductCategoryRequest(
+    string Name
+);
