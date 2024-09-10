@@ -52,18 +52,9 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var token = await GenerateAccessTokenAsync(newUser);
 
-        var userResponse = new AppUserResponse
-        {
-            DisplayName = newUser.DisplayName,
-            Email = newUser.Email,
-            Token = token
-        };
-
         var refreshToken = GenerateRefreshToken();
 
-        userResponse.RefreshToken = refreshToken.Token;
-
-        userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
+        var userResponse = new AppUserResponse(newUser.DisplayName, newUser.Email, token, refreshToken.ExpireAt);
 
         newUser.RefreshTokens!.Add(refreshToken);
 
@@ -103,19 +94,11 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var token = await GenerateAccessTokenAsync(newUser);
 
-        var userResponse = new AppUserResponseV20
-        {
-            DisplayName = newUser.DisplayName,
-            Email = newUser.Email,
-            PhoneNumber = newUser.PhoneNumber,
-            Token = token
-        };
-
         var refreshToken = GenerateRefreshToken();
 
-        userResponse.RefreshToken = refreshToken.Token;
+        string refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm");
 
-        userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm");
+        var userResponse = new AppUserResponseV20(newUser.DisplayName, newUser.Email, token, newUser.PhoneNumber, refreshTokenExpireAt);
 
         newUser.RefreshTokens!.Add(refreshToken);
 
@@ -155,20 +138,15 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var token = await GenerateAccessTokenAsync(newUser);
 
-        var userResponse = new AppUserResponseV21
-        {
-            FirstName = model.DisplayName.Trim().Split(' ')[0],
-            LastName = model.DisplayName.Trim().Split(' ')[1],
-            Email = newUser.Email,
-            PhoneNumber = newUser.PhoneNumber,
-            Token = token
-        };
-
         var refreshToken = GenerateRefreshToken();
 
-        userResponse.RefreshToken = refreshToken.Token;
+        var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
 
-        userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
+        var firstName = model.DisplayName.Trim().Split(' ')[0];
+
+        var lastName = model.DisplayName.Trim().Split(' ')[1];
+
+        var userResponse = new AppUserResponseV21(firstName, lastName, newUser.Email, token, newUser.PhoneNumber, refreshTokenExpireAt);
 
         newUser.RefreshTokens!.Add(refreshToken);
 
@@ -196,29 +174,20 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var token = await GenerateAccessTokenAsync(user);
 
-        var userResponse = new AppUserResponse
-        {
-            DisplayName = user.DisplayName,
-            Email = user.Email!,
-            Token = token
-        };
-
         RefreshToken refreshToken;
 
         if (user!.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
         {
             refreshToken = user.RefreshTokens.First(t => t.IsActive);
-            userResponse.RefreshToken = refreshToken.Token;
-            userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
         }
         else
         {
             refreshToken = GenerateRefreshToken();
-            userResponse.RefreshToken = refreshToken.Token;
-            userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt;
             user.RefreshTokens!.Add(refreshToken);
             await _userManager.UpdateAsync(user);
         }
+
+        var userResponse = new AppUserResponse(user.DisplayName, user.Email!, token, refreshToken.ExpireAt);
 
         SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
@@ -242,48 +211,37 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var token = await GenerateAccessTokenAsync(user);
 
-        var userResponse = new AppUserResponseV20
-        {
-            DisplayName = user.DisplayName,
-            Email = user.Email!,
-            PhoneNumber = user.PhoneNumber!,
-            Token = token
-        };
-
         RefreshToken refreshToken;
 
         if (user!.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
         {
             refreshToken = user.RefreshTokens.First(t => t.IsActive);
-            userResponse.RefreshToken = refreshToken.Token;
-            userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
         }
         else
         {
             refreshToken = GenerateRefreshToken();
-            userResponse.RefreshToken = refreshToken.Token;
-            userResponse.RefreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
             user.RefreshTokens!.Add(refreshToken);
             await _userManager.UpdateAsync(user);
         }
+
+        var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
+
+        var userResponse = new AppUserResponseV20(user.DisplayName, user.Email!, token, user.PhoneNumber!, refreshTokenExpireAt);
 
         SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
         return Result.Success(userResponse);
     }
 
-    public async Task<Result<AppUserResponse>> GetCurrentUser(ClaimsPrincipal User)
+    public async Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal User)
     {
         var email = User.FindFirstValue(ClaimTypes.Email);
 
         var user = await _userManager.FindByEmailAsync(email!);
 
-        var userResponse = new AppUserResponse
-        {
-            DisplayName = user!.DisplayName,
-            Email = user.Email!,
-            Token = await GenerateAccessTokenAsync(user)
-        };
+        var token = await GenerateAccessTokenAsync(user!);
+
+        var userResponse = new CurrentUserResponse(user!.DisplayName, user.Email!, token);
 
         return Result.Success(userResponse);
     }
@@ -327,7 +285,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         return Result.Success(updatedAddress);
     }
 
-    public async Task<Result<AppUserResponse>> GoogleLogin(string credential)
+    public async Task<Result<CurrentUserResponse>> GoogleLogin(string credential)
     {
         var settings = new GoogleJsonWebSignature.ValidationSettings()
         {
@@ -337,7 +295,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         var payload = await GoogleJsonWebSignature.ValidateAsync(credential, settings);
 
         if (string.IsNullOrEmpty(payload.Email))
-            return Result.Failure<AppUserResponse>(new Error(400, "Invalid payload: Email is missing."));
+            return Result.Failure<CurrentUserResponse>(new Error(400, "Invalid payload: Email is missing."));
 
         var user = await _userManager.FindByEmailAsync(payload.Email);
 
@@ -356,7 +314,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             if (result.Succeeded is false)
             {
                 var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                return Result.Failure<AppUserResponse>(new Error(400, errors));
+                return Result.Failure<CurrentUserResponse>(new Error(400, errors));
             }
         }
 
@@ -366,12 +324,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var token = await GenerateAccessTokenAsync(user);
 
-        var userResponse = new AppUserResponse
-        {
-            DisplayName = user.DisplayName,
-            Email = user.Email!,
-            Token = token
-        };
+        var userResponse = new CurrentUserResponse(user.DisplayName, user.Email!, token);
 
         return Result.Success(userResponse);
     }
@@ -402,14 +355,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var accessToken = await GenerateAccessTokenAsync(user);
 
-        AppUserResponse userResponse = new()
-        {
-            DisplayName = user.DisplayName,
-            Email = user.Email!,
-            Token = accessToken,
-            RefreshToken = newRefreshToken.Token,
-            RefreshTokenExpireAt = newRefreshToken.ExpireAt
-        };
+        var userResponse = new AppUserResponse(user.DisplayName, user.Email!, accessToken, newRefreshToken.ExpireAt);
 
         SetRefreshTokenInCookie(newRefreshToken.Token, newRefreshToken.ExpireAt);
 
