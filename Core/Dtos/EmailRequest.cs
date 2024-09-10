@@ -1,5 +1,4 @@
 ﻿namespace Core.Dtos;
-public record EmailRequest
-{
-    public string Email { get; set; } = null!;
-}
+public record EmailRequest(
+    string Email
+);
