@@ -1,11 +1,9 @@
-﻿using System.Text.Json.Serialization;
-
-namespace Core.Dtos;
+﻿namespace Core.Dtos;
 public record AppUserResponse(
     string DisplayName,
     string Email,
     string Token,
-    DateTime? RefreshTokenExpireAt
+    DateTime RefreshTokenExpireAt
 );
     
 public record AppUserResponseV20(

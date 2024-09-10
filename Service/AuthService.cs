@@ -29,12 +29,11 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         var code = GenerateSecureCode();
 
-        EmailResponse emailToSend = new()
-        {
-            To = userEmail!,
-            Subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address",
-            Body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration")
-        };
+        var subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
+
+        var body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration");
+
+        EmailResponse emailToSend = new(subject, body, userEmail);
 
         await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
@@ -64,12 +63,11 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         var code = GenerateSecureCode();
 
-        EmailResponse emailToSend = new()
-        {
-            To = userEmail!,
-            Subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address",
-            Body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password."),
-        };
+        var subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
+
+        var body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password.");
+
+        EmailResponse emailToSend = new(subject, body, userEmail);
 
         await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
@@ -130,12 +128,11 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         var code = GenerateSecureCode();
 
-        EmailResponse emailToSend = new()
-        {
-            To = email.Email,
-            Subject = $"✅ {user.DisplayName}, Reset Your Password - Verification Code: {code}",
-            Body = EmailBody(code, user.DisplayName, "Reset Password", "You have requested to reset your password.")
-        };
+        var subject = $"✅ {user.DisplayName}, Reset Your Password - Verification Code: {code}";
+
+        var body = EmailBody(code, user.DisplayName, "Reset Password", "You have requested to reset your password.");
+
+        EmailResponse emailToSend = new(subject, body, email.Email);
 
         await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
@@ -159,12 +156,11 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         var code = GenerateSecureCode();
 
-        EmailResponse emailToSend = new()
-        {
-            To = email.Email,
-            Subject = $"✅ {user.DisplayName}, Reset Your Password - Verification Code: {code}",
-            Body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password."),
-        };
+        var subject = $"✅ {user.DisplayName}, Reset Your Password - Verification Code: {code}";
+
+        var body = LoadEmailTemplate("Templates/EmailTemplate.html", code, user.DisplayName, "Reset Password", "You have requested to reset your password.");
+
+        EmailResponse emailToSend = new(subject, body, email.Email);
 
         await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {

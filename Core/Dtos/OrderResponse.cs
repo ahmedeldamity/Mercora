@@ -1,15 +1,14 @@
 ﻿namespace Core.Dtos;
-public record OrderResponse
-{
-    public int Id { get; set; }
-    public string BuyerEmail { get; set; } = null!;
-    public DateTimeOffset OrderDate { get; set; }
-    public string Status { get; set; } = null!;
-    public OrderAddressRequest ShippingAddress { get; set; } = new();
-    public string DeliveryMethodName { get; set; } = null!;
-    public decimal DeliveryMethodCost { get; set; }
-    public ICollection<OrderItemRequest> Items { get; set; } = new HashSet<OrderItemRequest>();
-    public decimal Subtotal { get; set; }
-    public decimal Total { get; set; }
-    public string PaymentIntentId { get; set; } = null!;
-}
+public record OrderResponse(
+    int Id,
+    string BuyerEmail,
+    DateTimeOffset OrderDate,
+    string Status,
+    OrderAddressRequest ShippingAddress,
+    string DeliveryMethodName,
+    decimal DeliveryMethodCost,
+    ICollection<OrderItemRequest> Items,
+    decimal Subtotal,
+    decimal Total,
+    string PaymentIntentId
+);
