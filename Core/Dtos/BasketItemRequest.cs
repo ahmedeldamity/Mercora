@@ -1,14 +1,13 @@
 ﻿namespace Core.Dtos;
-public record BasketItemRequest
-{
-    public int Id { get; set; }
-    public string Name { get; set; } = null!;
-    public string Description { get; set; } = null!;
-    public decimal Price { get; set; }
-    public string ImageCover { get; set; } = null!;
-    public string[] Images { get; set; } = [];
-    public decimal Quantity { get; set; }
-    public decimal RatingsAverage { get; set; }
-    public string Category { get; set; } = null!;
-    public string Brand { get; set; } = null!;
-}
+public record BasketItemRequest(
+    int Id,
+    string Name,
+    string Description,
+    decimal Price,
+    string ImageCover,
+    string[] Images,
+    decimal Quantity,
+    decimal RatingsAverage,
+    string Category,
+    string Brand
+);
