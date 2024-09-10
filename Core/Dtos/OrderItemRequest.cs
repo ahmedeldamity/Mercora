@@ -1,10 +1,9 @@
 ﻿namespace Core.Dtos;
-public record OrderItemRequest
-{
-    public int Id { get; set; } // Id For Product As Arrange In List Of Items
-    public int ProductId { get; set; }  // Id For Product In Database
-    public string ProductName { get; set; } = null!;
-    public string ImageCover { get; set; } = null!;
-    public decimal Price { get; set; }
-    public int Quantity { get; set; }
-}
+public record OrderItemRequest(
+    int Id, // Id For Product As Arrange In List Of Items
+    int ProductId, // Id For Product In Database
+    string ProductName,
+    string ImageCover,
+    decimal Price,
+    int Quantity
+);

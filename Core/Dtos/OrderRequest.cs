@@ -1,6 +1,5 @@
 ﻿namespace Core.Dtos;
-public record OrderRequest
-{
-    public string BasketId { get; set; } = null!;
-    public OrderAddressRequest ShippingAddress { get; set; } = new();
-}
+public record OrderRequest(
+    string BasketId,
+    OrderAddressRequest ShippingAddress
+);
