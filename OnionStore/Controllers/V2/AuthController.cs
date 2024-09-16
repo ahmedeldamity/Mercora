@@ -11,14 +11,14 @@ namespace API.Controllers.V2;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("2.0")]
-public class AuthController(IAuthService _authService) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
     [Authorize]
     [HttpPost("send-email-verification-code")]
     [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCodeV2()
     {
-        var result = await _authService.SendEmailVerificationCodeV2(User);
+        var result = await authService.SendEmailVerificationCodeV2(User);
 
         return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
     }
@@ -26,7 +26,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
     [HttpPost("send-password-verification-code")]
     public async Task<ActionResult> SendPasswordResetEmailV2(EmailRequest email)
     {
-        var result = await _authService.SendPasswordResetEmailV2(email);
+        var result = await authService.SendPasswordResetEmailV2(email);
 
         return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
     }

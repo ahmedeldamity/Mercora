@@ -13,15 +13,15 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Service;
-public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userManager, StoreContext _storeContext, IEmailSettingService _emailSettings) : IAuthService
+public class AuthService(IOptions<JwtData> jWtData, UserManager<AppUser> userManager, StoreContext storeContext, IEmailSettingService emailSettings) : IAuthService
 {
-    private readonly JWTData _jWTData = jWTData.Value;
+    private readonly JwtData _jWtData = jWtData.Value;
 
-    public async Task<Result> SendEmailVerificationCode(ClaimsPrincipal User)
+    public async Task<Result> SendEmailVerificationCode(ClaimsPrincipal userClaims)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
+        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
             return Result.Success();
 
         if (user.EmailConfirmed)
@@ -35,27 +35,27 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         EmailResponse emailToSend = new(subject, body, userEmail);
 
-        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
+        await storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             IsActive = true,
             User = user,
             AppUserId = user.Id,
-            ForRegisterationConfirmed = true
+            ForRegistrationConfirmed = true
         });
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
 
-        BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
+        BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
 
         return Result.Success();
     }
 
-    public async Task<Result> SendEmailVerificationCodeV2(ClaimsPrincipal User)
+    public async Task<Result> SendEmailVerificationCodeV2(ClaimsPrincipal userClaims)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
+        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
             return Result.Success("If your email is registered with us, a email verification code has been successfully sent.");
 
         if (user.EmailConfirmed)
@@ -69,31 +69,31 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         EmailResponse emailToSend = new(subject, body, userEmail);
 
-        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
+        await storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             IsActive = true,
             User = user,
             AppUserId = user.Id,
-            ForRegisterationConfirmed = true
+            ForRegistrationConfirmed = true
         });
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
 
-        BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
+        BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
 
         return Result.Success("If your email is registered with us, a email verification code has been successfully sent.");
     }
 
-    public async Task<Result> VerifyRegisterCode(CodeVerificationRequest model, ClaimsPrincipal User)
+    public async Task<Result> VerifyRegisterCode(CodeVerificationRequest model, ClaimsPrincipal userClaims)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
+        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
             return Result.Failure(new Error(400, "No account found with the provided email address."));
 
-        var identityCode = await _storeContext.IdentityCodes
-                            .Where(P => P.AppUserId == user.Id && P.ForRegisterationConfirmed)
+        var identityCode = await storeContext.IdentityCodes
+                            .Where(p => p.AppUserId == user.Id && p.ForRegistrationConfirmed)
                             .OrderBy(d => d.CreationTime)
                             .LastOrDefaultAsync();
 
@@ -110,20 +110,20 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         identityCode.IsActive = false;
 
-        _storeContext.IdentityCodes.Update(identityCode);
+        storeContext.IdentityCodes.Update(identityCode);
 
         user.EmailConfirmed = true;
 
-        await _userManager.UpdateAsync(user);
+        await userManager.UpdateAsync(user);
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
 
         return Result.Success();
     }
 
     public async Task<Result> SendPasswordResetEmail(EmailRequest email)
     {
-        if (await _userManager.FindByEmailAsync(email.Email) is not { } user)
+        if (await userManager.FindByEmailAsync(email.Email) is not { } user)
             return Result.Success();
 
         var code = GenerateSecureCode();
@@ -134,24 +134,24 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         EmailResponse emailToSend = new(subject, body, email.Email);
 
-        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
+        await storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             User = user,
             AppUserId = user.Id,
-            ForRegisterationConfirmed = false,
+            ForRegistrationConfirmed = false,
         });
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
 
-        BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
+        BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
 
         return Result.Success();
     }
 
     public async Task<Result> SendPasswordResetEmailV2(EmailRequest email)
     {
-        if (await _userManager.FindByEmailAsync(email.Email) is not { } user)
+        if (await userManager.FindByEmailAsync(email.Email) is not { } user)
             return Result.Success("If your email is registered with us, a password reset email has been successfully sent.");
 
         var code = GenerateSecureCode();
@@ -162,33 +162,33 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         EmailResponse emailToSend = new(subject, body, email.Email);
 
-        await _storeContext.IdentityCodes.AddAsync(new IdentityCode()
+        await storeContext.IdentityCodes.AddAsync(new IdentityCode()
         {
             Code = HashCode(code),
             User = user,
             AppUserId = user.Id,
-            ForRegisterationConfirmed = false,
+            ForRegistrationConfirmed = false,
         });
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
 
-        BackgroundJob.Enqueue(() => _emailSettings.SendEmailMessage(emailToSend));
+        BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
 
         return Result.Success("If your email is registered with us, a password reset email has been successfully sent.");
     }
 
-    public async Task<Result> VerifyResetCode(CodeVerificationRequest model, ClaimsPrincipal User)
+    public async Task<Result> VerifyResetCode(CodeVerificationRequest model, ClaimsPrincipal userClaims)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
+        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
             return Result.Failure(new Error(400, "No account associated with the provided email address was found, Please check the email and try again."));
 
         if (user.EmailConfirmed is false)
             return Result.Failure(new Error(400, "Please verify your email address before proceeding."));
 
-        var identityCode = await _storeContext.IdentityCodes
-                            .Where(P => P.AppUserId == user.Id && P.ForRegisterationConfirmed == false)
+        var identityCode = await storeContext.IdentityCodes
+                            .Where(p => p.AppUserId == user.Id && p.ForRegistrationConfirmed == false)
                             .OrderBy(d => d.CreationTime)
                             .LastOrDefaultAsync();
 
@@ -214,27 +214,27 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
 
         identityCode.ActivationTime = DateTime.UtcNow;
 
-        _storeContext.IdentityCodes.Update(identityCode);
+        storeContext.IdentityCodes.Update(identityCode);
 
-        await _userManager.UpdateAsync(user);
+        await userManager.UpdateAsync(user);
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
 
         return Result.Success();
     }
 
-    public async Task<Result> ChangePassword(ChangePasswordRequest model, ClaimsPrincipal User)
+    public async Task<Result> ChangePassword(ChangePasswordRequest model, ClaimsPrincipal userClaims)
     {
-        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        if (await _userManager.FindByEmailAsync(userEmail!) is not { } user)
+        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
             return Result.Failure(new Error(400, "No account associated with the provided email address was found, Please check the email and try again."));
 
         if (user.EmailConfirmed is false) 
             return Result.Failure(new Error(400, "Please verify your email address before proceeding."));
 
-        var identityCode = await _storeContext.IdentityCodes
-                            .Where(p => p.AppUserId == user.Id && p.IsActive && p.ForRegisterationConfirmed == false)
+        var identityCode = await storeContext.IdentityCodes
+                            .Where(p => p.AppUserId == user.Id && p.IsActive && p.ForRegistrationConfirmed == false)
                             .OrderByDescending(p => p.CreationTime)
                             .FirstOrDefaultAsync();
 
@@ -249,15 +249,15 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         if (identityCode.ActivationTime is null || identityCode.ActivationTime.Value.AddMinutes(30) < DateTime.UtcNow)
             return Result.Failure(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
 
-        using var transaction = await _storeContext.Database.BeginTransactionAsync();
+        await using var transaction = await storeContext.Database.BeginTransactionAsync();
 
         identityCode.IsActive = false;
 
-        _storeContext.IdentityCodes.Update(identityCode);
+        storeContext.IdentityCodes.Update(identityCode);
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
 
-        var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+        var removePasswordResult = await userManager.RemovePasswordAsync(user);
 
         if (removePasswordResult.Succeeded is false)
         {
@@ -268,7 +268,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
             return Result.Failure(new Error(400, errors));
         }
 
-        var addPasswordResult = await _userManager.AddPasswordAsync(user, model.NewPassword);
+        var addPasswordResult = await userManager.AddPasswordAsync(user, model.NewPassword);
 
         if (!addPasswordResult.Succeeded)
         {
@@ -284,9 +284,9 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         return Result.Success();
     }
 
-    private string LoadEmailTemplate(string filePath, string code, string userName, string title, string message)
+    private static string LoadEmailTemplate(string filePath, string code, string userName, string title, string message)
     {
-        string template = File.ReadAllText(filePath);
+        var template = File.ReadAllText(filePath);
 
         // Replace placeholders with actual values
         template = template.Replace("{{Code}}", code)
@@ -298,7 +298,7 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
         return template;
     }
 
-    private string EmailBody(string code, string userName, string title, string message)
+    private static string EmailBody(string code, string userName, string title, string message)
     {
         return $@"
                 <!DOCTYPE html>
@@ -372,37 +372,38 @@ public class AuthService(IOptions<JWTData> jWTData, UserManager<AppUser> _userMa
                 </html>";
     }
 
-    private string GenerateSecureCode()
+    private static string GenerateSecureCode()
     {
-        byte[] randomNumber = new byte[4];
+        var randomNumber = new byte[4];
 
         using var rng = RandomNumberGenerator.Create();
         rng.GetBytes(randomNumber);
 
-        int result = BitConverter.ToInt32(randomNumber, 0);
-        int positiveResult = Math.Abs(result);
+        var result = BitConverter.ToInt32(randomNumber, 0);
+        var positiveResult = Math.Abs(result);
 
-        int sixDigitCode = positiveResult % 1000000;
+        var sixDigitCode = positiveResult % 1000000;
         return sixDigitCode.ToString("D6");
     }
 
-    private string HashCode(string code)
+    private static string HashCode(string code)
     {
         var sha256 = SHA256.Create();
-        var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(code));
-        return BitConverter.ToString(hashedBytes).Replace("-", "");
+        var hashedBytes = sha256?.ComputeHash(Encoding.UTF8.GetBytes(code));
+        return BitConverter.ToString(hashedBytes!).Replace("-", "");
     }
 
-    private bool ConstantComparison(string a, string b)
+    private static bool ConstantComparison(string a, string b)
     {
         if (a.Length != b.Length)
             return false;
 
-        int result = 0;
-        for (int i = 0; i < a.Length; i++)
+        var result = 0;
+        for (var i = 0; i < a.Length; i++)
         {
             result |= a[i] ^ b[i];
         }
         return result == 0;
     }
+
 }

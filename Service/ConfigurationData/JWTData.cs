@@ -1,5 +1,5 @@
 ﻿namespace Service.ConfigurationData;
-public class JWTData
+public class JwtData
 {
     public string SecretKey { get; set; } = null!;
     public string ValidAudience { get; set; } = null!;

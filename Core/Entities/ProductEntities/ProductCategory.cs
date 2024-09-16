@@ -1,4 +1,6 @@
-﻿namespace Core.Entities;
+﻿using Core.Common;
+
+namespace Core.Entities.ProductEntities;
 public class ProductCategory : BaseEntity
 {
     public string Name { get; set; } = null!;

@@ -12,12 +12,12 @@ namespace API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 [EnableRateLimiting("SlidingWindowPolicy")]
-public class AccountController(IAccountService _accountService) : ControllerBase
+public class AccountController(IAccountService accountService) : ControllerBase
 {
     [HttpPost("register")]
     public async Task<ActionResult<AppUserResponse>> Register(RegisterRequest model)
     {
-        var result = await _accountService.Register(model);
+        var result = await accountService.Register(model);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -25,7 +25,7 @@ public class AccountController(IAccountService _accountService) : ControllerBase
     [HttpPost("login")]
     public async Task<ActionResult<AppUserResponse>> Login(LoginRequest model)
     {
-        var result = await _accountService.Login(model);
+        var result = await accountService.Login(model);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -34,7 +34,7 @@ public class AccountController(IAccountService _accountService) : ControllerBase
     [Authorize]
     public async Task<ActionResult<AppUserResponse>> GetCurrentUser()
     {
-        var result = await _accountService.GetCurrentUser(User);
+        var result = await accountService.GetCurrentUser(User);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -43,7 +43,7 @@ public class AccountController(IAccountService _accountService) : ControllerBase
     [HttpGet("address")]
     public async Task<ActionResult<UserAddressResponse>> GetCurrentUserAddress()
     {
-        var result = await _accountService.GetCurrentUserAddress(User);
+        var result = await accountService.GetCurrentUserAddress(User);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -52,7 +52,7 @@ public class AccountController(IAccountService _accountService) : ControllerBase
     [HttpPut("address")]
     public async Task<ActionResult<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress)
     {
-        var result = await _accountService.UpdateUserAddress(updatedAddress, User);
+        var result = await accountService.UpdateUserAddress(updatedAddress, User);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -60,7 +60,7 @@ public class AccountController(IAccountService _accountService) : ControllerBase
     [HttpPost("google-login")]
     public async Task<ActionResult<AppUserResponse>> GoogleLogin([FromBody] string credential)
     {
-        var result = await _accountService.GoogleLogin(credential);
+        var result = await accountService.GoogleLogin(credential);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -68,7 +68,7 @@ public class AccountController(IAccountService _accountService) : ControllerBase
     [HttpGet("refresh-token")]
     public async Task<IActionResult> CreateAccessTokenByRefreshToken()
     {
-        var result = await _accountService.CreateAccessTokenByRefreshTokenAsync();
+        var result = await accountService.CreateAccessTokenByRefreshTokenAsync();
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -76,8 +76,9 @@ public class AccountController(IAccountService _accountService) : ControllerBase
     [HttpPost("revoke-token")]
     public async Task<IActionResult> RevokeRefreshToken()
     {
-        var result = await _accountService.RevokeRefreshTokenAsync();
+        var result = await accountService.RevokeRefreshTokenAsync();
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
+
 }

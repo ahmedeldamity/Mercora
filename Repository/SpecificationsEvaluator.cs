@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Core.Common;
 using Core.Interfaces.Specifications;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,14 +9,9 @@ public class SpecificationsEvaluator<T> where T : BaseEntity
     {
         var query = inputQuery;
 
-        if (spec.WhereCriteria != null)
-            query = query.Where(spec.WhereCriteria);
+        query = query.Where(spec.WhereCriteria);
 
-        if (spec.OrderBy != null)
-            query = query.OrderBy(spec.OrderBy);
-
-        else if (spec.OrderByDesc != null)
-            query = query.OrderByDescending(spec.OrderByDesc);
+        query = query.OrderBy(spec.OrderBy);
 
         if (spec.IsPaginationEnabled)
             query = query.Skip(spec.Skip).Take(spec.Take);

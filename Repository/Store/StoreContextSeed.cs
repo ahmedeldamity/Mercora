@@ -1,65 +1,64 @@
-﻿using Core.Entities;
-using Core.Entities.OrderEntities;
-using Core.Entities.Product_Entities;
+﻿using Core.Entities.OrderEntities;
+using Core.Entities.ProductEntities;
 using System.Text.Json;
 
 namespace Repository.Store;
 public class StoreContextSeed
 {
-    public async static Task SeedProductDataAsync(StoreContext _storeContext)
+    public static async Task SeedProductDataAsync(StoreContext storeContext)
     {
-        if (!_storeContext.Brands.Any())
+        if (!storeContext.Brands.Any())
         {
             var brandsFilePath = Path.Combine("DataSeeding", "brands.json");
 
-            var brandsJSONData = await File.ReadAllTextAsync(brandsFilePath);
+            var brandsJsonData = await File.ReadAllTextAsync(brandsFilePath);
 
-            var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsJSONData);
+            var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsJsonData);
 
-            if (brands!.Count > 0)
+            if (brands?.Count > 0)
             {
                 foreach (var brand in brands)
                 {
-                    _storeContext.Brands.Add(brand);
+                    storeContext.Brands.Add(brand);
                 }
             }
         }
 
-        if (!_storeContext.Categories.Any())
+        if (!storeContext.Categories.Any())
         {
             var categoriesFilePath = Path.Combine("DataSeeding", "categories.json");
+            
+            var categoriesJsonData = await File.ReadAllTextAsync(categoriesFilePath);
 
-            var catrgoriesJSONData = await File.ReadAllTextAsync(categoriesFilePath);
+            var categories = JsonSerializer.Deserialize<List<ProductCategory>>(categoriesJsonData);
 
-            var categories = JsonSerializer.Deserialize<List<ProductCategory>>(catrgoriesJSONData);
-
-            if (categories!.Count > 0)
+            if (categories?.Count > 0)
             {
                 foreach (var category in categories)
                 {
-                    _storeContext.Categories.Add(category);
+                    storeContext.Categories.Add(category);
                 }
             }
         }
 
-        if (!_storeContext.Products.Any())
+        if (!storeContext.Products.Any())
         {
             var productsFilePath = Path.Combine("DataSeeding", "products.json");
 
-            var ProductsJSONData = await File.ReadAllTextAsync(productsFilePath);
+            var productsJsonData = await File.ReadAllTextAsync(productsFilePath);
 
-            var products = JsonSerializer.Deserialize<List<Product>>(ProductsJSONData);
+            var products = JsonSerializer.Deserialize<List<Product>>(productsJsonData);
 
-            if (products!.Count > 0)
+            if (products?.Count > 0)
             {
                 foreach (var product in products)
                 {
-                    _storeContext.Products.Add(product);
+                    storeContext.Products.Add(product);
                 }
             }
         }
 
-        if (!_storeContext.OrderDeliveryMethods.Any())
+        if (!storeContext.OrderDeliveryMethods.Any())
         {
             var deliveryMethodsFilePath = Path.Combine("DataSeeding", "delivery.json");
 
@@ -67,16 +66,16 @@ public class StoreContextSeed
 
             var deliveryMethods = JsonSerializer.Deserialize<List<OrderDeliveryMethod>>(deliveryMethodsData);
 
-            if (deliveryMethods!.Count > 0)
+            if (deliveryMethods?.Count > 0)
             {
                 foreach (var deliveryMethod in deliveryMethods)
                 {
-                    _storeContext.OrderDeliveryMethods.Add(deliveryMethod);
+                    storeContext.OrderDeliveryMethods.Add(deliveryMethod);
 
                 }
             }
         }
 
-        await _storeContext.SaveChangesAsync();
+        await storeContext.SaveChangesAsync();
     }
 }

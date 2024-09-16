@@ -5,21 +5,21 @@ using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V1;
-public class BrandController(IBrandService _brandService) : BaseController
+public class BrandController(IBrandService brandService) : BaseController
 {
     [HttpGet]
     [Cached(600)]
     public async Task<ActionResult> GetBrands()
     {
-        var result = await _brandService.GetBrandsAsync();
+        var result = await brandService.GetBrandsAsync();
 
         return Ok(result.Value);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult> GetBrandById(int id)
     {
-        var result = await _brandService.GetBrandByIdAsync(id);
+        var result = await brandService.GetBrandByIdAsync(id);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -27,7 +27,7 @@ public class BrandController(IBrandService _brandService) : BaseController
     [HttpGet("search")]
     public async Task<ActionResult> SearchBrands(string search)
     {
-        var result = await _brandService.SearchBrandsAsync(search);
+        var result = await brandService.SearchBrandsAsync(search);
 
         return Ok(result.Value);
     }
@@ -35,23 +35,23 @@ public class BrandController(IBrandService _brandService) : BaseController
     [HttpPost]
     public async Task<ActionResult> CreateBrand(ProductBrandRequest brandRequest)
     {
-        var result = await _brandService.CreateBrandAsync(brandRequest);
+        var result = await brandService.CreateBrandAsync(brandRequest);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult> UpdateBrand(int id, ProductBrandRequest brandRequest)
     {
-        var result = await _brandService.UpdateBrandAsync(id, brandRequest);
+        var result = await brandService.UpdateBrandAsync(id, brandRequest);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteBrand(int id)
     {
-        var result = await _brandService.DeleteBrandAsync(id);
+        var result = await brandService.DeleteBrandAsync(id);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }

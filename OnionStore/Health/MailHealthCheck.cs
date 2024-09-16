@@ -15,9 +15,9 @@ public class MailHealthCheck(IOptions<MailData> mailData) : IHealthCheck
         {
             using var smtp = new SmtpClient();
 
-            smtp.Connect(_mailData.Host, _mailData.Port, SecureSocketOptions.SslOnConnect, cancellationToken);
+            await smtp.ConnectAsync(_mailData.Host, _mailData.Port, SecureSocketOptions.SslOnConnect, cancellationToken);
 
-            smtp.Authenticate(_mailData.Email, _mailData.Password, cancellationToken);
+            await smtp.AuthenticateAsync(_mailData.Email, _mailData.Password, cancellationToken);
 
             return await Task.FromResult(HealthCheckResult.Healthy());
         }

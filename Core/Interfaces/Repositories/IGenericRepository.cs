@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Core.Common;
 using Core.Interfaces.Specifications;
 
 namespace Core.Interfaces.Repositories;
@@ -10,8 +10,6 @@ public interface IGenericRepository<T> where T : BaseEntity
 
     public Task<T?> GetEntityAsync(ISpecifications<T> spec);
     public Task<T?> GetEntityAsync(int id);
-
-    // These will using in MVC dashboard
     public Task AddAsync(T entity);
     public void Update(T entity);
     public void Delete(T entity);

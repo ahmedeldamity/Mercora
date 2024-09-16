@@ -1,4 +1,6 @@
-﻿namespace Core.Entities;
+﻿using Core.Common;
+
+namespace Core.Entities.ProductEntities;
 public class ProductBrand : BaseEntity
 {
     public string Name { get; set; } = null!;

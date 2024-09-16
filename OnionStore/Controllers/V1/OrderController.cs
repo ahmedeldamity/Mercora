@@ -8,12 +8,12 @@ using Microsoft.AspNetCore.Mvc;
 namespace API.Controllers.V1;
 
 [Authorize]
-public class OrderController(IOrderService _orderService) : BaseController
+public class OrderController(IOrderService orderService) : BaseController
 {
     [HttpPost]
     public async Task<ActionResult> CreateOrder(OrderRequest orderDto)
     {
-        var result = await _orderService.CreateOrderAsync(orderDto.BasketId, orderDto.ShippingAddress);
+        var result = await orderService.CreateOrderAsync(orderDto.BasketId, orderDto.ShippingAddress);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -22,16 +22,16 @@ public class OrderController(IOrderService _orderService) : BaseController
     [Cached(600)]
     public async Task<ActionResult<IReadOnlyList<OrderResponse>>> GetOrdersForUser()
     {
-        var result = await _orderService.GetOrdersForUserAsync();
+        var result = await orderService.GetOrdersForUserAsync();
 
         return Ok(result.Value);
     }
 
-    [HttpGet("{orderId}")]
+    [HttpGet("{orderId:int}")]
     [Cached(600)]
     public async Task<ActionResult<OrderResponse>> GetSpecificOrderForUser(int orderId)
     {
-        var result = await _orderService.GetSpecificOrderForUserAsync(orderId);
+        var result = await orderService.GetSpecificOrderForUserAsync(orderId);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }

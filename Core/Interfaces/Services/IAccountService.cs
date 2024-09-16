@@ -10,11 +10,10 @@ public interface IAccountService
     Task<Result<AppUserResponseV21>> RegisterV21(RegisterRequest model);
     Task<Result<AppUserResponse>> Login(LoginRequest model);
     Task<Result<AppUserResponseV20>> LoginV20(LoginRequest model);
-    Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal User);
-    Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal User);
-    Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal User);
+    Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal userClaims);
+    Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims);
+    Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims);
     Task<Result<CurrentUserResponse>> GoogleLogin(string credential);
     Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync();
     Task<Result> RevokeRefreshTokenAsync();
-
 }

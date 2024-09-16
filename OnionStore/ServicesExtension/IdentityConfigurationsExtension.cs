@@ -23,7 +23,7 @@ public static class IdentityConfigurationsExtension
 		}).AddEntityFrameworkStores<StoreContext>();
 		// ? this because the three services talking to another Store Services
 		// such as (UserManager talk to IUserStore to take all services like createAsync)
-		// so we allowed dependency injection to this services too
+		// so we allowed dependency injection to these services too
 
 		return services;
 	}

@@ -17,18 +17,18 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace Service;
-public class AccountService(UserManager<AppUser> _userManager, SignInManager<AppUser> _signInManager, IMapper _mapper,
-IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor _httpContextAccessor) : IAccountService
+public class AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper,
+IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor httpContextAccessor) : IAccountService
 {
-    private readonly JWTData _jWTData = jWTData.Value;
+    private readonly JwtData _jWtData = jWtData.Value;
     private readonly GoogleData _googleData = googleData.Value;
 
     public async Task<Result<AppUserResponse>> Register(RegisterRequest model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.FindByEmailAsync(model.Email);
 
         // Check if the email is already registered and confirmed 
-        if (user is not null && user.EmailConfirmed is true)
+        if (user?.EmailConfirmed is true)
         {
             return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
         }
@@ -42,7 +42,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             EmailConfirmed = false
         };
 
-        var result = await _userManager.CreateAsync(newUser, model.Password);
+        var result = await userManager.CreateAsync(newUser, model.Password);
 
         if (result.Succeeded is false)
         {
@@ -58,7 +58,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         newUser.RefreshTokens!.Add(refreshToken);
 
-        await _userManager.UpdateAsync(newUser);
+        await userManager.UpdateAsync(newUser);
 
         SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
@@ -67,10 +67,10 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
     public async Task<Result<AppUserResponseV20>> RegisterV20(RegisterRequest model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.FindByEmailAsync(model.Email);
 
         // Check if the email is already registered and confirmed 
-        if (user is not null && user.EmailConfirmed is true)
+        if (user?.EmailConfirmed is true)
         {
             return Result.Failure<AppUserResponseV20>(new Error(400, "The email address you entered is already taken, Please try a different one."));
         }
@@ -84,7 +84,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             EmailConfirmed = false
         };
 
-        var result = await _userManager.CreateAsync(newUser, model.Password);
+        var result = await userManager.CreateAsync(newUser, model.Password);
 
         if (result.Succeeded is false)
         {
@@ -96,13 +96,13 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var refreshToken = GenerateRefreshToken();
 
-        string refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm");
+        var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm");
 
         var userResponse = new AppUserResponseV20(newUser.DisplayName, newUser.Email, token, newUser.PhoneNumber, refreshTokenExpireAt);
 
         newUser.RefreshTokens!.Add(refreshToken);
 
-        await _userManager.UpdateAsync(newUser);
+        await userManager.UpdateAsync(newUser);
 
         SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
@@ -111,10 +111,10 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
     public async Task<Result<AppUserResponseV21>> RegisterV21(RegisterRequest model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.FindByEmailAsync(model.Email);
 
         // Check if the email is already registered and confirmed 
-        if (user is not null && user.EmailConfirmed is true)
+        if (user?.EmailConfirmed is true)
         {
             return Result.Failure<AppUserResponseV21>(new Error(400, "The email address you entered is already taken, Please try a different one."));
         }
@@ -128,7 +128,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             EmailConfirmed = false
         };
 
-        var result = await _userManager.CreateAsync(newUser, model.Password);
+        var result = await userManager.CreateAsync(newUser, model.Password);
 
         if (result.Succeeded is false)
         {
@@ -150,7 +150,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         newUser.RefreshTokens!.Add(refreshToken);
 
-        await _userManager.UpdateAsync(newUser);
+        await userManager.UpdateAsync(newUser);
 
         SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
@@ -159,12 +159,12 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
     public async Task<Result<AppUserResponse>> Login(LoginRequest model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.FindByEmailAsync(model.Email);
 
-        if (user is null || model.Password is null)
+        if (user is null)
             return Result.Failure<AppUserResponse>(new Error(400, "The email or password you entered is incorrect, Check your credentials and try again."));
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+        var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
         if (result.Succeeded is false)
         {
@@ -184,7 +184,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         {
             refreshToken = GenerateRefreshToken();
             user.RefreshTokens!.Add(refreshToken);
-            await _userManager.UpdateAsync(user);
+            await userManager.UpdateAsync(user);
         }
 
         var userResponse = new AppUserResponse(user.DisplayName, user.Email!, token, refreshToken.ExpireAt);
@@ -196,12 +196,12 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
     public async Task<Result<AppUserResponseV20>> LoginV20(LoginRequest model)
     {
-        var user = await _userManager.FindByEmailAsync(model.Email);
+        var user = await userManager.FindByEmailAsync(model.Email);
 
-        if (user is null || model.Password is null)
+        if (user is null)
             return Result.Failure<AppUserResponseV20>(new Error(400, "The email or password you entered is incorrect, Check your credentials and try again."));
 
-        var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+        var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
         if (result.Succeeded is false)
         {
@@ -213,7 +213,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         RefreshToken refreshToken;
 
-        if (user!.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
+        if (user.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
         {
             refreshToken = user.RefreshTokens.First(t => t.IsActive);
         }
@@ -221,7 +221,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         {
             refreshToken = GenerateRefreshToken();
             user.RefreshTokens!.Add(refreshToken);
-            await _userManager.UpdateAsync(user);
+            await userManager.UpdateAsync(user);
         }
 
         var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
@@ -233,11 +233,11 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         return Result.Success(userResponse);
     }
 
-    public async Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal User)
+    public async Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal userClaims)
     {
-        var email = User.FindFirstValue(ClaimTypes.Email);
+        var email = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        var user = await _userManager.FindByEmailAsync(email!);
+        var user = await userManager.FindByEmailAsync(email!);
 
         var token = await GenerateAccessTokenAsync(user!);
 
@@ -246,43 +246,42 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         return Result.Success(userResponse);
     }
 
-    public async Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal User)
+    public async Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims)
     {
-        var email = User.FindFirstValue(ClaimTypes.Email);
+        var email = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        var user = await _userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
+        var user = await userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
 
-        if (user!.Address is null)
+        if (user?.Address is null)
             return Result.Failure<UserAddressResponse>(new Error(404, "The address is not available in our system."));
 
-        var address = _mapper.Map<UserAddress, UserAddressResponse>(user.Address);
+        var address = mapper.Map<UserAddress, UserAddressResponse>(user.Address);
 
         return Result.Success(address);
     }
 
-    public async Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal User)
+    public async Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims)
     {
-        var email = User.FindFirstValue(ClaimTypes.Email);
+        var email = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        var address = _mapper.Map<UserAddressResponse, UserAddress>(updatedAddress);
+        var address = mapper.Map<UserAddressResponse, UserAddress>(updatedAddress);
 
-        var userEmail = User.FindFirstValue(ClaimTypes.Email);
+        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
 
-        var user = await _userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == userEmail);
+        var user = await userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == userEmail);
 
         user!.Address = address;
 
         address.AppUserId = user.Id;
 
-        var result = await _userManager.UpdateAsync(user);
+        var result = await userManager.UpdateAsync(user);
 
-        if (!result.Succeeded)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            return Result.Failure<UserAddressResponse>(new Error(400, errors));
-        }
+        if (result.Succeeded) 
+            return Result.Success(updatedAddress);
 
-        return Result.Success(updatedAddress);
+        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+
+        return Result.Failure<UserAddressResponse>(new Error(400, errors));
     }
 
     public async Task<Result<CurrentUserResponse>> GoogleLogin(string credential)
@@ -297,7 +296,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
         if (string.IsNullOrEmpty(payload.Email))
             return Result.Failure<CurrentUserResponse>(new Error(400, "Invalid payload: Email is missing."));
 
-        var user = await _userManager.FindByEmailAsync(payload.Email);
+        var user = await userManager.FindByEmailAsync(payload.Email);
 
         if (user is null)
         {
@@ -309,7 +308,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
                 EmailConfirmed = true
             };
 
-            var result = await _userManager.CreateAsync(user);
+            var result = await userManager.CreateAsync(user);
 
             if (result.Succeeded is false)
             {
@@ -320,7 +319,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         user.EmailConfirmed = true;
 
-        await _userManager.UpdateAsync(user);
+        await userManager.UpdateAsync(user);
 
         var token = await GenerateAccessTokenAsync(user);
 
@@ -332,12 +331,12 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
     // access token become not valid so the front-end give me user refresh token to validate it and if it be okay I will generate access token and sent it 
     public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
     {
-        var refreshTokenFromCookie = _httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
+        var refreshTokenFromCookie = httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
 
-        var user = await _userManager.Users
+        var user = await userManager.Users
             .SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == refreshTokenFromCookie));
 
-        if (user is null || user.RefreshTokens is null)
+        if (user?.RefreshTokens is null)
             return Result.Failure<AppUserResponse>(new Error(401, "Invalid or inactive refresh token."));
 
         var refreshToken = user.RefreshTokens.Single(t => t.Token == refreshTokenFromCookie);
@@ -351,7 +350,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         user.RefreshTokens.Add(newRefreshToken);
 
-        await _userManager.UpdateAsync(user);
+        await userManager.UpdateAsync(user);
 
         var accessToken = await GenerateAccessTokenAsync(user);
 
@@ -364,12 +363,12 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
     public async Task<Result> RevokeRefreshTokenAsync()
     {
-        var refreshTokenFromCookie = _httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
+        var refreshTokenFromCookie = httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
 
-        var user = await _userManager.Users
+        var user = await userManager.Users
             .SingleOrDefaultAsync(u => u.RefreshTokens!.Any(t => t.Token == refreshTokenFromCookie));
 
-        if (user is null || user.RefreshTokens is null)
+        if (user?.RefreshTokens is null)
             return Result.Failure(new Error(401, "Invalid or inactive refresh token."));
 
         var refreshToken = user.RefreshTokens.Single(t => t.Token == refreshTokenFromCookie);
@@ -379,7 +378,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         refreshToken.RevokedAt= DateTime.UtcNow;
 
-        await _userManager.UpdateAsync(user);
+        await userManager.UpdateAsync(user);
 
         return Result.Success("Refresh token revoked successfully.");
     }
@@ -387,31 +386,28 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
     private async Task<string> GenerateAccessTokenAsync(AppUser user)
     {
 
-        // Private Claims (user defined - can change from user to other)
+        // Private Claims (user defined - can change from user to others)
         var authClaims = new List<Claim>()
         {
             new (ClaimTypes.GivenName, user.UserName!),
             new (ClaimTypes.Email, user.Email!)
         };
 
-        var userRoles = await _userManager.GetRolesAsync(user);
+        var userRoles = await userManager.GetRolesAsync(user);
 
-        foreach (var role in userRoles)
-        {
-            authClaims.Add(new Claim(ClaimTypes.Role, role));
-        }
+        authClaims.AddRange(userRoles.Select(role => new Claim(ClaimTypes.Role, role)));
 
         // secret key
-        var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jWTData.SecretKey));
+        var authKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jWtData.SecretKey));
 
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Issuer = _jWTData.ValidIssuer,
-            Audience = _jWTData.ValidAudience,
-            Expires = DateTime.UtcNow.AddMinutes(_jWTData.DurationInMinutes),
+            Issuer = _jWtData.ValidIssuer,
+            Audience = _jWtData.ValidAudience,
+            Expires = DateTime.UtcNow.AddMinutes(_jWtData.DurationInMinutes),
             Claims = authClaims.ToDictionary(c => c.Type, c => (object)c.Value),
             SigningCredentials = new SigningCredentials(authKey, SecurityAlgorithms.HmacSha256Signature),
-            EncryptingCredentials = new EncryptingCredentials(TokenEncryption._rsaKey, SecurityAlgorithms.RsaOAEP, SecurityAlgorithms.Aes128CbcHmacSha256)
+            EncryptingCredentials = new EncryptingCredentials(TokenEncryption.RsaKey, SecurityAlgorithms.RsaOAEP, SecurityAlgorithms.Aes128CbcHmacSha256)
         };
 
         var tokenHandler = new JwtSecurityTokenHandler();
@@ -424,18 +420,18 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
     private RefreshToken GenerateRefreshToken()
     {
         const int tokenLength = 32;
-        byte[] randomNumber = new byte[tokenLength];
+        var randomNumber = new byte[tokenLength];
 
         using var generator = RandomNumberGenerator.Create();
 
         generator.GetBytes(randomNumber);
 
-        string token = Convert.ToBase64String(randomNumber);
+        var token = Convert.ToBase64String(randomNumber);
 
         return new RefreshToken
         {
             Token = token,
-            ExpireAt = DateTime.UtcNow.AddDays(_jWTData.RefreshTokenExpirationInDays)
+            ExpireAt = DateTime.UtcNow.AddDays(_jWtData.RefreshTokenExpirationInDays)
         };
     }
 
@@ -447,7 +443,7 @@ IOptions<JWTData> jWTData, IOptions<GoogleData> googleData, IHttpContextAccessor
             Expires = expireAt.ToLocalTime()
         };
 
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", token, cookieOptions);
+        httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", token, cookieOptions);
     }
 
 }

@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Core.Common;
 using Core.Interfaces.Specifications;
 using System.Linq.Expressions;
 
@@ -6,7 +6,7 @@ namespace Core.Specifications;
 public class BaseSpecifications<T> : ISpecifications<T> where T : BaseEntity
 {
     public Expression<Func<T, bool>> WhereCriteria { get; set; } = null!;
-    public List<Expression<Func<T, object>>> IncludesCriteria { get; set; } = new List<Expression<Func<T, object>>>();
+    public List<Expression<Func<T, object>>> IncludesCriteria { get; set; } = [];
     public Expression<Func<T, object>> OrderBy { get; set; } = null!;
     public Expression<Func<T, object>> OrderByDesc { get; set; } = null!;
     public int Skip { get; set; }

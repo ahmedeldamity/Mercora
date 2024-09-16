@@ -7,7 +7,7 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)
     {
-        builder.OwnsOne(o => o.ShippingAddress, SAddress => SAddress.WithOwner());
+        builder.OwnsOne(o => o.ShippingAddress, sAddress => sAddress.WithOwner());
 
         builder.Property(p => p.BuyerEmail)
             .IsRequired()
@@ -15,8 +15,8 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
 
         builder.Property(o => o.Status)
             .HasConversion(
-                OStatus => OStatus.ToString(),
-                OStatus => (OrderStatus)Enum.Parse(typeof(OrderStatus), OStatus)
+                oStatus => oStatus.ToString(),
+                oStatus => (OrderStatus)Enum.Parse(typeof(OrderStatus), oStatus)
             );
         #region Explaination
         // here we store in OrderStatus in database as string 
@@ -28,7 +28,7 @@ public class OrderConfigurations : IEntityTypeConfiguration<Order>
         builder.Property(p => p.SubTotal)
             .HasColumnType("decimal(9,2)");
 
-        builder.HasOne(O => O.DeliveryMethod)
+        builder.HasOne(o => o.DeliveryMethod)
             .WithMany()
             .OnDelete(DeleteBehavior.NoAction);
     }

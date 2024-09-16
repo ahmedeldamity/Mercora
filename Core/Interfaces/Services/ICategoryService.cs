@@ -1,5 +1,5 @@
 ﻿using Core.Dtos;
-using Core.Entities;
+using Core.Entities.ProductEntities;
 using Core.ErrorHandling;
 
 namespace Core.Interfaces.Services;

@@ -1,10 +1,9 @@
-﻿using Core.Entities;
-using Core.Entities.IdentityEntities;
+﻿using Core.Entities.IdentityEntities;
 using Core.Entities.OrderEntities;
-using Core.Entities.Product_Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System.Reflection;
+using Core.Entities.ProductEntities;
 
 namespace Repository.Store;
 public class StoreContext(DbContextOptions<StoreContext> options) : IdentityDbContext<AppUser>(options) // we inherit from IdentityDbContext not DbContext to get 7 dbcontext

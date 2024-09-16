@@ -1,7 +1,9 @@
-﻿namespace Core.Entities.OrderEntities;
+﻿using Core.Common;
+
+namespace Core.Entities.OrderEntities;
 public class OrderDeliveryMethod: BaseEntity
 {
-    public OrderDeliveryMethod() { /* we create this constractor because EF need it while migration to make instance from this class */ }
+    public OrderDeliveryMethod() { /* we create this constructor because EF need it while migration to make instance from this class */ }
     public OrderDeliveryMethod(string name, string description, decimal cost, string deliveryTime)
     {
         Name = name;

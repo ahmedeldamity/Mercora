@@ -12,14 +12,14 @@ namespace API.Controllers.V1;
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 
-public class AuthController(IAuthService _authService) : ControllerBase
+public class AuthController(IAuthService authService) : ControllerBase
 {
     [Authorize]
     [HttpPost("send-email-verification-code")]
     [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode()
     {
-        var result = await _authService.SendEmailVerificationCode(User);
+        var result = await authService.SendEmailVerificationCode(User);
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
@@ -29,7 +29,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
     [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult> VerifyRegisterCode(CodeVerificationRequest model)
     {
-        var result = await _authService.VerifyRegisterCode(model, User);
+        var result = await authService.VerifyRegisterCode(model, User);
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
@@ -37,7 +37,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
     [HttpPost("send-password-verification-code")]
     public async Task<ActionResult> SendPasswordResetEmail(EmailRequest email)
     {
-        var result = await _authService.SendPasswordResetEmail(email);
+        var result = await authService.SendPasswordResetEmail(email);
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
@@ -45,7 +45,7 @@ public class AuthController(IAuthService _authService) : ControllerBase
     [HttpPost("Verify-Reset-Code")]
     public async Task<ActionResult> VerifyResetCode(CodeVerificationRequest model)
     {
-        var result = await _authService.VerifyResetCode(model, User);
+        var result = await authService.VerifyResetCode(model, User);
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
@@ -54,8 +54,9 @@ public class AuthController(IAuthService _authService) : ControllerBase
     [HttpPost("change-password")]
     public async Task<ActionResult> ChangePassword(ChangePasswordRequest model)
     {
-        var result = await _authService.ChangePassword(model, User);
+        var result = await authService.ChangePassword(model, User);
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
+
 }

@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Core.Common;
 using System.Linq.Expressions;
 
 namespace Core.Interfaces.Specifications;

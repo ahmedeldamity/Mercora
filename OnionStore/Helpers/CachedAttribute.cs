@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using System.Text;
 
 namespace API.Helpers;
-public class CachedAttribute(int timeToLiveInSeconts) : Attribute, IAsyncActionFilter
+public class CachedAttribute(int timeToLiveInSeconds) : Attribute, IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
     {
@@ -30,13 +30,13 @@ public class CachedAttribute(int timeToLiveInSeconts) : Attribute, IAsyncActionF
 
         var executedActionContext = await next.Invoke();
 
-        if (executedActionContext.Result is OkObjectResult okObjectResult && okObjectResult.Value is not null)
+        if (executedActionContext.Result is OkObjectResult { Value: not null } okObjectResult)
         {
             await responseCacheService.CacheResponseAsync(cacheKey, okObjectResult.Value, TimeSpan.FromSeconds(timeToLiveInSeconts));
         }
     }
 
-    private string GenerateCacheKeyFromRequest(HttpRequest request)
+    private static string GenerateCacheKeyFromRequest(HttpRequest request)
     {
         var keyBuilder = new StringBuilder();
 

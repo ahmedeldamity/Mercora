@@ -1,7 +1,7 @@
 ﻿namespace Core.Entities.OrderEntities;
 public class OrderAddress
 {
-    public OrderAddress() { /* we create this constractor because EF need it while migration to make instance from this class */ }
+    public OrderAddress() { /* we create this constructor because EF need it while migration to make instance from this class */ }
     public OrderAddress(string firstName, string lastName, string street, string city, string country)
     {
         FirstName = firstName;

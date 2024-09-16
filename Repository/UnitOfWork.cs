@@ -1,10 +1,10 @@
-﻿using Core.Entities;
+﻿using Core.Common;
 using Core.Interfaces.Repositories;
 using Repository.Store;
 using System.Collections.Concurrent;
 
 namespace Repository;
-public class UnitOfWork(StoreContext _storeContext) : IUnitOfWork
+public class UnitOfWork(StoreContext storeContext) : IUnitOfWork
 {
     private readonly ConcurrentDictionary<string, object> _repositories = new();
 
@@ -12,12 +12,12 @@ public class UnitOfWork(StoreContext _storeContext) : IUnitOfWork
     {
         var key = typeof(T).Name;
 
-        return (IGenericRepository<T>)_repositories.GetOrAdd(key, _ => new GenericRepository<T>(_storeContext));
+        return (IGenericRepository<T>)_repositories.GetOrAdd(key, _ => new GenericRepository<T>(storeContext));
     }
 
-    public async Task<int> CompleteAsync() => await _storeContext.SaveChangesAsync();
+    public async Task<int> CompleteAsync() => await storeContext.SaveChangesAsync();
 
-    public void Dispose() => _storeContext.DisposeAsync();
+    public void Dispose() => storeContext.DisposeAsync();
 
-    public async ValueTask DisposeAsync() => await _storeContext.DisposeAsync();
+    public async ValueTask DisposeAsync() => await storeContext.DisposeAsync();
 }

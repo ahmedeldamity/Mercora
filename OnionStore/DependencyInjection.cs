@@ -12,11 +12,11 @@ public static class DependencyInjection
 
         var configuration = builder.Configuration;
 
-        services.ConfigureAppsettingData(configuration);
+        services.ConfigureAppSettingData(configuration);
 
         var serviceProvider = services.BuildServiceProvider();
 
-        var jwtData = serviceProvider.GetRequiredService<IOptions<JWTData>>().Value;
+        var jwtData = serviceProvider.GetRequiredService<IOptions<JwtData>>().Value;
 
         var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
 
@@ -30,7 +30,7 @@ public static class DependencyInjection
 
         services.AddIdentityConfigurations();
 
-        services.AddJWTConfigurations(jwtData);
+        services.AddJwtConfigurations(jwtData);
 
         services.AddRedis(databaseConnections.RedisConnection);
 

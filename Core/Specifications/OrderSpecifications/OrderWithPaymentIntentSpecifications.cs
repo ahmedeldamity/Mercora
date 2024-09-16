@@ -5,7 +5,7 @@ public class OrderWithPaymentIntentSpecifications : BaseSpecifications<Order>
 {
     public OrderWithPaymentIntentSpecifications(string paymentIntentId)
     {
-        WhereCriteria = O => O.PaymentIntentId == paymentIntentId;
-        IncludesCriteria.Add(O => O.Items);
+        WhereCriteria = o => o.PaymentIntentId == paymentIntentId;
+        IncludesCriteria.Add(o => o.Items);
     }
 }

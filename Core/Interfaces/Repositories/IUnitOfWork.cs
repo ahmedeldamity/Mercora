@@ -1,4 +1,4 @@
-﻿using Core.Entities;
+﻿using Core.Common;
 
 namespace Core.Interfaces.Repositories;
 public interface IUnitOfWork : IDisposable, IAsyncDisposable

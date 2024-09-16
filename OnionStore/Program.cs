@@ -27,11 +27,11 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 	{
 		// --- then we bring ModelState: Dictionary key/value pair for each parameter, and value has property Errors Array have all errors
 		// --- and we use where to bring dictionary key/value pair which is value has errors 
-		var errors = actionContext.ModelState.Where(P => P.Value!.Errors.Count > 0)
+		var errors = actionContext.ModelState.Where(p => p.Value!.Errors.Count > 0)
 		// --- then we use SelectMany to make one array of all error  
-		.SelectMany(P => P.Value!.Errors)
+		.SelectMany(p => p.Value!.Errors)
 		// --- then we use Select to bring from errors just ErrorMessages
-		.Select(E => E.ErrorMessage)
+		.Select(e => e.ErrorMessage)
 		.ToArray();
 
 		// --- then we insert this errors to the class we made
@@ -58,16 +58,16 @@ using var scope = app.Services.CreateScope();
 var services = scope.ServiceProvider;
 
 // --> Bring Object Of StoreContext For Update His Migration
-var _storeContext = services.GetRequiredService<StoreContext>();
+var storeContext = services.GetRequiredService<StoreContext>();
 // --> Bring Object Of ILoggerFactory For Good Show Error In Console
 var loggerFactory = services.GetRequiredService<ILoggerFactory>();
 
 try
 {
     // Migrate StoreContext
-    await _storeContext.Database.MigrateAsync();
+    await storeContext.Database.MigrateAsync();
     // Seeding Data For StoreContext
-    await StoreContextSeed.SeedProductDataAsync(_storeContext);
+    await StoreContextSeed.SeedProductDataAsync(storeContext);
 }
 catch (Exception ex)
 {
@@ -82,7 +82,7 @@ catch (Exception ex)
 // Server Error Middleware (we catch it in class ExceptionMiddleware)
 app.UseMiddleware<ExceptionMiddleware>();
 
-// Add Swagger Middelwares In Extension Method
+// Add Swagger Middlewares In Extension Method
 app.UseSwaggerMiddleware();
 
 //app.UseOutputCache();
@@ -108,7 +108,7 @@ app.UseCors("CorsPolicy");
 // To Redirect Any Http Request To Https
 app.UseHttpsRedirection();
 
-// Error Not Found End Point: Here When This Error Thrown: It Redirect To This End Point in (Controller: Errors)
+// Error Not Found End Point: Here When This Error Thrown: It Redirects To This End Point in (Controller: Errors)
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 
 // we use this middleware to talk program that: your routing depend on route written on the controller

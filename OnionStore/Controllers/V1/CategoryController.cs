@@ -5,21 +5,21 @@ using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers.V1;
-public class CategoryController(ICategoryService _categoryService) : BaseController
+public class CategoryController(ICategoryService categoryService) : BaseController
 {
     [HttpGet]
     [Cached(600)]
     public async Task<ActionResult> GetCategories()
     {
-        var result = await _categoryService.GetCategoriesAsync();
+        var result = await categoryService.GetCategoriesAsync();
 
         return Ok(result.Value);
     }
 
-    [HttpGet("{id}")]
+    [HttpGet("{id:int}")]
     public async Task<ActionResult> GetCategoryById(int id)
     {
-        var result = await _categoryService.GetCategoryByIdAsync(id);
+        var result = await categoryService.GetCategoryByIdAsync(id);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -27,7 +27,7 @@ public class CategoryController(ICategoryService _categoryService) : BaseControl
     [HttpGet("search")]
     public async Task<ActionResult> SearchCategories(string search)
     {
-        var result = await _categoryService.SearchCategoriesAsync(search);
+        var result = await categoryService.SearchCategoriesAsync(search);
 
         return Ok(result.Value);
     }
@@ -35,23 +35,23 @@ public class CategoryController(ICategoryService _categoryService) : BaseControl
     [HttpPost]
     public async Task<ActionResult> CreateCategory(ProductCategoryRequest categoryRequest)
     {
-        var result = await _categoryService.CreateCategoryAsync(categoryRequest);
+        var result = await categoryService.CreateCategoryAsync(categoryRequest);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-    [HttpPut("{id}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult> UpdateCategory(int id, ProductCategoryRequest categoryRequest)
     {
-        var result = await _categoryService.UpdateCategoryAsync(id, categoryRequest);
+        var result = await categoryService.UpdateCategoryAsync(id, categoryRequest);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("{id:int}")]
     public async Task<ActionResult> DeleteCategory(int id)
     {
-        var result = await _categoryService.DeleteCategoryAsync(id);
+        var result = await categoryService.DeleteCategoryAsync(id);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }

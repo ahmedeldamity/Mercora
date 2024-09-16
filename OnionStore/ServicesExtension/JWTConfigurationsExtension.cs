@@ -5,13 +5,13 @@ using Service.Utility;
 using System.Text;
 
 namespace API.ServicesExtension;
-public static class JWTConfigurationsExtension
+public static class JwtConfigurationsExtension
 {
-    public static IServiceCollection AddJWTConfigurations(this IServiceCollection services, JWTData jWTData)
+    public static IServiceCollection AddJwtConfigurations(this IServiceCollection services, JwtData jWtData)
     {
         // AddAuthentication() : this method take one argument (Default Schema)
         // and when we using .AddJwtBearer(): this method can take from you another schema and options
-        // and can take just options and this options worked on the default schema that you written it in AddAuthentication()
+        // and can take just options and this options worked on the default schema that you have written it in AddAuthentication()
         services.AddAuthentication(options =>
         {
             options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -23,14 +23,14 @@ public static class JWTConfigurationsExtension
             options.TokenValidationParameters = new TokenValidationParameters()
             {
                 ValidateAudience = true,
-                ValidAudience = jWTData.ValidAudience,
+                ValidAudience = jWtData.ValidAudience,
                 ValidateIssuer = true,
-                ValidIssuer = jWTData.ValidIssuer,
+                ValidIssuer = jWtData.ValidIssuer,
                 ValidateIssuerSigningKey = true,
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jWTData.SecretKey)),
+                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jWtData.SecretKey)),
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero,
-                TokenDecryptionKey = TokenEncryption._rsaKey
+                TokenDecryptionKey = TokenEncryption.RsaKey
             };
         })
         // If You need to doing some options on another schema

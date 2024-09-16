@@ -3,21 +3,21 @@
 namespace Core.Specifications.OrderSpecifications;
 public class OrderSpecification : BaseSpecifications<Order>
 {
-    public OrderSpecification(string buyerEmail) // For Get All Orders For Specific User
+    public OrderSpecification(string? buyerEmail) // For Get All Orders For Specific User
     {
-        WhereCriteria = P => P.BuyerEmail == buyerEmail;
+        WhereCriteria = p => p.BuyerEmail == buyerEmail;
 
-        IncludesCriteria.Add(P => P.DeliveryMethod);
-        IncludesCriteria.Add(P => P.Items);
+        IncludesCriteria.Add(p => p.DeliveryMethod);
+        IncludesCriteria.Add(p => p.Items);
 
-        OrderByDesc = P => P.OrderDate;
+        OrderByDesc = p => p.OrderDate;
     }
 
-    public OrderSpecification(string buyerEmail, int orderId) // For Get Specific Order For Specific User
+    public OrderSpecification(string? buyerEmail, int orderId) // For Get Specific Order For Specific User
     {
-        WhereCriteria = P => P.BuyerEmail == buyerEmail && P.Id == orderId;
+        WhereCriteria = p => p.BuyerEmail == buyerEmail && p.Id == orderId;
 
-        IncludesCriteria.Add(P => P.DeliveryMethod);
-        IncludesCriteria.Add(P => P.Items);
+        IncludesCriteria.Add(p => p.DeliveryMethod);
+        IncludesCriteria.Add(p => p.Items);
     }
 }

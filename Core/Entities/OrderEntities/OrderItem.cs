@@ -1,7 +1,9 @@
-﻿namespace Core.Entities.OrderEntities;
+﻿using Core.Common;
+
+namespace Core.Entities.OrderEntities;
 public class OrderItem: BaseEntity
 {
-    public OrderItem() { /* we create this constractor because EF need it while migration to make instance from this class */ }
+    public OrderItem() { /* we create this constructor because EF need it while migration to make instance from this class */ }
     public OrderItem(ProductOrderItem product, decimal price, decimal quantity)
     {
         Product = product;

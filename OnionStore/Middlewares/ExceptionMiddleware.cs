@@ -17,10 +17,6 @@ using System.Text.Json;
 namespace API.Middlewares;
 public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
 {
-    private readonly RequestDelegate next = next;
-    private readonly ILogger<ExceptionMiddleware> logger = logger;
-    private readonly IHostEnvironment env = env;
-
     public async Task InvokeAsync(HttpContext httpContext)
     {
         try

@@ -1,4 +1,4 @@
-﻿using Core.Entities.Product_Entities;
+﻿using Core.Entities.ProductEntities;
 
 namespace Core.Specifications.ProductSpecifications;
 public class ProductWithBrandAndCategorySpecifications : BaseSpecifications<Product>
@@ -9,13 +9,13 @@ public class ProductWithBrandAndCategorySpecifications : BaseSpecifications<Prod
         IncludesCriteria.Add(p => p.Category);
 
         WhereCriteria =
-           p => (string.IsNullOrEmpty(specParams.search) || p.Name.ToLower().Contains(specParams.search.ToLower())) &&
-           (!specParams.brandId.HasValue || p.BrandId == specParams.brandId.Value) &&
-           (!specParams.categoryId.HasValue || p.CategoryId == specParams.categoryId.Value);
+           p => (string.IsNullOrEmpty(specParams.Search) || p.Name.ToLower().Contains(specParams.Search.ToLower())) &&
+           (!specParams.BrandId.HasValue || p.BrandId == specParams.BrandId.Value) &&
+           (!specParams.CategoryId.HasValue || p.CategoryId == specParams.CategoryId.Value);
 
-        if (!string.IsNullOrEmpty(specParams.sort))
+        if (!string.IsNullOrEmpty(specParams.Sort))
         {
-            switch (specParams.sort)
+            switch (specParams.Sort)
             {
                 case "name":
                     OrderBy = p => p.Name;

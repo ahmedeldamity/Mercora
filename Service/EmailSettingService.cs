@@ -40,4 +40,5 @@ public class EmailSettingService(IOptions<MailData> options) : IEmailSettingServ
 
         await smtp.DisconnectAsync(true);
     }
+
 }

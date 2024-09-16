@@ -2,15 +2,14 @@
 using Core.Dtos;
 using Core.Interfaces.Services;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.OutputCaching;
 
 namespace API.Controllers.V1;
-public class BasketController(IBasketService _basketService) : BaseController
+public class BasketController(IBasketService basketService) : BaseController
 {
     [HttpPost]
     public async Task<ActionResult<BasketResponse>> CreateOrUpdateBasket(BasketRequest basketDto)
     {
-        var result = await _basketService.CreateOrUpdateBasketAsync(basketDto);
+        var result = await basketService.CreateOrUpdateBasketAsync(basketDto);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
@@ -18,7 +17,7 @@ public class BasketController(IBasketService _basketService) : BaseController
     [HttpGet]
     public async Task<ActionResult<BasketResponse>> GetBasket(string id)
     {
-        var result = await _basketService.GetBasketAsync(id);
+        var result = await basketService.GetBasketAsync(id);
 
         return Ok(result.Value);
     }
@@ -26,7 +25,7 @@ public class BasketController(IBasketService _basketService) : BaseController
     [HttpDelete]
     public async Task DeleteBasket(string id)
     {
-        await _basketService.DeleteBasketAsync(id);
+        await basketService.DeleteBasketAsync(id);
     }
 
 }

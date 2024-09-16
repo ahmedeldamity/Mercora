@@ -8,25 +8,25 @@ using Core.Interfaces.Services;
 using Core.Specifications.OrderSpecifications;
 using Microsoft.Extensions.Configuration;
 using Stripe;
-using Product = Core.Entities.Product_Entities.Product;
+using Product = Core.Entities.ProductEntities.Product;
 
 namespace Service;
-public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRepository, IConfiguration _configuration, IMapper _mapper) : IPaymentService
+public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepository, IConfiguration configuration, IMapper mapper) : IPaymentService
 {
     public async Task<Result<BasketResponse>> CreateOrUpdatePaymentIntent(string basketId)
     {
         // ser secret key of stripe
-        StripeConfiguration.ApiKey = _configuration["StripeSettings:Secretkey"];
+        StripeConfiguration.ApiKey = configuration["StripeSettings:Secretkey"];
 
         // get amount of salary from basket
-        var basket = await _basketRepository.GetBasketAsync(basketId);
+        var basket = await basketRepository.GetBasketAsync(basketId);
 
         if (basket is null)
             return Result.Failure<BasketResponse>(new Error(404, "The specified basket could not be found. Please check the basket details and try again."));
 
         if (basket.DeliveryMethodId.HasValue)
         {
-            var deliveryMethod = await _unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket.DeliveryMethodId.Value);
+            var deliveryMethod = await unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket.DeliveryMethodId.Value);
 
             if (deliveryMethod is null)
             {
@@ -40,7 +40,7 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
         {
             foreach (var item in basket.Items)
             {
-                var product = await _unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
+                var product = await unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
 
                 if (product is null)
                 {
@@ -58,9 +58,9 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
 
         PaymentIntent paymentIntent;
 
-        long itemsTotal = basket!.Items.Sum(item => (long)(item.Price * item.Quantity * 100));
+        var itemsTotal = basket!.Items.Sum(item => (long)(item.Price * item.Quantity * 100));
 
-        long shippingTotal = (long)(basket.ShippingPrice! * 100);
+        var shippingTotal = (long)(basket.ShippingPrice! * 100);
 
         if (string.IsNullOrEmpty(basket?.PaymentIntentId)) // -> create new payment intent
         {
@@ -87,9 +87,9 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
             paymentIntent = await paymentIntentService.UpdateAsync(basket.PaymentIntentId, updateOptions);
         }
 
-        await _basketRepository.CreateOrUpdateBasketAsync(basket);
+        await basketRepository.CreateOrUpdateBasketAsync(basket);
 
-        var basketResponse = _mapper.Map<Basket, BasketResponse>(basket);
+        var basketResponse = mapper.Map<Basket, BasketResponse>(basket);
 
         return Result.Success(basketResponse);
     }
@@ -98,16 +98,13 @@ public class PaymentService(IUnitOfWork _unitOfWork, IBasketRepository _basketRe
     {
         var spec = new OrderWithPaymentIntentSpecifications(paymentIntentId);
 
-        var order = await _unitOfWork.Repository<Order>().GetEntityAsync(spec);
+        var order = await unitOfWork.Repository<Order>().GetEntityAsync(spec);
 
-        if (isSucceeded)
-            order!.Status = OrderStatus.paymentSucceeded;
-        else
-            order!.Status = OrderStatus.paymentFailed;
+        order!.Status = isSucceeded ? OrderStatus.PaymentSucceeded : OrderStatus.PaymentFailed;
 
-        _unitOfWork.Repository<Order>().Update(order);
+        unitOfWork.Repository<Order>().Update(order);
 
-        await _unitOfWork.CompleteAsync();
+        await unitOfWork.CompleteAsync();
 
         return order;
     }

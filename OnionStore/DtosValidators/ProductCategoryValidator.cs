@@ -2,7 +2,6 @@
 using FluentValidation;
 
 namespace API.DtosValidators;
-
 public class ProductCategoryValidator: AbstractValidator<ProductCategoryRequest>
 {
     public ProductCategoryValidator()

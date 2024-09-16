@@ -7,15 +7,15 @@ public class OrderItemConfigurations : IEntityTypeConfiguration<OrderItem>
 {
     public void Configure(EntityTypeBuilder<OrderItem> builder)
     {
-        builder.OwnsOne(orderItem => orderItem.Product, Product =>
+        builder.OwnsOne(orderItem => orderItem.Product, product =>
         {
-            Product.WithOwner();
+            product.WithOwner();
 
-            Product.Property(p => p.ProductName)
+            product.Property(p => p.ProductName)
             .IsRequired()
             .HasMaxLength(100);
 
-            Product.Property(p => p.ProductImageCover)
+            product.Property(p => p.ProductImageCover)
                 .IsRequired()
                 .HasMaxLength(100);
         });

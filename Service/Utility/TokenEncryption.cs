@@ -4,12 +4,12 @@ using System.Security.Cryptography;
 namespace Service.Utility;
 public static class TokenEncryption
 {
-    public static readonly RSA _rsa;
-    public static readonly RsaSecurityKey _rsaKey;
+    public static readonly RSA Rsa;
+    public static readonly RsaSecurityKey RsaKey;
 
     static TokenEncryption()
     {
-        _rsa = RSA.Create(2048);
-        _rsaKey = new RsaSecurityKey(_rsa) { KeyId = "this is my custom Secret key for encryption" };
+        Rsa = RSA.Create(2048);
+        RsaKey = new RsaSecurityKey(Rsa) { KeyId = "this is my custom Secret key for encryption" };
     }
 }

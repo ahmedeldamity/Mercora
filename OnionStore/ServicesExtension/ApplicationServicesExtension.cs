@@ -1,6 +1,6 @@
-﻿using Core.Interfaces.Repositories;
+﻿using API.Helpers;
+using Core.Interfaces.Repositories;
 using Core.Interfaces.Services;
-using DotNetCore_ECommerce.Helpers;
 using Repository;
 using Service;
 

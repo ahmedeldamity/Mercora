@@ -7,11 +7,11 @@ public class ResponseCacheService(IConnectionMultiplexer connection) : IResponse
 {
     private readonly IDatabase _database = connection.GetDatabase();
 
-    public async Task CacheResponseAsync(string cacheKey, object response, TimeSpan timeToLive)
+    public async Task CacheResponseAsync(string cacheKey, object? response, TimeSpan timeToLive)
     {
         if(response is null) return;
 
-        var serializeOptions = new JsonSerializerOptions() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
+        var serializeOptions = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
         var responseJson = JsonSerializer.Serialize(response, serializeOptions);
 
@@ -26,4 +26,5 @@ public class ResponseCacheService(IConnectionMultiplexer connection) : IResponse
 
         return cachedResponse;
     }
+
 }

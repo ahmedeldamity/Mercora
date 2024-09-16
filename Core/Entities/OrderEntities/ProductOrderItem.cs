@@ -1,7 +1,7 @@
 ﻿namespace Core.Entities.OrderEntities;
 public class ProductOrderItem
 {
-    public ProductOrderItem() { /* we create this constractor because EF need it while migration to make instance from this class */ }
+    public ProductOrderItem() { /* we create this constructor because EF need it while migration to make instance from this class */ }
     public ProductOrderItem(int productId, string productName, string imageCover)
     {
         ProductId = productId;

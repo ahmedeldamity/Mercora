@@ -1,4 +1,4 @@
-﻿using Core.Entities.Product_Entities;
+﻿using Core.Entities.ProductEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -8,6 +8,12 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
     public void Configure(EntityTypeBuilder<Product> builder)
     {
         builder.Property(p => p.Name)
+            .HasMaxLength(100);
+
+        builder.Property(p => p.Description)
+            .HasMaxLength(500);
+
+        builder.Property(p => p.ImageCover)
             .HasMaxLength(100);
 
         builder.Property(e => e.Images)
@@ -25,12 +31,12 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.RatingsAverage)
             .HasColumnType("decimal(18,2)");
 
-        builder.HasOne(P => P.Brand)
+        builder.HasOne(p => p.Brand)
             .WithMany()
-            .HasForeignKey(FK => FK.BrandId);
+            .HasForeignKey(fk => fk.BrandId);
 
-        builder.HasOne(P => P.Category)
+        builder.HasOne(p => p.Category)
            .WithMany()
-           .HasForeignKey(FK => FK.CategoryId);
+           .HasForeignKey(fk => fk.CategoryId);
     }
 }

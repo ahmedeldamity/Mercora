@@ -1,4 +1,6 @@
-﻿namespace Core.Entities.IdentityEntities;
+﻿using Core.Common;
+
+namespace Core.Entities.IdentityEntities;
 public class UserAddress: BaseEntity
 {
 	public string FirstName { get; set; } = null!;

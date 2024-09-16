@@ -1,7 +1,9 @@
-﻿namespace Core.Entities.OrderEntities;
+﻿using Core.Common;
+
+namespace Core.Entities.OrderEntities;
 public class Order: BaseEntity
 {
-    public Order() { /* we create this constractor because EF need it while migration to make instance from this class */ }
+    public Order() { /* we create this constructor because EF need it while migration to make instance from this class */ }
     public Order(string buyerEmail, OrderAddress shippingAddress, OrderDeliveryMethod deliveryMethod, ICollection<OrderItem> items, decimal subTotal, string paymentIntentId)
     {
         BuyerEmail = buyerEmail;
@@ -16,7 +18,7 @@ public class Order: BaseEntity
 
     public DateTimeOffset OrderDate { get; set; } = DateTimeOffset.UtcNow;
 
-    public OrderStatus Status { get; set; } = OrderStatus.pending;
+    public OrderStatus Status { get; set; } = OrderStatus.Pending;
     #region Explaination
     // In this property
     // we need store in database string not number
