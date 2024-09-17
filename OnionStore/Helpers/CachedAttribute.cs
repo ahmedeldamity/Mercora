@@ -32,7 +32,7 @@ public class CachedAttribute(int timeToLiveInSeconds) : Attribute, IAsyncActionF
 
         if (executedActionContext.Result is OkObjectResult { Value: not null } okObjectResult)
         {
-            await responseCacheService.CacheResponseAsync(cacheKey, okObjectResult.Value, TimeSpan.FromSeconds(timeToLiveInSeconts));
+            await responseCacheService.CacheResponseAsync(cacheKey, okObjectResult.Value, TimeSpan.FromSeconds(timeToLiveInSeconds));
         }
     }
 

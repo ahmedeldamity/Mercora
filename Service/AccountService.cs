@@ -284,7 +284,7 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
         return Result.Failure<UserAddressResponse>(new Error(400, errors));
     }
 
-    public async Task<Result<CurrentUserResponse>> GoogleLogin(string credential)
+    public async Task<Result<AppUserResponse>> GoogleLogin(string credential)
     {
         var settings = new GoogleJsonWebSignature.ValidationSettings()
         {
@@ -294,28 +294,12 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
         var payload = await GoogleJsonWebSignature.ValidateAsync(credential, settings);
 
         if (string.IsNullOrEmpty(payload.Email))
-            return Result.Failure<CurrentUserResponse>(new Error(400, "Invalid payload: Email is missing."));
+            return Result.Failure<AppUserResponse>(new Error(400, "Invalid payload: Email is missing."));
 
         var user = await userManager.FindByEmailAsync(payload.Email);
 
         if (user is null)
-        {
-            user = new AppUser
-            {
-                UserName = payload.Email.Split('@')[0],
-                Email = payload.Email,
-                DisplayName = payload.Name,
-                EmailConfirmed = true
-            };
-
-            var result = await userManager.CreateAsync(user);
-
-            if (result.Succeeded is false)
-            {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                return Result.Failure<CurrentUserResponse>(new Error(400, errors));
-            }
-        }
+            return Result.Failure<AppUserResponse>(new Error(400, "Your email is not registered, Please register first."));
 
         user.EmailConfirmed = true;
 
@@ -323,12 +307,27 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var token = await GenerateAccessTokenAsync(user);
 
-        var userResponse = new CurrentUserResponse(user.DisplayName, user.Email!, token);
+        RefreshToken refreshToken;
+
+        if (user!.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
+        {
+            refreshToken = user.RefreshTokens.First(t => t.IsActive);
+        }
+        else
+        {
+            refreshToken = GenerateRefreshToken();
+            user.RefreshTokens!.Add(refreshToken);
+            await userManager.UpdateAsync(user);
+        }
+
+        var userResponse = new AppUserResponse(user.DisplayName, user.Email!, token, refreshToken.ExpireAt);
+
+        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
         return Result.Success(userResponse);
     }
 
-    // access token become not valid so the front-end give me user refresh token to validate it and if it be okay I will generate access token and sent it 
+    // access token become not valid so the front-end give me user refresh token to validate it and if it is okay I will generate access token and sent it 
     public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
     {
         var refreshTokenFromCookie = httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];

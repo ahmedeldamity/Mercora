@@ -33,7 +33,7 @@ public class DeliveryMethodController(IDeliveryMethodService deliveryMethodServi
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-    [HttpPut($"{id}")]
+    [HttpPut("{id:int}")]
     public async Task<ActionResult<OrderDeliveryMethod>> UpdateDeliveryMethod(int id, OrderDeliveryMethod deliveryMethod)
     {
         var result = await deliveryMethodService.UpdateDeliveryMethodAsync(id, deliveryMethod);

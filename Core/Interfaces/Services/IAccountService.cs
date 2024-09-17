@@ -13,7 +13,7 @@ public interface IAccountService
     Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal userClaims);
     Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims);
     Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims);
-    Task<Result<CurrentUserResponse>> GoogleLogin(string credential);
+    Task<Result<AppUserResponse>> GoogleLogin(string credential);
     Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync();
     Task<Result> RevokeRefreshTokenAsync();
 }
