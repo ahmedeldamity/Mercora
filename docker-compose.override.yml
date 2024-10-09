@@ -1,14 +1,14 @@
 version: '3.4'
 
 networks:
-  onionstorenetwork:
+  mercoranetwork:
 
 volumes:
   sqlserver_data:
 
 services:
-  store_database:
-    container_name: store_database
+  mercora_database:
+    container_name: mercora_database
     image: mcr.microsoft.com/mssql/server:2019-latest
     ports:
       - 8001:1433
@@ -17,27 +17,27 @@ services:
       - SA_PASSWORD=PAssWord**
       - MSSQL_PID=Express
     networks:
-      - onionstorenetwork
-  redis_image:
+      - mercoranetwork
+  mercora_cache:
     image: redis:latest
-    container_name: cache
+    container_name: mercora_cache
     restart: always
     ports:
       - 6379:6379
     networks:
-      - onionstorenetwork
-  onion_store:
-    container_name: onionstore
-    image: ${DOCKER_REGISTRY-}onionstoreproject
+      - mercoranetwork
+  mercora:
+    container_name: mercora
+    image: ${DOCKER_REGISTRY-}mercoraproject
     ports:
       - 8080:8080
     build:
       context: .
       dockerfile: src/Presentation/BlazorEcommerce.Server/Dockerfile
     depends_on:
-      - store_database
-      - redis_image
+      - mercora_database
+      - mercora_cache
     networks:
-      - onionstorenetwork 
+      - mercoranetwork 
     volumes:
       - sqlserver_data:/var/opt/mssql

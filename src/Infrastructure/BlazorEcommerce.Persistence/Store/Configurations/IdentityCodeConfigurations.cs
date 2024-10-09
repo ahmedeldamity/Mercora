@@ -7,10 +7,6 @@ public class IdentityCodeConfigurations: IEntityTypeConfiguration<IdentityCode>
 {
     public void Configure(EntityTypeBuilder<IdentityCode> builder)
     {
-        builder.Property(p => p.AppUserId)
-            .IsRequired()
-            .HasMaxLength(50);
-
         builder.Property(p => p.Code)
             .IsRequired()
             .HasMaxLength(6);
