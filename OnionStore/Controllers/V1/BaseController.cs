@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers.V1;
+namespace BlazorEcommerce.Server.Controllers.V1;
 
 [Route("api/[controller]")]
 [ApiController]

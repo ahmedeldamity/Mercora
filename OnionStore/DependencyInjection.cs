@@ -1,9 +1,9 @@
-﻿using API.ServicesExtension;
+﻿using BlazorEcommerce.Application.Models;
+using BlazorEcommerce.Server.ServicesExtension;
 using Microsoft.Extensions.Options;
 using Serilog;
-using Service.ConfigurationData;
 
-namespace API;
+namespace BlazorEcommerce.Server;
 public static class DependencyInjection
 {
     public static WebApplicationBuilder AddDependencies(this WebApplicationBuilder builder)

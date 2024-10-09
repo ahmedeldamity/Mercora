@@ -1,7 +1,12 @@
-﻿namespace Core.ErrorHandling;
+﻿namespace BlazorEcommerce.Domain.ErrorHandling;
 public class Result
 {
-    public Result(bool isSuccess, Error? error)
+	public bool IsSuccess { get; }
+	public Error? Error { get; }
+
+	public string? SuccessMessage;
+
+	public Result(bool isSuccess, Error? error)
     {
         if ((isSuccess && error != Error.None) || (!isSuccess && error == Error.None))
             throw new InvalidOperationException();
@@ -19,11 +24,6 @@ public class Result
         Error = Error.None;
         SuccessMessage = successMessage;
     }
-
-    public bool IsSuccess { get; }
-    public Error? Error { get; }
-
-    public string? SuccessMessage;
 
     public static Result Success() => new(true, Error.None);
     public static Result Success(string successMessage) => new(true, successMessage);

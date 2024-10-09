@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Repository.Store;
+﻿using BlazorEcommerce.Persistence.Store;
+using Microsoft.EntityFrameworkCore;
 
-namespace API.ServicesExtension;
+namespace BlazorEcommerce.Server.ServicesExtension;
 public static class StoreConfigurationsExtension
 {
     public static IServiceCollection AddStoreContext(this IServiceCollection services, string storeConnection)

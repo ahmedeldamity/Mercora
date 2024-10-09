@@ -1,7 +1,7 @@
-﻿using Microsoft.IdentityModel.Tokens;
-using System.Security.Cryptography;
+﻿using System.Security.Cryptography;
+using Microsoft.IdentityModel.Tokens;
 
-namespace Service.Utility;
+namespace BlazorEcommerce.Infrastructure.Utility;
 public static class TokenEncryption
 {
     public static readonly RSA Rsa;

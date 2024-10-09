@@ -1,8 +1,8 @@
-﻿using Core.Entities.ProductEntities;
+﻿using BlazorEcommerce.Domain.Entities.ProductEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Repository.Store.Configurations;
+namespace BlazorEcommerce.Persistence.Store.Configurations;
 public class ProductConfigurations : IEntityTypeConfiguration<Product>
 {
     public void Configure(EntityTypeBuilder<Product> builder)
@@ -31,12 +31,12 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
         builder.Property(p => p.RatingsAverage)
             .HasColumnType("decimal(18,2)");
 
-        builder.HasOne(p => p.Brand)
-            .WithMany()
-            .HasForeignKey(fk => fk.BrandId);
+        //builder.HasOne(p => p.Brand)
+        //    .WithMany()
+        //    .HasForeignKey(fk => fk.BrandId);
 
-        builder.HasOne(p => p.Category)
-           .WithMany()
-           .HasForeignKey(fk => fk.CategoryId);
+        //builder.HasOne(p => p.Category)
+        //   .WithMany()
+        //   .HasForeignKey(fk => fk.CategoryId);
     }
 }

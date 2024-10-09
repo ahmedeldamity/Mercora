@@ -1,6 +1,6 @@
-﻿using API.Errors;
-using System.Net;
+﻿using System.Net;
 using System.Text.Json;
+using BlazorEcommerce.Server.Errors;
 
 #region Explanation
 // -- When We Need To Create Middleware With Inconvention Way We Must:
@@ -14,7 +14,8 @@ using System.Text.Json;
 // ------ If We In Development Environment Three Parameters (Status Code, Exception Message, Exception Details) To FrontEnd
 // ------ If We In Production Environment One Parameter (Status Code) To Client And We Send (Exception Message, Exception Details) To Database | File -> To Backend Developer
 #endregion
-namespace API.Middlewares;
+
+namespace BlazorEcommerce.Server.Middlewares;
 public class ExceptionMiddleware(RequestDelegate next, ILogger<ExceptionMiddleware> logger, IHostEnvironment env)
 {
     public async Task InvokeAsync(HttpContext httpContext)

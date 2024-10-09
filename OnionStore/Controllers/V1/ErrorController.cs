@@ -1,8 +1,8 @@
-﻿using API.Extensions;
-using Core.ErrorHandling;
+﻿using BlazorEcommerce.Domain.ErrorHandling;
+using BlazorEcommerce.Server.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers.V1;
+namespace BlazorEcommerce.Server.Controllers.V1;
 
 [Route("error/{code:int}")]
 [ApiController]

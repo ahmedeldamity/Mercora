@@ -1,12 +1,12 @@
-﻿using API.Extensions;
-using Core.Entities.BasketEntities;
-using Core.Entities.OrderEntities;
-using Core.Interfaces.Services;
+﻿using BlazorEcommerce.Application.Interfaces.Services;
+using BlazorEcommerce.Domain.Entities.BasketEntities;
+using BlazorEcommerce.Domain.Entities.OrderEntities;
+using BlazorEcommerce.Server.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 
-namespace API.Controllers.V1;
+namespace BlazorEcommerce.Server.Controllers.V1;
 public class PaymentController(IPaymentService paymentService, ILogger<PaymentController> logger) : BaseController
 {
     private const string WebhookSecret = "whsec_f7cb2a38fa3f766b411c6184763756a8c944a4f0cf869208b10e3153c3dc5962";

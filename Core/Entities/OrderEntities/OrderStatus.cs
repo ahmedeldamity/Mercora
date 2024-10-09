@@ -1,4 +1,4 @@
-﻿namespace Core.Entities.OrderEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.OrderEntities;
 public enum OrderStatus
 {
     Pending,

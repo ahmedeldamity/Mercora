@@ -1,8 +1,8 @@
-﻿using Core.Entities.OrderEntities;
-using Core.Entities.ProductEntities;
+﻿using BlazorEcommerce.Domain.Entities.OrderEntities;
+using BlazorEcommerce.Domain.Entities.ProductEntities;
 using System.Text.Json;
 
-namespace Repository.Store;
+namespace BlazorEcommerce.Persistence.Store;
 public class StoreContextSeed
 {
     public static async Task SeedProductDataAsync(StoreContext storeContext)
@@ -15,7 +15,7 @@ public class StoreContextSeed
 
             var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsJsonData);
 
-            if (brands?.Count > 0)
+            if (brands?.Count > 0) 
             {
                 foreach (var brand in brands)
                 {

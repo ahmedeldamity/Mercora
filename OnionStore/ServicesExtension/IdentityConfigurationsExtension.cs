@@ -1,9 +1,8 @@
-﻿using Core.Entities.IdentityEntities;
+﻿using BlazorEcommerce.Domain.Entities.IdentityEntities;
+using BlazorEcommerce.Persistence.Store;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Repository.Store;
 
-namespace API.ServicesExtension;
+namespace BlazorEcommerce.Server.ServicesExtension;
 public static class IdentityConfigurationsExtension
 {
 	public static IServiceCollection AddIdentityConfigurations(this IServiceCollection services)

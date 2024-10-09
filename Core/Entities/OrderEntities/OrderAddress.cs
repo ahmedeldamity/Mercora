@@ -1,4 +1,4 @@
-﻿namespace Core.Entities.OrderEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.OrderEntities;
 public class OrderAddress
 {
     public OrderAddress() { /* we create this constructor because EF need it while migration to make instance from this class */ }

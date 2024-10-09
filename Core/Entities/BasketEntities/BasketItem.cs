@@ -1,4 +1,4 @@
-﻿namespace Core.Entities.BasketEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.BasketEntities;
 public class BasketItem
 {
     public int Id { get; set; }

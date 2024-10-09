@@ -1,4 +1,4 @@
-﻿namespace API.ServicesExtension;
+﻿namespace BlazorEcommerce.Server.ServicesExtension;
 public static class CorsPolicyServiceExtension
 {
     public static IServiceCollection AddCorsPolicy(this IServiceCollection services)

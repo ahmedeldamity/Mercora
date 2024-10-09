@@ -1,8 +1,8 @@
-﻿using Core.Entities.IdentityEntities;
+﻿using BlazorEcommerce.Domain.Entities.IdentityEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Repository.Store.Configurations;
+namespace BlazorEcommerce.Persistence.Store.Configurations;
 public class IdentityCodeConfigurations: IEntityTypeConfiguration<IdentityCode>
 {
     public void Configure(EntityTypeBuilder<IdentityCode> builder)

@@ -1,4 +1,4 @@
-﻿namespace Core.ErrorHandling;
+﻿namespace BlazorEcommerce.Domain.ErrorHandling;
 public class Error
 {
     public static readonly Error? None = new(200, string.Empty);

@@ -1,10 +1,10 @@
-﻿using API.Helpers;
-using Core.Interfaces.Repositories;
-using Core.Interfaces.Services;
-using Repository;
-using Service;
+﻿using BlazorEcommerce.Application.Interfaces.Repositories;
+using BlazorEcommerce.Application.Interfaces.Services;
+using BlazorEcommerce.Application.MappingProfıles;
+using BlazorEcommerce.Infrastructure.Services;
+using BlazorEcommerce.Persistence;
 
-namespace API.ServicesExtension;
+namespace BlazorEcommerce.Server.ServicesExtension;
 public static class ApplicationServicesExtension
 {
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)

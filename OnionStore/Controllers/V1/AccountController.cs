@@ -1,12 +1,12 @@
-﻿using API.Extensions;
-using Asp.Versioning;
-using Core.Dtos;
-using Core.Interfaces.Services;
+﻿using Asp.Versioning;
+using BlazorEcommerce.Application.Dtos;
+using BlazorEcommerce.Application.Interfaces.Services;
+using BlazorEcommerce.Server.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
-namespace API.Controllers.V1;
+namespace BlazorEcommerce.Server.Controllers.V1;
 
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]

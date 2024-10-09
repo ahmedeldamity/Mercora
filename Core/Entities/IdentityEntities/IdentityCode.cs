@@ -1,6 +1,6 @@
-﻿using Core.Common;
+﻿using BlazorEcommerce.Domain.Common;
 
-namespace Core.Entities.IdentityEntities;
+namespace BlazorEcommerce.Domain.Entities.IdentityEntities;
 public class IdentityCode: BaseEntity
 {
     public string AppUserId { get; set; } = null!;

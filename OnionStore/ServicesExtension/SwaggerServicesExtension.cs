@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 
-namespace API.ServicesExtension;
+namespace BlazorEcommerce.Server.ServicesExtension;
 public static class SwaggerServicesExtension
 {
 	public static IServiceCollection AddSwaggerServices(this IServiceCollection services)

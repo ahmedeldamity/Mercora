@@ -3,15 +3,27 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "API", "OnionStore\API.csproj", "{5F36A2B0-815A-432A-8CF9-DC45A5ED304C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Server", "OnionStore\BlazorEcommerce.Server.csproj", "{5F36A2B0-815A-432A-8CF9-DC45A5ED304C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Core", "Core\Core.csproj", "{EB2220FE-84BC-4BFD-8C2C-6E95F5168078}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Domain", "Core\BlazorEcommerce.Domain.csproj", "{EB2220FE-84BC-4BFD-8C2C-6E95F5168078}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Repository", "Repository\Repository.csproj", "{8FEE1AF0-D94D-413A-BCA5-D784453AB253}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Persistence", "Repository\BlazorEcommerce.Persistence.csproj", "{8FEE1AF0-D94D-413A-BCA5-D784453AB253}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Service", "Service\Service.csproj", "{5CAFC79B-DBE2-4296-B79B-9FB295B1FF25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Infrastructure", "Service\BlazorEcommerce.Infrastructure.csproj", "{5CAFC79B-DBE2-4296-B79B-9FB295B1FF25}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8AD5CF5D-F37A-4351-BE93-C5E11C7D310B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{168A6C7E-9D76-4F4A-A363-0946B6988819}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{EAC7EA89-0740-46FB-B1DA-DACE94EC4B6C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{DA7D5DB5-4111-4409-914D-061B63FF69EF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Application", "..\BlazorEcommerce.Application\BlazorEcommerce.Application.csproj", "{652CB87A-9382-462A-B1E1-D8B1394B54DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorEcommerce.Shared", "..\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj", "{141EC1C3-51CA-42CE-86BB-75A67101E164}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B7756F1F-8028-472F-BA1F-C799E80ACD17}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,9 +51,28 @@ Global
 		{8AD5CF5D-F37A-4351-BE93-C5E11C7D310B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8AD5CF5D-F37A-4351-BE93-C5E11C7D310B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8AD5CF5D-F37A-4351-BE93-C5E11C7D310B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{652CB87A-9382-462A-B1E1-D8B1394B54DF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{652CB87A-9382-462A-B1E1-D8B1394B54DF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{652CB87A-9382-462A-B1E1-D8B1394B54DF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{652CB87A-9382-462A-B1E1-D8B1394B54DF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{141EC1C3-51CA-42CE-86BB-75A67101E164}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{141EC1C3-51CA-42CE-86BB-75A67101E164}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{141EC1C3-51CA-42CE-86BB-75A67101E164}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{141EC1C3-51CA-42CE-86BB-75A67101E164}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{5F36A2B0-815A-432A-8CF9-DC45A5ED304C} = {DA7D5DB5-4111-4409-914D-061B63FF69EF}
+		{EB2220FE-84BC-4BFD-8C2C-6E95F5168078} = {168A6C7E-9D76-4F4A-A363-0946B6988819}
+		{8FEE1AF0-D94D-413A-BCA5-D784453AB253} = {EAC7EA89-0740-46FB-B1DA-DACE94EC4B6C}
+		{5CAFC79B-DBE2-4296-B79B-9FB295B1FF25} = {EAC7EA89-0740-46FB-B1DA-DACE94EC4B6C}
+		{168A6C7E-9D76-4F4A-A363-0946B6988819} = {B7756F1F-8028-472F-BA1F-C799E80ACD17}
+		{EAC7EA89-0740-46FB-B1DA-DACE94EC4B6C} = {B7756F1F-8028-472F-BA1F-C799E80ACD17}
+		{DA7D5DB5-4111-4409-914D-061B63FF69EF} = {B7756F1F-8028-472F-BA1F-C799E80ACD17}
+		{652CB87A-9382-462A-B1E1-D8B1394B54DF} = {168A6C7E-9D76-4F4A-A363-0946B6988819}
+		{141EC1C3-51CA-42CE-86BB-75A67101E164} = {DA7D5DB5-4111-4409-914D-061B63FF69EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7546FD8E-AD10-4232-840A-CFE304A35F29}

@@ -1,8 +1,8 @@
-﻿using FluentValidation;
+﻿using System.Reflection;
+using FluentValidation;
 using FluentValidation.AspNetCore;
-using System.Reflection;
 
-namespace API.ServicesExtension;
+namespace BlazorEcommerce.Server.ServicesExtension;
 public static class FluentValidationExtension
 {
     public static IServiceCollection AddFluentValidation(this IServiceCollection services)

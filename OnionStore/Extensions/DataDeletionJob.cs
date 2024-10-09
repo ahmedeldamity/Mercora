@@ -1,7 +1,7 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Repository.Store;
+﻿using BlazorEcommerce.Persistence.Store;
+using Microsoft.EntityFrameworkCore;
 
-namespace API.Extensions;
+namespace BlazorEcommerce.Server.Extensions;
 public class DataDeletionJob(StoreContext identityContext)
 {
     public async Task Execute()

@@ -1,7 +1,7 @@
-﻿using Core.ErrorHandling;
+﻿using BlazorEcommerce.Domain.ErrorHandling;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Extensions;
+namespace BlazorEcommerce.Server.Extensions;
 public static class ResultExtensions
 {
     public static ActionResult ToProblem(this Result result)

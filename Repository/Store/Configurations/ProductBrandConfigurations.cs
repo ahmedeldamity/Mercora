@@ -1,8 +1,8 @@
-﻿using Core.Entities.ProductEntities;
+﻿using BlazorEcommerce.Domain.Entities.ProductEntities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace Repository.Store.Configurations;
+namespace BlazorEcommerce.Persistence.Store.Configurations;
 public class ProductBrandConfigurations: IEntityTypeConfiguration<ProductBrand>
 {
     public void Configure(EntityTypeBuilder<ProductBrand> builder)

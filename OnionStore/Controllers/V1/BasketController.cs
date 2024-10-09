@@ -1,9 +1,9 @@
-﻿using API.Extensions;
-using Core.Dtos;
-using Core.Interfaces.Services;
+﻿using BlazorEcommerce.Application.Dtos;
+using BlazorEcommerce.Application.Interfaces.Services;
+using BlazorEcommerce.Server.Extensions;
 using Microsoft.AspNetCore.Mvc;
 
-namespace API.Controllers.V1;
+namespace BlazorEcommerce.Server.Controllers.V1;
 public class BasketController(IBasketService basketService) : BaseController
 {
     [HttpPost]

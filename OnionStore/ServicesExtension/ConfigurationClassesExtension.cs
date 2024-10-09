@@ -1,6 +1,6 @@
-﻿using Service.ConfigurationData;
+﻿using BlazorEcommerce.Application.Models;
 
-namespace API.ServicesExtension;
+namespace BlazorEcommerce.Server.ServicesExtension;
 public static class ConfigurationClassesExtension
 {
     public static IServiceCollection ConfigureAppSettingData(this IServiceCollection services, IConfiguration configuration)

@@ -1,9 +1,9 @@
-﻿using Core.Entities.BasketEntities;
-using Core.Interfaces.Repositories;
+﻿using BlazorEcommerce.Application.Interfaces.Repositories;
+using BlazorEcommerce.Domain.Entities.BasketEntities;
 using StackExchange.Redis;
 using System.Text.Json;
 
-namespace Repository;
+namespace BlazorEcommerce.Persistence;
 public class BasketRepository(IConnectionMultiplexer connection) : IBasketRepository
 {
     private readonly IDatabase _database = connection.GetDatabase();
