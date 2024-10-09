@@ -1,4 +1,4 @@
-<h1 align="center">🚀 Onion Store</h1>
+<h1 align="center">🚀 Mercora</h1>
 
 [MicrosoftSQLServer]: https://img.shields.io/badge/Microsoft%20SQL%20Server-CC2927?style=for-the-badge&logo=microsoft%20sql%20server&logoColor=white
 [.Net]: https://img.shields.io/badge/.NET-5C2D91?style=for-the-badge&logo=.net&logoColor=white
@@ -17,7 +17,7 @@
 ![Stripe]
 
 <p align="center">
-  <b>Onion Store is a modern e-commerce platform built with ASP.NET Core API and Onion Architecture.</b>
+  <b>Mercora is a modern e-commerce platform built with ASP.NET Core API designed with a focus on Clean Architecture.</b>
 </p>
 
 ## 🐳 Docker Compose
@@ -41,8 +41,8 @@ This project utilizes Docker Compose to define and run a multi-container applica
 **1- Clone the Repository**
 
 ```bash
-git clone "https://github.com/ahmedeldamity/OnionStore.git"
-cd OnionStore
+git clone "https://github.com/ahmedeldamity/Mercora"
+cd Mercora
 ```
 
 **2- Build and Start Containers**
