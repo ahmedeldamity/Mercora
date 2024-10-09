@@ -9,9 +9,11 @@ public class StoreContextSeed
     {
         if (!storeContext.Brands.Any())
         {
-            var brandsFilePath = Path.Combine("DataSeeding", "brands.json");
+            //var brandsFilePath = Path.Combine("DataSeeding", "brands.json");
 
-            var brandsJsonData = await File.ReadAllTextAsync(brandsFilePath);
+            var brandsFilePath = Path.Combine(AppContext.BaseDirectory, "../../../../../Infrastructure/BlazorEcommerce.Persistence/Store/DataSeeding/brands.json");
+
+			var brandsJsonData = await File.ReadAllTextAsync(brandsFilePath);
 
             var brands = JsonSerializer.Deserialize<List<ProductBrand>>(brandsJsonData);
 
@@ -26,9 +28,11 @@ public class StoreContextSeed
 
         if (!storeContext.Categories.Any())
         {
-            var categoriesFilePath = Path.Combine("DataSeeding", "categories.json");
-            
-            var categoriesJsonData = await File.ReadAllTextAsync(categoriesFilePath);
+            //var categoriesFilePath = Path.Combine("DataSeeding", "categories.json");
+
+            var categoriesFilePath = Path.Combine(AppContext.BaseDirectory, "../../../../../Infrastructure/BlazorEcommerce.Persistence/Store/DataSeeding/categories.json");
+
+			var categoriesJsonData = await File.ReadAllTextAsync(categoriesFilePath);
 
             var categories = JsonSerializer.Deserialize<List<ProductCategory>>(categoriesJsonData);
 
@@ -43,9 +47,11 @@ public class StoreContextSeed
 
         if (!storeContext.Products.Any())
         {
-            var productsFilePath = Path.Combine("DataSeeding", "products.json");
+			//var productsFilePath = Path.Combine("DataSeeding", "products.json");
 
-            var productsJsonData = await File.ReadAllTextAsync(productsFilePath);
+			var productsFilePath = Path.Combine(AppContext.BaseDirectory, "../../../../../Infrastructure/BlazorEcommerce.Persistence/Store/DataSeeding/products.json");
+
+			var productsJsonData = await File.ReadAllTextAsync(productsFilePath);
 
             var products = JsonSerializer.Deserialize<List<Product>>(productsJsonData);
 
@@ -60,9 +66,11 @@ public class StoreContextSeed
 
         if (!storeContext.OrderDeliveryMethods.Any())
         {
-            var deliveryMethodsFilePath = Path.Combine("DataSeeding", "delivery.json");
+            //var deliveryMethodsFilePath = Path.Combine("DataSeeding", "delivery.json");
 
-            var deliveryMethodsData = await File.ReadAllTextAsync(deliveryMethodsFilePath);
+            var deliveryMethodsFilePath = Path.Combine(AppContext.BaseDirectory, "../../../../../Infrastructure/BlazorEcommerce.Persistence/Store/DataSeeding/delivery.json");
+
+			var deliveryMethodsData = await File.ReadAllTextAsync(deliveryMethodsFilePath);
 
             var deliveryMethods = JsonSerializer.Deserialize<List<OrderDeliveryMethod>>(deliveryMethodsData);
 
