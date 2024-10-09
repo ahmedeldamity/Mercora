@@ -3,13 +3,17 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.10.35027.167
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Server", "OnionStore\BlazorEcommerce.Server.csproj", "{5F36A2B0-815A-432A-8CF9-DC45A5ED304C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Server", "src\Presentation\BlazorEcommerce.Server\BlazorEcommerce.Server.csproj", "{5F36A2B0-815A-432A-8CF9-DC45A5ED304C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Domain", "Core\BlazorEcommerce.Domain.csproj", "{EB2220FE-84BC-4BFD-8C2C-6E95F5168078}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Domain", "src\Core\BlazorEcommerce.Domain\BlazorEcommerce.Domain.csproj", "{EB2220FE-84BC-4BFD-8C2C-6E95F5168078}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Persistence", "Repository\BlazorEcommerce.Persistence.csproj", "{8FEE1AF0-D94D-413A-BCA5-D784453AB253}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Persistence", "src\Infrastructure\BlazorEcommerce.Persistence\BlazorEcommerce.Persistence.csproj", "{8FEE1AF0-D94D-413A-BCA5-D784453AB253}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Infrastructure", "Service\BlazorEcommerce.Infrastructure.csproj", "{5CAFC79B-DBE2-4296-B79B-9FB295B1FF25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Infrastructure", "src\Infrastructure\BlazorEcommerce.Infrastructure\BlazorEcommerce.Infrastructure.csproj", "{5CAFC79B-DBE2-4296-B79B-9FB295B1FF25}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Application", "src\Core\BlazorEcommerce.Application\BlazorEcommerce.Application.csproj", "{652CB87A-9382-462A-B1E1-D8B1394B54DF}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorEcommerce.Shared", "src\Presentation\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj", "{141EC1C3-51CA-42CE-86BB-75A67101E164}"
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{8AD5CF5D-F37A-4351-BE93-C5E11C7D310B}"
 EndProject
@@ -18,10 +22,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Infrastructure", "Infrastructure", "{EAC7EA89-0740-46FB-B1DA-DACE94EC4B6C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Presentation", "Presentation", "{DA7D5DB5-4111-4409-914D-061B63FF69EF}"
-EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Application", "..\BlazorEcommerce.Application\BlazorEcommerce.Application.csproj", "{652CB87A-9382-462A-B1E1-D8B1394B54DF}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorEcommerce.Shared", "..\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj", "{141EC1C3-51CA-42CE-86BB-75A67101E164}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B7756F1F-8028-472F-BA1F-C799E80ACD17}"
 EndProject

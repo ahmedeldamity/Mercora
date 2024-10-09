@@ -33,7 +33,7 @@ services:
       - 8080:8080
     build:
       context: .
-      dockerfile: OnionStore/Dockerfile
+      dockerfile: src/Presentation/BlazorEcommerce.Server/Dockerfile
     depends_on:
       - store_database
       - redis_image
