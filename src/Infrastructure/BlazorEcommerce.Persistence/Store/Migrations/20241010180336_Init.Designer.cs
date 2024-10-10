@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BlazorEcommerce.Persistence.Store.Migrations
 {
     [DbContext(typeof(StoreContext))]
-    [Migration("20241009183151_Init")]
+    [Migration("20241010180336_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -68,7 +68,6 @@ namespace BlazorEcommerce.Persistence.Store.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PhoneNumber")
-                        .IsRequired()
                         .HasMaxLength(20)
                         .HasColumnType("nvarchar(20)");
 
@@ -109,10 +108,6 @@ namespace BlazorEcommerce.Persistence.Store.Migrations
                     b.Property<DateTime?>("ActivationTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("AppUserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Code")
                         .IsRequired()
                         .HasMaxLength(6)
@@ -121,6 +116,10 @@ namespace BlazorEcommerce.Persistence.Store.Migrations
                     b.Property<DateTime>("CreationTime")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("ForRegistrationConfirmed")
                         .HasColumnType("bit");
 
@@ -128,8 +127,6 @@ namespace BlazorEcommerce.Persistence.Store.Migrations
                         .HasColumnType("bit");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AppUserId");
 
                     b.ToTable("IdentityCodes");
                 });
@@ -526,17 +523,6 @@ namespace BlazorEcommerce.Persistence.Store.Migrations
                         });
 
                     b.Navigation("RefreshTokens");
-                });
-
-            modelBuilder.Entity("BlazorEcommerce.Domain.Entities.IdentityEntities.IdentityCode", b =>
-                {
-                    b.HasOne("BlazorEcommerce.Domain.Entities.IdentityEntities.AppUser", "User")
-                        .WithMany()
-                        .HasForeignKey("AppUserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("BlazorEcommerce.Domain.Entities.IdentityEntities.UserAddress", b =>
