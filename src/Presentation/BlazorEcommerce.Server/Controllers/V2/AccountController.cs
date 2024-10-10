@@ -14,7 +14,16 @@ namespace BlazorEcommerce.Server.Controllers.V2;
 [EnableRateLimiting("FixedWindowPolicy")]
 public class AccountController(IAccountService accountService) : ControllerBase
 {
-    [HttpPost("register")]
+	[HttpPost("send-email-verification-code")]
+	[EnableRateLimiting("ConcurrencyPolicy")]
+	public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCodeV2(string email)
+	{
+		var result = await accountService.SendEmailVerificationCodeV2(email);
+
+		return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
+	}
+
+	[HttpPost("register")]
     [MapToApiVersion("2.0")]
     public async Task<ActionResult<AppUserResponseV20>> RegisterV20(RegisterRequest model)
     {

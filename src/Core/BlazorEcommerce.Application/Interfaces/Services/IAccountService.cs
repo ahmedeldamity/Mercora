@@ -5,7 +5,10 @@ using System.Security.Claims;
 namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IAccountService
 {
-    Task<Result<AppUserResponse>> Register(RegisterRequest model);
+	Task<Result> SendEmailVerificationCode(string email, bool forRegister = true);
+	Task<Result> SendEmailVerificationCodeV2(string email, bool forRegister = true);
+	Task<Result<AppUserResponse>> VerifyCode(CodeVerificationRequest model, bool forRegister = true);
+	Task<Result<AppUserResponse>> Register(RegisterRequest model);
     Task<Result<AppUserResponseV20>> RegisterV20(RegisterRequest model);
     Task<Result<AppUserResponseV21>> RegisterV21(RegisterRequest model);
     Task<Result<AppUserResponse>> Login(LoginRequest model);

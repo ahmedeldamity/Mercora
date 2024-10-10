@@ -7,14 +7,31 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace BlazorEcommerce.Server.Controllers.V1;
-
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 [EnableRateLimiting("SlidingWindowPolicy")]
 public class AccountController(IAccountService accountService) : ControllerBase
 {
-    [HttpPost("register")]
+	[HttpPost("send-email-verification-code")]
+	[EnableRateLimiting("ConcurrencyPolicy")]
+	public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode(string email)
+	{
+		var result = await accountService.SendEmailVerificationCode(email);
+
+		return result.IsSuccess ? Ok() : result.ToProblem();
+	}
+
+	[HttpPost("verify-register-code")]
+	[EnableRateLimiting("ConcurrencyPolicy")]
+	public async Task<ActionResult> VerifyRegisterCode(CodeVerificationRequest model)
+	{
+		var result = await accountService.VerifyCode(model);
+
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpPost("register")]
     public async Task<ActionResult<AppUserResponse>> Register(RegisterRequest model)
     {
         var result = await accountService.Register(model);
@@ -30,7 +47,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-    [HttpGet]
+    [HttpGet("get-current-user")]
     [Authorize]
     public async Task<ActionResult<AppUserResponse>> GetCurrentUser()
     {
@@ -40,7 +57,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
 
     [Authorize]
-    [HttpGet("address")]
+    [HttpGet("get-current-user-address")]
     public async Task<ActionResult<UserAddressResponse>> GetCurrentUserAddress()
     {
         var result = await accountService.GetCurrentUserAddress(User);
@@ -49,7 +66,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
 
     [Authorize]
-    [HttpPut("address")]
+    [HttpPut("update-current-user-address")]
     public async Task<ActionResult<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress)
     {
         var result = await accountService.UpdateUserAddress(updatedAddress, User);
@@ -57,7 +74,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-	[HttpGet("GoogleLogin")]
+	[HttpGet("google-login")]
 	public ActionResult GoogleLogin()
 	{
 		var result = accountService.GoogleLogin();
@@ -65,7 +82,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
 		return Redirect(result);
 	}
 
-	[HttpGet("GoogleResponse")]
+	[HttpGet("google-response")]
 	public async Task<ActionResult> GoogleResponse(string code)
 	{
 		var result = await accountService.GoogleResponse(code);

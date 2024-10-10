@@ -15,9 +15,6 @@ public static class ApplicationServicesExtension
         // Register EmailSettings
         services.AddTransient(typeof(IEmailSettingService), typeof(EmailSettingService));
 
-        // Register AuthService
-        services.AddScoped(typeof(IAuthService), typeof(AuthService));
-
         // Register Product Service
         services.AddScoped(typeof(IProductService), typeof(ProductService));
 

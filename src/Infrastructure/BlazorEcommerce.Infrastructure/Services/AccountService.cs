@@ -1,10 +1,13 @@
 ﻿using AutoMapper;
 using BlazorEcommerce.Application.Dtos;
+using BlazorEcommerce.Application.Interfaces.Repositories;
 using BlazorEcommerce.Application.Interfaces.Services;
 using BlazorEcommerce.Application.Models;
+using BlazorEcommerce.Application.Specifications.Identity;
 using BlazorEcommerce.Domain.Entities.IdentityEntities;
 using BlazorEcommerce.Domain.ErrorHandling;
 using BlazorEcommerce.Infrastructure.Utility;
+using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -18,12 +21,132 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace BlazorEcommerce.Infrastructure.Services;
-public class AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper, IOptions<Urls> urls,
-IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor httpContextAccessor) : IAccountService
+public class AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper, 
+IEmailSettingService emailSettings, IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor httpContextAccessor,
+IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 {
     private readonly JwtData _jWtData = jWtData.Value;
     private readonly GoogleData _googleData = googleData.Value;
     private readonly Urls _urls = urls.Value;
+
+    public async Task<Result> SendEmailVerificationCode(string email, bool forRegister = true)
+	{
+		if (forRegister)
+		{
+			var user = await userManager.FindByEmailAsync(email);
+
+			if (user is not null)
+				return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
+		}
+
+		var code = GenerateSecureCode();
+
+		var subject = $"✅ {email.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
+
+		var body = EmailBody(code, email.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration");
+
+		EmailResponse emailToSend = new(subject, body, email);
+		
+		var identityCode = new IdentityCode
+		{
+			Code = HashCode(code),
+			IsActive = true,
+			Email = email,
+			ForRegistrationConfirmed = forRegister
+		};
+
+		await unitOfWork.Repository<IdentityCode>().AddAsync(identityCode);
+
+		await unitOfWork.CompleteAsync();
+
+		BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
+
+		return Result.Success();
+	}
+
+	public async Task<Result> SendEmailVerificationCodeV2(string email, bool forRegister = true)
+	{
+		if (forRegister)
+		{
+			var user = await userManager.FindByEmailAsync(email);
+
+			if (user is not null)
+				return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
+		}
+
+		var code = GenerateSecureCode();
+
+		var subject = $"✅ {email!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
+
+		var body = LoadEmailTemplate("Templates/EmailTemplate.html", code, email.Split('@')[0], "Reset Password", "You have requested to reset your password.");
+
+		EmailResponse emailToSend = new(subject, body, email);
+
+		await unitOfWork.Repository<IdentityCode>().AddAsync(new IdentityCode
+		{
+			Code = HashCode(code),
+			IsActive = true,
+			Email = email,
+			ForRegistrationConfirmed = forRegister
+		});
+
+		await unitOfWork.CompleteAsync();
+
+		BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
+
+		return Result.Success("A email verification code has been successfully sent.");
+	}
+
+	public async Task<Result<AppUserResponse>> VerifyCode(CodeVerificationRequest model, bool forRegister = true)
+	{
+		if (forRegister)
+		{
+			var user = await userManager.FindByEmailAsync(model.Email);
+
+			if (user is not null)
+				return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
+		}
+
+		var spec = new IdentityCodeSpecification(model.Email, forRegister);
+
+		var identityCodes = await unitOfWork.Repository<IdentityCode>().GetAllAsync(spec);
+
+		var identityCode = identityCodes.LastOrDefault();
+
+		if (identityCode is null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
+		var lastCode = identityCode.Code;
+
+		if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
+		if (!identityCode.IsActive || identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
+
+		identityCode.IsActive = false;
+
+		unitOfWork.Repository<IdentityCode>().Update(identityCode);
+
+		await unitOfWork.CompleteAsync();
+
+		Result<AppUserResponse>? result;
+
+		if (forRegister)
+		{
+            var registerRequest = new RegisterRequest(model.DisplayName, model.Email);
+
+			result = await Register(registerRequest);
+
+			return result;
+		}
+
+		var loginRequest = new LoginRequest(model.Email);
+
+		result = await Login(loginRequest);
+
+		return result;
+	}
 
 	public async Task<Result<AppUserResponse>> Register(RegisterRequest model)
     {
@@ -162,23 +285,15 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
     public async Task<Result<AppUserResponse>> Login(LoginRequest model)
     {
         var user = await userManager.FindByEmailAsync(model.Email);
-
+	    
         if (user is null)
             return Result.Failure<AppUserResponse>(new Error(400, "The email or password you entered is incorrect, Check your credentials and try again."));
-
-        var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
-        if (result.Succeeded is false)
-        {
-            var errors = string.Join(", ", "The email or password you entered is incorrect, Check your credentials and try again.");
-            return Result.Failure<AppUserResponse>(new Error(400, errors));
-        }
 
         var token = GenerateAccessTokenAsync(user.Id, user.DisplayName, user.Email!);
 
         RefreshToken refreshToken;
 
-        if (user!.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
+        if (user.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
         {
             refreshToken = user.RefreshTokens.First(t => t.IsActive);
         }
@@ -202,14 +317,6 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         if (user is null)
             return Result.Failure<AppUserResponseV20>(new Error(400, "The email or password you entered is incorrect, Check your credentials and try again."));
-
-        var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
-
-        if (result.Succeeded is false)
-        {
-            var errors = string.Join(", ", "The email or password you entered is incorrect, Check your credentials and try again.");
-            return Result.Failure<AppUserResponseV20>(new Error(400, errors));
-        }
 
         var token = GenerateAccessTokenAsync(user.Id, user.DisplayName, user.Email!);
 
@@ -290,7 +397,7 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
     {
 	    var googleOAuthUrl = $"https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?" +
 	                         $"client_id={_googleData.ClientId}" +
-	                         $"&redirect_uri={_urls.BaseUrl}/api/v1/Account/GoogleResponse" +
+	                         $"&redirect_uri={_urls.BaseUrl}/api/v1/Account/google-response" +
 	                         $"&response_type=code" +
 	                         $"&scope=openid%20profile%20email";
 
@@ -316,8 +423,6 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
 		if (user == null)
 		{
-            //var model = new RegisterRequest(googleUserInfo.Name, googleUserInfo.Email, "P@ssw0rd");
-
             var model = new RegisterRequest(googleUserInfo.Name, googleUserInfo.Email);
 
             return await Register(model);
@@ -341,7 +446,7 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 		    {"code", authorizationCode},
 		    {"client_id", _googleData.ClientId},
 		    {"client_secret", _googleData.ClientSecret},
-		    {"redirect_uri", $"{_urls.BaseUrl}/api/v1/Account/GoogleResponse"},
+		    {"redirect_uri", $"{_urls.BaseUrl}/api/v1/Account/google-response"},
 		    {"grant_type", "authorization_code"}
 	    };
 
@@ -374,8 +479,7 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
 	    return JsonConvert.DeserializeObject<GoogleUserInformation>(json);
     }
-
-	// access token become not valid so the front-end give me user refresh token to validate it and if it is okay I will generate access token and sent it 
+ 
 	public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
     {
         var refreshTokenFromCookie = httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
@@ -485,5 +589,125 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", token, cookieOptions);
     }
+	
+    private static string LoadEmailTemplate(string filePath, string code, string userName, string title, string message)
+	{
+		var template = File.ReadAllText(filePath);
 
+		template = template.Replace("{{Code}}", code)
+						   .Replace("{{UserName}}", userName)
+						   .Replace("{{Title}}", title)
+						   .Replace("{{Message}}", message)
+						   .Replace("{{Year}}", DateTime.Now.Year.ToString());
+
+		return template;
+	}
+	
+    private static string EmailBody(string code, string userName, string title, string message)
+	{
+		return $@"
+                <!DOCTYPE html>
+                <html lang=""en"">
+                <head>
+                    <meta charset=""UTF-8"">
+                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                    <title>Email Verification</title>
+                    <style>
+                        body {{
+                            font-family: Arial, sans-serif;
+                            line-height: 1.6;
+                            background-color: #f5f5f5;
+                            margin: 0;
+                            padding: 0;
+                        }}
+                        .container {{
+                            max-width: 600px;
+                            margin: auto;
+                            padding: 20px;
+                            background-color: #ffffff;
+                            border-radius: 8px;
+                            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                        }}
+                        .header {{
+                            background-color: #007bff;
+                            color: #ffffff;
+                            padding: 10px;
+                            text-align: center;
+                            border-top-left-radius: 8px;
+                            border-top-right-radius: 8px;
+                        }}
+                        .content {{
+                            padding: 20px;
+                        }}
+                        .code {{
+                            font-size: 24px;
+                            font-weight: bold;
+                            text-align: center;
+                            margin-top: 20px;
+                            margin-bottom: 30px;
+                            color: #007bff;
+                        }}
+                        .footer {{
+                            background-color: #f7f7f7;
+                            padding: 10px;
+                            text-align: center;
+                            border-top: 1px solid #dddddd;
+                            font-size: 12px;
+                            color: #777777;
+                        }}
+                    </style>
+                </head>
+                <body>
+                    <div class=""container"">
+                        <div class=""header"">
+                            <h2>{title}</h2>
+                        </div>
+                        <div class=""content"">
+                            <p>Dear {userName},</p>
+                            <p>{message}, please use the following verification code:</p>
+                            <div class=""code"">{code}</div>
+                            <p>This code will expire in 5 minutes. Please use it promptly to verify your email address.</p>
+                            <p>If you did not request this verification, please ignore this email.</p>
+                        </div>
+                        <div class=""footer"">
+                            <p>&copy; 2024 OnionStore. All rights reserved.</p>
+                        </div>
+                    </div>
+                </body>
+                </html>";
+	}
+
+	private static string GenerateSecureCode()
+	{
+		var randomNumber = new byte[4];
+
+		using var rng = RandomNumberGenerator.Create();
+		rng.GetBytes(randomNumber);
+
+		var result = BitConverter.ToInt32(randomNumber, 0);
+		var positiveResult = Math.Abs(result);
+
+		var sixDigitCode = positiveResult % 1000000;
+		return sixDigitCode.ToString("D6");
+	}
+
+	private static string HashCode(string code)
+	{
+		var sha256 = SHA256.Create();
+		var hashedBytes = sha256?.ComputeHash(Encoding.UTF8.GetBytes(code));
+		return BitConverter.ToString(hashedBytes!).Replace("-", "");
+	}
+
+	private static bool ConstantComparison(string a, string b)
+	{
+		if (a.Length != b.Length)
+			return false;
+
+		var result = 0;
+		for (var i = 0; i < a.Length; i++)
+		{
+			result |= a[i] ^ b[i];
+		}
+		return result == 0;
+	}
 }
