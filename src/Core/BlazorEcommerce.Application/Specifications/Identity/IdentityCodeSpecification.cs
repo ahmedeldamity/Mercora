@@ -3,9 +3,9 @@
 namespace BlazorEcommerce.Application.Specifications.Identity;
 public class IdentityCodeSpecification : BaseSpecifications<IdentityCode>
 {
-	public IdentityCodeSpecification(string userId, bool forRegistrationConfirmed = true, bool isActive = false)
+	public IdentityCodeSpecification(string email, bool forRegistrationConfirmed = true, bool isActive = false)
 	{
-		WhereCriteria = p => p.AppUserId == userId && p.ForRegistrationConfirmed == forRegistrationConfirmed;
+		WhereCriteria = p => p.Email == email && p.ForRegistrationConfirmed == forRegistrationConfirmed;
 
 		OrderBy = p => p.CreationTime;
 	}

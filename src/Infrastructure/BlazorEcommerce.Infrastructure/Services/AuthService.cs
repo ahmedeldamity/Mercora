@@ -13,56 +13,51 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace BlazorEcommerce.Infrastructure.Services;
-public class AuthService(IOptions<JwtData> jWtData, UserManager<AppUser> userManager, IUnitOfWork unitOfWork,
+public class AuthService(IOptions<JwtData> jWtData, UserManager<AppUser> userManager, IUnitOfWork unitOfWork, IAccountService accountService,
 IEmailSettingService emailSettings) : IAuthService
 {
     private readonly JwtData _jWtData = jWtData.Value;
 
-    public async Task<Result> SendEmailVerificationCode(ClaimsPrincipal userClaims)
+    public async Task<Result> SendEmailVerificationCode(string userEmail)
     {
-        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
+		var user = await userManager.FindByEmailAsync(userEmail);
 
-        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
-            return Result.Success();
+		if (user is not null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
 
-        if (user.EmailConfirmed)
-            return Result.Failure(new Error(400, "Your email is already confirmed."));
+		var code = GenerateSecureCode();
 
-        var code = GenerateSecureCode();
+		var subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
 
-        var subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
+		var body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration");
 
-        var body = EmailBody(code, userEmail.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration");
+		EmailResponse emailToSend = new(subject, body, userEmail);
 
-        EmailResponse emailToSend = new(subject, body, userEmail);
-
-        await unitOfWork.Repository<IdentityCode>().AddAsync(new IdentityCode
+        var identityCode = new IdentityCode
 		{
 			Code = HashCode(code),
 			IsActive = true,
-			User = user,
-			AppUserId = user.Id,
+			Email = userEmail,
 			ForRegistrationConfirmed = true
-		});
+		};
 
-        await unitOfWork.CompleteAsync();
+		await unitOfWork.Repository<IdentityCode>().AddAsync(identityCode);
 
-        BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
+		await unitOfWork.CompleteAsync();
 
-        return Result.Success();
-    }
+		BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
 
-    public async Task<Result> SendEmailVerificationCodeV2(ClaimsPrincipal userClaims)
+		return Result.Success();
+	}
+
+    public async Task<Result> SendEmailVerificationCodeV2(string userEmail)
     {
-        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
+		var user = await userManager.FindByEmailAsync(userEmail);
 
-        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
-            return Result.Success("If your email is registered with us, a email verification code has been successfully sent.");
+		if (user is not null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
 
-        if (user.EmailConfirmed)
-            return Result.Failure(new Error(400, "Your email is already confirmed."));
-
-        var code = GenerateSecureCode();
+		var code = GenerateSecureCode();
 
         var subject = $"✅ {userEmail!.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
 
@@ -74,9 +69,8 @@ IEmailSettingService emailSettings) : IAuthService
         {
 	        Code = HashCode(code),
 	        IsActive = true,
-	        User = user,
-	        AppUserId = user.Id,
-	        ForRegistrationConfirmed = true
+			Email = userEmail,
+			ForRegistrationConfirmed = true
         });
 
 		await unitOfWork.CompleteAsync();
@@ -86,42 +80,42 @@ IEmailSettingService emailSettings) : IAuthService
         return Result.Success("If your email is registered with us, a email verification code has been successfully sent.");
     }
 
-    public async Task<Result> VerifyRegisterCode(CodeVerificationRequest model, ClaimsPrincipal userClaims)
+	public async Task<Result<AppUserResponse>> VerifyRegisterCode(CodeVerificationRequest model)
     {
-        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
+		var user = await userManager.FindByEmailAsync(model.Email);
 
-        if (await userManager.FindByEmailAsync(userEmail!) is not { } user)
-            return Result.Failure(new Error(400, "No account found with the provided email address."));
+		if (user is not null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
 
-        var spec = new IdentityCodeSpecification(user.Id);
+		var spec = new IdentityCodeSpecification(model.Email);
 
-        var identityCodes = await unitOfWork.Repository<IdentityCode>().GetAllAsync(spec);
+		var identityCodes = await unitOfWork.Repository<IdentityCode>().GetAllAsync(spec);
 
-        var identityCode = identityCodes.LastOrDefault();
+		var identityCode = identityCodes.LastOrDefault();
+	    
+		if (identityCode is null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
 
-        if (identityCode is null)
-            return Result.Failure(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+		var lastCode = identityCode.Code;
 
-        var lastCode = identityCode.Code;
+		if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
 
-        if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
-            return Result.Failure(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+		if (!identityCode.IsActive || identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
 
-        if (!identityCode.IsActive || identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
-            return Result.Failure(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
+		identityCode.IsActive = false;
 
-        identityCode.IsActive = false;
+		unitOfWork.Repository<IdentityCode>().Update(identityCode);
 
-        unitOfWork.Repository<IdentityCode>().Update(identityCode);
+		await unitOfWork.CompleteAsync();
 
-        user.EmailConfirmed = true;
+        var registerRequest = new RegisterRequest(model.DisplayName, model.Email);
 
-        await userManager.UpdateAsync(user);
+		var result = await accountService.Register(registerRequest);
 
-        await unitOfWork.CompleteAsync();
-
-        return Result.Success();
-    }
+		return result;
+	}
 
     public async Task<Result> SendPasswordResetEmail(EmailRequest email)
     {
@@ -139,8 +133,7 @@ IEmailSettingService emailSettings) : IAuthService
         await unitOfWork.Repository<IdentityCode>().AddAsync(new IdentityCode
         {
             Code = HashCode(code),
-            User = user,
-            AppUserId = user.Id,
+            Email = email.Email,
             ForRegistrationConfirmed = false,
         });
 	    
@@ -167,8 +160,7 @@ IEmailSettingService emailSettings) : IAuthService
         await unitOfWork.Repository<IdentityCode>().AddAsync(new IdentityCode
         {
             Code = HashCode(code),
-            User = user,
-            AppUserId = user.Id,
+            Email = user.Email,
             ForRegistrationConfirmed = false
         });
 
@@ -212,8 +204,6 @@ IEmailSettingService emailSettings) : IAuthService
         user.EmailConfirmed = true;
 
         identityCode.IsActive = true;
-
-        identityCode.User = user;
 
         identityCode.ActivationTime = DateTime.UtcNow;
 

@@ -14,24 +14,22 @@ namespace BlazorEcommerce.Server.Controllers.V1;
 
 public class AuthController(IAuthService authService) : ControllerBase
 {
-    [Authorize]
     [HttpPost("send-email-verification-code")]
     [EnableRateLimiting("ConcurrencyPolicy")]
-    public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode()
+    public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode(string email)
     {
-        var result = await authService.SendEmailVerificationCode(User);
+        var result = await authService.SendEmailVerificationCode(email);
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
 
-    [Authorize]
     [HttpPost("verify-register-code")]
     [EnableRateLimiting("ConcurrencyPolicy")]
     public async Task<ActionResult> VerifyRegisterCode(CodeVerificationRequest model)
     {
-        var result = await authService.VerifyRegisterCode(model, User);
+        var result = await authService.VerifyRegisterCode(model);
 
-        return result.IsSuccess ? Ok() : result.ToProblem();
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
     [HttpPost("send-password-verification-code")]

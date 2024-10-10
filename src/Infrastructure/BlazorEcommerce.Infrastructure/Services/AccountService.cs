@@ -5,7 +5,6 @@ using BlazorEcommerce.Application.Models;
 using BlazorEcommerce.Domain.Entities.IdentityEntities;
 using BlazorEcommerce.Domain.ErrorHandling;
 using BlazorEcommerce.Infrastructure.Utility;
-using Google.Apis.Auth.OAuth2.Responses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -17,7 +16,6 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
-using Microsoft.AspNetCore.Authorization;
 
 namespace BlazorEcommerce.Infrastructure.Services;
 public class AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper, IOptions<Urls> urls,
@@ -27,28 +25,26 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
     private readonly GoogleData _googleData = googleData.Value;
     private readonly Urls _urls = urls.Value;
 
-    public async Task<Result<AppUserResponse>> Register(RegisterRequest model)
+	public async Task<Result<AppUserResponse>> Register(RegisterRequest model)
     {
         var user = await userManager.FindByEmailAsync(model.Email);
 
-        // Check if the email is already registered and confirmed 
-        if (user?.EmailConfirmed is true)
+        if (user is not null)
         {
             return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
         }
 
-        var newUser = new AppUser()
+        var newUser = new AppUser
         {
             DisplayName = model.DisplayName,
             Email = model.Email,
             UserName = model.Email.Split('@')[0],
-            PhoneNumber = model.PhoneNumber,
-            EmailConfirmed = false
+            EmailConfirmed = true
         };
 
-        var result = await userManager.CreateAsync(newUser, model.Password);
+		var result = await userManager.CreateAsync(newUser);
 
-        if (result.Succeeded is false)
+		if (result.Succeeded is false)
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
             return Result.Failure<AppUserResponse>(new Error(400, errors));
@@ -84,11 +80,12 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
             DisplayName = model.DisplayName,
             Email = model.Email,
             UserName = model.Email.Split('@')[0],
-            PhoneNumber = model.PhoneNumber,
             EmailConfirmed = false
         };
 
-        var result = await userManager.CreateAsync(newUser, model.Password);
+        //var result = await userManager.CreateAsync(newUser, model.Password);
+
+        var result = await userManager.CreateAsync(newUser);
 
         if (result.Succeeded is false)
         {
@@ -102,7 +99,7 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm");
 
-        var userResponse = new AppUserResponseV20(newUser.DisplayName, newUser.Email, token, newUser.PhoneNumber, refreshTokenExpireAt);
+        var userResponse = new AppUserResponseV20(newUser.DisplayName, newUser.Email, token, refreshTokenExpireAt);
 
         newUser.RefreshTokens!.Add(refreshToken);
 
@@ -128,13 +125,14 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
             DisplayName = model.DisplayName,
             Email = model.Email,
             UserName = model.Email.Split('@')[0],
-            PhoneNumber = model.PhoneNumber,
             EmailConfirmed = false
         };
 
-        var result = await userManager.CreateAsync(newUser, model.Password);
+		//var result = await userManager.CreateAsync(newUser, model.Password);
 
-        if (result.Succeeded is false)
+		var result = await userManager.CreateAsync(newUser);
+
+		if (result.Succeeded is false)
         {
             var errors = string.Join(", ", result.Errors.Select(e => e.Description));
             return Result.Failure<AppUserResponseV21>(new Error(400, errors));
@@ -150,7 +148,7 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var lastName = model.DisplayName.Trim().Split(' ')[1];
 
-        var userResponse = new AppUserResponseV21(firstName, lastName, newUser.Email, token, newUser.PhoneNumber, refreshTokenExpireAt);
+        var userResponse = new AppUserResponseV21(firstName, lastName, newUser.Email, token, refreshTokenExpireAt);
 
         newUser.RefreshTokens!.Add(refreshToken);
 
@@ -230,14 +228,13 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
         var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
 
-        var userResponse = new AppUserResponseV20(user.DisplayName, user.Email!, token, user.PhoneNumber!, refreshTokenExpireAt);
+        var userResponse = new AppUserResponseV20(user.DisplayName, user.Email!, token, refreshTokenExpireAt);
 
         SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
         return Result.Success(userResponse);
     }
 
-    [Authorize]
     public async Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal userClaims)
     {
         var email = userClaims.FindFirstValue(ClaimTypes.Email);
@@ -314,12 +311,23 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
 	    if (googleUserInfo == null)
 		    return Result.Failure<AppUserResponse>(new Error(400, "Failed to get user information from Google."));
+			
+		var user = await userManager.FindByEmailAsync(googleUserInfo.Email);
 
-	    var token = GenerateAccessTokenAsync(googleUserInfo.Sub, googleUserInfo.Name, googleUserInfo.Email);
+		if (user == null)
+		{
+            //var model = new RegisterRequest(googleUserInfo.Name, googleUserInfo.Email, "P@ssw0rd");
 
-	    var userResponse = new AppUserResponse(googleUserInfo.Name, googleUserInfo.Email, token, DateTime.Now); ///////
+            var model = new RegisterRequest(googleUserInfo.Name, googleUserInfo.Email);
 
-	    return Result.Success(userResponse);
+            return await Register(model);
+		}
+		else
+		{
+			var model = new LoginRequest(googleUserInfo.Email, "P@ssw0rd");
+
+			return await Login(model);
+		}
     }
 
     private async Task<OAuthTokenResponse?> GetGoogleAccessTokenAsync(string authorizationCode)
@@ -366,31 +374,6 @@ IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor
 
 	    return JsonConvert.DeserializeObject<GoogleUserInformation>(json);
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 	// access token become not valid so the front-end give me user refresh token to validate it and if it is okay I will generate access token and sent it 
 	public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
