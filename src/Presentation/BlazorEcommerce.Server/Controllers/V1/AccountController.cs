@@ -57,15 +57,23 @@ public class AccountController(IAccountService accountService) : ControllerBase
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
-    [HttpPost("google-login")]
-    public async Task<ActionResult<AppUserResponse>> GoogleLogin([FromBody] string credential)
-    {
-        var result = await accountService.GoogleLogin(credential);
+	[HttpGet("GoogleLogin")]
+	public ActionResult GoogleLogin()
+	{
+		var result = accountService.GoogleLogin();
 
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-    }
+		return Redirect(result);
+	}
 
-    [HttpGet("refresh-token")]
+	[HttpGet("GoogleResponse")]
+	public async Task<ActionResult> GoogleResponse(string code)
+	{
+		var result = await accountService.GoogleResponse(code);
+
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpGet("refresh-token")]
     public async Task<IActionResult> CreateAccessTokenByRefreshToken()
     {
         var result = await accountService.CreateAccessTokenByRefreshTokenAsync();
