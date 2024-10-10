@@ -31,30 +31,4 @@ public class AuthController(IAuthService authService) : ControllerBase
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
-
-    [HttpPost("send-password-verification-code")]
-    public async Task<ActionResult> SendPasswordResetEmail(EmailRequest email)
-    {
-        var result = await authService.SendPasswordResetEmail(email);
-
-        return result.IsSuccess ? Ok() : result.ToProblem();
-    }
-
-    [HttpPost("Verify-Reset-Code")]
-    public async Task<ActionResult> VerifyResetCode(CodeVerificationRequest model)
-    {
-        var result = await authService.VerifyResetCode(model, User);
-
-        return result.IsSuccess ? Ok() : result.ToProblem();
-    }
-
-    [Authorize]
-    [HttpPost("change-password")]
-    public async Task<ActionResult> ChangePassword(ChangePasswordRequest model)
-    {
-        var result = await authService.ChangePassword(model, User);
-
-        return result.IsSuccess ? Ok() : result.ToProblem();
-    }
-
 }

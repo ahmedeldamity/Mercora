@@ -23,12 +23,4 @@ public class AuthController(IAuthService authService) : ControllerBase
         return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
     }
 
-    [HttpPost("send-password-verification-code")]
-    public async Task<ActionResult> SendPasswordResetEmailV2(EmailRequest email)
-    {
-        var result = await authService.SendPasswordResetEmailV2(email);
-
-        return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
-    }
-
 }
