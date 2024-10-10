@@ -79,38 +79,43 @@ catch (Exception ex)
 
 #region Configure the Kestrel pipeline
 
-// Server Error Middleware (we catch it in class ExceptionMiddleware)
 app.UseMiddleware<ExceptionMiddleware>();
 
-// Add Swagger Middlewares In Extension Method
 app.UseSwaggerMiddleware();
 
-// Add Rate Limiter Middleware
+if (app.Environment.IsDevelopment())
+{
+	app.UseWebAssemblyDebugging();
+}
+
 app.UseRateLimiter();
 
-// Add Serilog Middleware
 app.UseSerilogRequestLogging();
 
-// To this application can resolve on any static file like (html, wwwroot, etc..)
+app.UseHttpsRedirection();
+
+app.UseBlazorFrameworkFiles();
+
 app.UseStaticFiles();
 
-// Add Health Check Middleware
 app.UseHealthChecks("/_health", new HealthCheckOptions
 {
     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
 });
 
-// Add Cors Policy Middleware
-app.UseCors("CorsPolicy");
+app.UseCors("MyPolicy");
 
-// To Redirect Any Http Request To Https
-app.UseHttpsRedirection();
+app.UseAuthentication();
 
-// Error Not Found End Point: Here When This Error Thrown: It Redirects To This End Point in (Controller: Errors)
+app.UseAuthorization();
+
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 
-// we use this middleware to talk program that: your routing depend on route written on the controller
+app.MapRazorPages();
+
 app.MapControllers();
+
+app.MapFallbackToFile("index.html");
 #region Explaination
 //	-- In MVC We Used This Way For Routing
 //	app.UseRouting(); -> we use this middleware to match request to an endpoint

@@ -16,6 +16,7 @@
     <PackageReference Include="AspNetCore.HealthChecks.Redis" Version="8.0.1" />
     <PackageReference Include="AspNetCore.HealthChecks.SqlServer" Version="8.0.2" />
     <PackageReference Include="AspNetCore.HealthChecks.UI.Client" Version="8.0.1" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Server" Version="8.0.10" />
     <PackageReference Include="Microsoft.AspNetCore.OutputCaching.StackExchangeRedis" Version="8.0.10" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.10">
       <PrivateAssets>all</PrivateAssets>
@@ -31,6 +32,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\Infrastructure\BlazorEcommerce.Infrastructure\BlazorEcommerce.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Infrastructure\BlazorEcommerce.Persistence\BlazorEcommerce.Persistence.csproj" />
+    <ProjectReference Include="..\BlazorEcommerce.Client\BlazorEcommerce.Client.csproj" />
   </ItemGroup>
 
 </Project>

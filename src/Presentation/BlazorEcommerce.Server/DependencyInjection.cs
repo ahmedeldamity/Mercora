@@ -20,9 +20,11 @@ public static class DependencyInjection
 
         var databaseConnections = serviceProvider.GetRequiredService<IOptions<DatabaseConnections>>().Value;
 
-        services.AddControllers();
+        services.AddControllersWithViews();
 
-        services.AddSwaggerServices();
+        builder.Services.AddRazorPages();
+
+		services.AddSwaggerServices();
 
         services.AddRateLimitingConfigurations();
 
