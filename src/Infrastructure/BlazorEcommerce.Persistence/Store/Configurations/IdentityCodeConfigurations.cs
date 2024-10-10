@@ -9,6 +9,6 @@ public class IdentityCodeConfigurations: IEntityTypeConfiguration<IdentityCode>
     {
         builder.Property(p => p.Code)
             .IsRequired()
-            .HasMaxLength(6);
+            .HasMaxLength(200);
     }
 }

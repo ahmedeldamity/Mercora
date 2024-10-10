@@ -17,7 +17,7 @@ public class UserConfigurations : IEntityTypeConfiguration<AppUser>
             .HasMaxLength(100);
 
         builder.Property(p => p.PhoneNumber)
-            .IsRequired()
+            .IsRequired(false)
             .HasMaxLength(20);
     }
 }

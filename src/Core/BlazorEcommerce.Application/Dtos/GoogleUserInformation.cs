@@ -1,2 +1,7 @@
 ﻿namespace BlazorEcommerce.Application.Dtos;
-public record GoogleUserInformation(string Sub, string Email, string Name);
+public class GoogleUserInformation
+{
+	public string Sub { get; set; }
+	public string Email { get; set; }
+	public string Name { get; set; }
+}

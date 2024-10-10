@@ -10,7 +10,6 @@ public record AppUserResponseV20(
     string DisplayName,
     string Email,
     string Token,
-    string PhoneNumber,
     string RefreshTokenExpireAt
 );
 
@@ -20,6 +19,5 @@ public record AppUserResponseV21(
     string LastName,
     string Email,
     string Token,
-    string PhoneNumber,
     string RefreshTokenExpireAt
 );
