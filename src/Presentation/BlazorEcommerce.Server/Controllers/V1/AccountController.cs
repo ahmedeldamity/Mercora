@@ -49,22 +49,6 @@ public class AccountController(IAccountService accountService) : ControllerBase
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
-	[HttpPost("register")]
-    public async Task<ActionResult<AppUserResponse>> Register(RegisterRequest model)
-    {
-        var result = await accountService.Register(model);
-
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-    }
-
-    [HttpPost("login")]
-    public async Task<ActionResult<AppUserResponse>> Login(LoginRequest model)
-    {
-        var result = await accountService.Login(model);
-
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-    }
-
     [HttpGet("get-current-user")]
     [Authorize]
     public async Task<ActionResult<AppUserResponse>> GetCurrentUser()

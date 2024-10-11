@@ -22,31 +22,4 @@ public class AccountController(IAccountService accountService) : ControllerBase
 
 		return result.IsSuccess ? result.ToSuccess() : result.ToProblem();
 	}
-
-	[HttpPost("register")]
-    [MapToApiVersion("2.0")]
-    public async Task<ActionResult<AppUserResponseV20>> RegisterV20(RegisterRequest model)
-    {
-        var result = await accountService.RegisterV20(model);
-
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-    }
-
-    [HttpPost("register")]
-    [MapToApiVersion("2.1")]
-    public async Task<ActionResult<AppUserResponseV21>> RegisterV21(RegisterRequest model)
-    {
-        var result = await accountService.RegisterV21(model);
-
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-    }
-
-    [HttpPost("login")]
-    [MapToApiVersion("2.0")]
-    public async Task<ActionResult<AppUserResponseV20>> LoginV20(LoginRequest model)
-    {
-        var result = await accountService.LoginV20(model);
-
-        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
-    }
 }
