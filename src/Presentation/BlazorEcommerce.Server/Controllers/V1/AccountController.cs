@@ -26,7 +26,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
 	[EnableRateLimiting("ConcurrencyPolicy")]
 	public async Task<ActionResult<AppUserResponse>> SendLoginEmailVerificationCode(string email)
 	{
-			var result = await accountService.SendEmailVerificationCode(email, false);
+			var result = await accountService.SendEmailVerificationCode(email, 1, false);
 
 		return result.IsSuccess ? Ok() : result.ToProblem();
 	}
@@ -82,14 +82,6 @@ public class AccountController(IAccountService accountService) : ControllerBase
 		var result = accountService.GoogleLogin();
 
 		return Redirect(result);
-	}
-
-	[HttpGet("google-response")]
-	public async Task<ActionResult> GoogleResponse(string code)
-	{
-		var result = await accountService.GoogleResponse(code);
-
-		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
 	[HttpGet("refresh-token")]
