@@ -624,8 +624,8 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
     private static string EmailBody(string code, string userName, string title, string message)
 	{
 		return $@"
-                <!DOCTYPE html>
-                <html lang=""en"">
+            <!DOCTYPE html>
+            <html lang=""en"">
                 <head>
                     <meta charset=""UTF-8"">
                     <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
@@ -688,11 +688,11 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
                             <p>If you did not request this verification, please ignore this email.</p>
                         </div>
                         <div class=""footer"">
-                            <p>&copy; 2024 OnionStore. All rights reserved.</p>
+                            <p>&copy; 2024 Mercora. All rights reserved.</p>
                         </div>
                     </div>
                 </body>
-                </html>";
+            </html>";
 	}
 
 	private static string GenerateSecureCode()

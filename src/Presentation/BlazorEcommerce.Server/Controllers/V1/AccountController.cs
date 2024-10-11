@@ -31,24 +31,24 @@ public class AccountController(IAccountService accountService) : ControllerBase
 		return result.IsSuccess ? Ok() : result.ToProblem();
 	}
 
-	[HttpPost("verify-register-code")]
+	[HttpPost("register")]
 	[EnableRateLimiting("ConcurrencyPolicy")]
-	public async Task<ActionResult> VerifyRegisterCode(RegisterCodeVerificationRequest model)
+	public async Task<ActionResult> Register(RegisterCodeVerificationRequest model)
 	{
 		var result = await accountService.VerifyCodeForRegister(model);
 
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
 
-	[HttpPost("verify-login-code")]
+	[HttpPost("login")]
 	[EnableRateLimiting("ConcurrencyPolicy")]
-	public async Task<ActionResult> VerifyLoginCode(LoginCodeVerificationRequest model)
+	public async Task<ActionResult> Login(LoginCodeVerificationRequest model)
 	{
 		var result = await accountService.VerifyCodeForLogin(model);
 
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
-
+	
     [HttpGet("get-current-user")]
     [Authorize]
     public async Task<ActionResult<AppUserResponse>> GetCurrentUser()
