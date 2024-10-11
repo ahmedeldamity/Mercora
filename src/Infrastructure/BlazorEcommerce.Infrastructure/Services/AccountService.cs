@@ -21,8 +21,8 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace BlazorEcommerce.Infrastructure.Services;
-public class AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IMapper mapper, 
-IEmailSettingService emailSettings, IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IHttpContextAccessor httpContextAccessor,
+public class AccountService(UserManager<AppUser> userManager, IMapper mapper, IOptions<GoogleData> googleData,
+IEmailSettingService emailSettings, IOptions<JwtData> jWtData, IHttpContextAccessor httpContextAccessor,
 IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 {
     private readonly JwtData _jWtData = jWtData.Value;
@@ -43,7 +43,7 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 
 		var subject = $"✅ {email.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
 
-		var body = EmailBody(code, email.Split('@')[0], "Email Verification", "Thank you for registering with our service. To complete your registration");
+		var body = EmailBody(code, email.Split('@')[0], "Email Verification", "Thank you for using our service! To complete your registration or continue your login");
 
 		EmailResponse emailToSend = new(subject, body, email);
 		
@@ -96,18 +96,15 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 
 		return Result.Success("A email verification code has been successfully sent.");
 	}
-
-	public async Task<Result<AppUserResponse>> VerifyCode(CodeVerificationRequest model, bool forRegister = true)
+	
+	public async Task<Result<AppUserResponse>> VerifyCodeForRegister(RegisterCodeVerificationRequest model)
 	{
-		if (forRegister)
-		{
-			var user = await userManager.FindByEmailAsync(model.Email);
+		var user = await userManager.FindByEmailAsync(model.Email);
 
-			if (user is not null)
-				return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
-		}
+		if (user is not null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
 
-		var spec = new IdentityCodeSpecification(model.Email, forRegister);
+		var spec = new IdentityCodeSpecification(model.Email);
 
 		var identityCodes = await unitOfWork.Repository<IdentityCode>().GetAllAsync(spec);
 
@@ -130,20 +127,41 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 
 		await unitOfWork.CompleteAsync();
 
-		Result<AppUserResponse>? result;
+		var registerRequest = new RegisterRequest(model.DisplayName, model.Email);
 
-		if (forRegister)
-		{
-            var registerRequest = new RegisterRequest(model.DisplayName, model.Email);
+		var result = await Register(registerRequest);
 
-			result = await Register(registerRequest);
+		return result;
+	}
 
-			return result;
-		}
+	public async Task<Result<AppUserResponse>> VerifyCodeForLogin(LoginCodeVerificationRequest model)
+	{
+		var spec = new IdentityCodeSpecification(model.Email, false);
+
+		var identityCodes = await unitOfWork.Repository<IdentityCode>().GetAllAsync(spec);
+
+		var identityCode = identityCodes.LastOrDefault();
+
+		if (identityCode is null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
+		var lastCode = identityCode.Code;
+
+		if (!ConstantComparison(lastCode, HashCode(model.VerificationCode)))
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
+		if (!identityCode.IsActive || identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
+
+		identityCode.IsActive = false;
+
+		unitOfWork.Repository<IdentityCode>().Update(identityCode);
+
+		await unitOfWork.CompleteAsync();
 
 		var loginRequest = new LoginRequest(model.Email);
 
-		result = await Login(loginRequest);
+		var result = await Login(loginRequest);
 
 		return result;
 	}
@@ -429,7 +447,7 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 		}
 		else
 		{
-			var model = new LoginRequest(googleUserInfo.Email, "P@ssw0rd");
+			var model = new LoginRequest(googleUserInfo.Email);
 
 			return await Login(model);
 		}

@@ -7,7 +7,8 @@ public interface IAccountService
 {
 	Task<Result> SendEmailVerificationCode(string email, bool forRegister = true);
 	Task<Result> SendEmailVerificationCodeV2(string email, bool forRegister = true);
-	Task<Result<AppUserResponse>> VerifyCode(CodeVerificationRequest model, bool forRegister = true);
+	Task<Result<AppUserResponse>> VerifyCodeForRegister(RegisterCodeVerificationRequest model);
+	Task<Result<AppUserResponse>> VerifyCodeForLogin(LoginCodeVerificationRequest model);
 	Task<Result<AppUserResponse>> Register(RegisterRequest model);
     Task<Result<AppUserResponseV20>> RegisterV20(RegisterRequest model);
     Task<Result<AppUserResponseV21>> RegisterV21(RegisterRequest model);

@@ -2,7 +2,7 @@
 using FluentValidation;
 
 namespace BlazorEcommerce.Application.Validations;
-public class CodeVerificationValidator: AbstractValidator<CodeVerificationRequest>
+public class CodeVerificationValidator: AbstractValidator<RegisterCodeVerificationRequest>
 {
     public CodeVerificationValidator()
     {

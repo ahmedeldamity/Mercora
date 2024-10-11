@@ -13,20 +13,38 @@ namespace BlazorEcommerce.Server.Controllers.V1;
 [EnableRateLimiting("SlidingWindowPolicy")]
 public class AccountController(IAccountService accountService) : ControllerBase
 {
-	[HttpPost("send-email-verification-code")]
+	[HttpPost("register-email-verification-code")]
 	[EnableRateLimiting("ConcurrencyPolicy")]
-	public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode(string email)
+	public async Task<ActionResult<AppUserResponse>> SendRegisterEmailVerificationCode(string email)
 	{
 		var result = await accountService.SendEmailVerificationCode(email);
+
+		return result.IsSuccess ? Ok() : result.ToProblem();
+	}
+	
+	[HttpPost("login-email-verification-code")]
+	[EnableRateLimiting("ConcurrencyPolicy")]
+	public async Task<ActionResult<AppUserResponse>> SendLoginEmailVerificationCode(string email)
+	{
+			var result = await accountService.SendEmailVerificationCode(email, false);
 
 		return result.IsSuccess ? Ok() : result.ToProblem();
 	}
 
 	[HttpPost("verify-register-code")]
 	[EnableRateLimiting("ConcurrencyPolicy")]
-	public async Task<ActionResult> VerifyRegisterCode(CodeVerificationRequest model)
+	public async Task<ActionResult> VerifyRegisterCode(RegisterCodeVerificationRequest model)
 	{
-		var result = await accountService.VerifyCode(model);
+		var result = await accountService.VerifyCodeForRegister(model);
+
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpPost("verify-login-code")]
+	[EnableRateLimiting("ConcurrencyPolicy")]
+	public async Task<ActionResult> VerifyLoginCode(LoginCodeVerificationRequest model)
+	{
+		var result = await accountService.VerifyCodeForLogin(model);
 
 		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
 	}
