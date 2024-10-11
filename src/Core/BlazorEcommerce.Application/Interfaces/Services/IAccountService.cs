@@ -12,6 +12,9 @@ public interface IAccountService
     Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims);
     Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims);
     string GoogleLogin();
+    Task<Result<AppUserResponse>> GoogleResponse(string code);
+	string GithubLogin();
+	Task<Result<AppUserResponse>> GithubResponse(string code);
 	Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync();
     Task<Result> RevokeRefreshTokenAsync();
 }

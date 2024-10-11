@@ -84,8 +84,32 @@ public class AccountController(IAccountService accountService) : ControllerBase
 		return Redirect(result);
 	}
 
+	[HttpGet("google-response")]
+	public async Task<ActionResult> GoogleResponse(string code)
+	{
+		var result = await accountService.GoogleResponse(code);
+
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
+	[HttpGet("github-login")]
+	public ActionResult GithubLogin()
+	{
+		var result = accountService.GithubLogin();
+
+		return Redirect(result);
+	}
+
+	[HttpGet("github-response")]
+	public async Task<ActionResult> GithubResponse(string code)
+	{
+		var result = await accountService.GithubResponse(code);
+
+		return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+	}
+
 	[HttpGet("refresh-token")]
-    public async Task<IActionResult> CreateAccessTokenByRefreshToken()
+    public async Task<ActionResult> CreateAccessTokenByRefreshToken()
     {
         var result = await accountService.CreateAccessTokenByRefreshTokenAsync();
 
@@ -93,11 +117,10 @@ public class AccountController(IAccountService accountService) : ControllerBase
     }
 
     [HttpPost("revoke-token")]
-    public async Task<IActionResult> RevokeRefreshToken()
+    public async Task<ActionResult> RevokeRefreshToken()
     {
         var result = await accountService.RevokeRefreshTokenAsync();
 
         return result.IsSuccess ? Ok() : result.ToProblem();
     }
-
 }

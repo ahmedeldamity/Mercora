@@ -1,5 +1,6 @@
 ﻿using BlazorEcommerce.Application.Dtos;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
 using System.Security.Cryptography;
 using System.Text;
@@ -7,7 +8,7 @@ using System.Text;
 namespace BlazorEcommerce.Infrastructure.Services;
 public static class AccountServiceHelper
 {
-	internal static async Task<OAuthTokenResponse?> GetGoogleAccessTokenAsync(string authorizationCode, string clientId, string clientSecret, string baseUrl)
+	internal static async Task<OAuthGoogleTokenResponse?> GetGoogleAccessTokenAsync(string authorizationCode, string clientId, string clientSecret, string baseUrl)
 	{
 		using var client = new HttpClient();
 
@@ -30,7 +31,7 @@ public static class AccountServiceHelper
 
 		var json = await response.Content.ReadAsStringAsync();
 
-		var tokenResponse = JsonConvert.DeserializeObject<OAuthTokenResponse>(json);
+		var tokenResponse = JsonConvert.DeserializeObject<OAuthGoogleTokenResponse>(json);
 
 		return tokenResponse;
 	}
@@ -50,6 +51,72 @@ public static class AccountServiceHelper
 		var json = await response.Content.ReadAsStringAsync();
 
 		return JsonConvert.DeserializeObject<GoogleUserInformation>(json);
+	}
+
+	internal static async Task<OAuthGithubTokenResponse?> GetGitHubAccessTokenAsync(string authorizationCode, string clientId, string clientSecret)
+	{
+		var client = new HttpClient();
+
+		var tokenRequest = new HttpRequestMessage(HttpMethod.Post, "https://github.com/login/oauth/access_token");
+		
+		var parameters = new Dictionary<string, string>
+		{
+			{"client_id", clientId},
+			{"client_secret", clientSecret},
+			{"code", authorizationCode}
+		};
+
+		tokenRequest.Content = new FormUrlEncodedContent(parameters);
+
+		tokenRequest.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+		var response = await client.SendAsync(tokenRequest);
+
+		if (!response.IsSuccessStatusCode) return null;
+
+		var json = await response.Content.ReadAsStringAsync();
+
+		var tokenResponse = JsonConvert.DeserializeObject<OAuthGithubTokenResponse>(json);
+
+		return tokenResponse;
+	}
+
+	internal static async Task<GithubUserInformation?> GetGitHubUserInfoAsync(string accessToken)
+	{
+		var client = new HttpClient();
+
+		var userInfo = await GetGitHubApiResponseAsync(client, "https://api.github.com/user", accessToken) as JObject;
+
+		var emails = await GetGitHubApiResponseAsync(client, "https://api.github.com/user/emails", accessToken) as JArray;
+
+		if (userInfo == null || emails == null) return null;
+
+		var userInformation = userInfo.ToObject<GithubUserInformation>();
+
+		if (userInformation == null) return null;
+
+		var primaryEmail = emails.FirstOrDefault(e => e["primary"]?.Value<bool>() == true);
+
+		userInformation.Email = primaryEmail?["email"]?.ToString() ?? userInformation.Name;
+
+		return userInformation;
+	}
+
+	private static async Task<JToken?> GetGitHubApiResponseAsync(HttpClient client, string url, string accessToken)
+	{
+		var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+		request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+
+		request.Headers.UserAgent.ParseAdd("Mozilla/5.0");
+
+		var response = await client.SendAsync(request);
+
+		if (response.IsSuccessStatusCode is false) return null;
+
+		var json = await response.Content.ReadAsStringAsync();
+
+		return JToken.Parse(json);
 	}
 
 	internal static string LoadEmailTemplate(string filePath, string code, string userName, string title, string message)

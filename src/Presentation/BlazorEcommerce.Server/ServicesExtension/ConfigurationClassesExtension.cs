@@ -13,6 +13,8 @@ public static class ConfigurationClassesExtension
 
         services.Configure<GoogleData>(configuration.GetSection("Google"));
 
+        services.Configure<GithubData>(configuration.GetSection("Github"));
+
         services.Configure<HangfireSettingsData>(configuration.GetSection("HangfireSettings"));
 
         services.Configure<DatabaseConnections>(configuration.GetSection("ConnectionStrings"));

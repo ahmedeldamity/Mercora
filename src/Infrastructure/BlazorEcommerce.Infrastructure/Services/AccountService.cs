@@ -19,12 +19,13 @@ using System.Security.Cryptography;
 using System.Text;
 
 namespace BlazorEcommerce.Infrastructure.Services;
-public class AccountService(UserManager<AppUser> userManager, IMapper mapper, IOptions<GoogleData> googleData,
+public class AccountService(UserManager<AppUser> userManager, IMapper mapper, IOptions<GoogleData> googleData, IOptions<GithubData> githubData,
 IEmailSettingService emailSettings, IOptions<JwtData> jWtData, IHttpContextAccessor httpContextAccessor,
 IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 {
     private readonly JwtData _jWtData = jWtData.Value;
     private readonly GoogleData _googleData = googleData.Value;
+    private readonly GithubData _githubData = githubData.Value;
     private readonly Urls _urls = urls.Value;
 
     public async Task<Result> SendEmailVerificationCode(string email, int version = 1, bool forRegister = true)
@@ -336,6 +337,78 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 		return googleOAuthUrl;
     }
 
+    public async Task<Result<AppUserResponse>> GoogleResponse(string code)
+    {
+	    if (string.IsNullOrEmpty(code))
+		    return Result.Failure<AppUserResponse>(new Error(400, "Authorization code is missing."));
+
+	    var tokenResponse = await AccountServiceHelper.GetGoogleAccessTokenAsync(code, _googleData.ClientId, _googleData.ClientSecret, _urls.BaseUrl);
+
+	    if (tokenResponse == null)
+		    return Result.Failure<AppUserResponse>(new Error(400, "Failed to get access token from Google."));
+
+	    var googleUserInfo = await AccountServiceHelper.GetGoogleUserInfoAsync(tokenResponse.Access_Token);
+
+	    if (googleUserInfo == null)
+		    return Result.Failure<AppUserResponse>(new Error(400, "Failed to get user information from Google."));
+
+	    var user = await userManager.FindByEmailAsync(googleUserInfo.Email);
+
+	    if (user == null)
+	    {
+		    var model = new RegisterRequest(googleUserInfo.Name, googleUserInfo.Email);
+
+		    return await Register(model);
+	    }
+	    else
+	    {
+		    var model = new LoginRequest(googleUserInfo.Email);
+
+		    return await Login(model);
+	    }
+    }
+
+	public string GithubLogin()
+	{
+		var githubOAuthUrl = $"https://github.com/login/oauth/authorize?" +
+							  $"client_id={_githubData.ClientId}" +
+							  $"&redirect_uri={_urls.BaseUrl}/api/v1/Account/github-response" +
+							  $"&scope=user:email";
+
+		return githubOAuthUrl;
+	}
+
+	public async Task<Result<AppUserResponse>> GithubResponse(string code)
+	{
+		if (string.IsNullOrEmpty(code))
+			return Result.Failure<AppUserResponse>(new Error(400, "Authorization code is missing."));
+
+		var tokenResponse = await AccountServiceHelper.GetGitHubAccessTokenAsync(code, _githubData.ClientId, _githubData.ClientSecret);
+
+		if (tokenResponse == null)
+			return Result.Failure<AppUserResponse>(new Error(400, "Failed to get access token from GitHub."));
+
+		var githubUserInfo = await AccountServiceHelper.GetGitHubUserInfoAsync(tokenResponse.Access_Token);
+
+		if (githubUserInfo == null)
+			return Result.Failure<AppUserResponse>(new Error(400, "Failed to get user information from GitHub."));
+
+		var user = await userManager.FindByEmailAsync(githubUserInfo.Email);
+
+		if (user == null)
+		{
+			var model = new RegisterRequest(githubUserInfo.Name, githubUserInfo.Email);
+
+			return await Register(model);
+		}
+		else
+		{
+			var model = new LoginRequest(githubUserInfo.Email);
+
+			return await Login(model);
+		}
+	}
+
 	public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
 	{
 		var refreshTokenFromCookie = httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
@@ -389,37 +462,6 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 
 		return Result.Success("Refresh token revoked successfully.");
 	}
-
-	private async Task<Result<AppUserResponse>> GoogleResponse(string code)
-    {
-	    if (string.IsNullOrEmpty(code))
-		    return Result.Failure<AppUserResponse>(new Error(400, "Authorization code is missing."));
-
-	    var tokenResponse = await AccountServiceHelper.GetGoogleAccessTokenAsync(code, _googleData.ClientId, _googleData.ClientSecret, _urls.BaseUrl);
-
-	    if (tokenResponse == null)
-		    return Result.Failure<AppUserResponse>(new Error(400, "Failed to get access token from Google."));
-
-	    var googleUserInfo = await AccountServiceHelper.GetGoogleUserInfoAsync(tokenResponse.Access_Token);
-
-	    if (googleUserInfo == null)
-		    return Result.Failure<AppUserResponse>(new Error(400, "Failed to get user information from Google."));
-			
-		var user = await userManager.FindByEmailAsync(googleUserInfo.Email);
-
-		if (user == null)
-		{
-            var model = new RegisterRequest(googleUserInfo.Name, googleUserInfo.Email);
-
-            return await Register(model);
-		}
-		else
-		{
-			var model = new LoginRequest(googleUserInfo.Email);
-
-			return await Login(model);
-		}
-    }
 
     private string GenerateAccessTokenAsync(string id, string name, string email)
     {
