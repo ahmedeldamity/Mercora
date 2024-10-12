@@ -1,4 +1,5 @@
 ﻿@page "/products"
+@page "/products/{PageIndex:int}"
 
 @inject IProductService ProductService
 
@@ -29,9 +30,21 @@ else
 			</div>
 		}
 	</div>
+
+	<div class="mb-1 text-center @(pageCount <= 0 ? "d-none" : "d-block")">
+		@for (var i = 1; i <= pageCount; i++)
+		{
+			<a class="btn @(i == ProductResponse.PageIndex ? "btn-info" : "btn-outline-info") page-selection
+			@(i != pageCount ? "me-2" : "me-0")" href="/products/@i">@i</a>
+		}
+	</div>
 }
 
 @code {
+
+	[Parameter] public int PageIndex { get; set; }
+
+	public int? pageCount { get; set; }
 
 	public PaginationToReturn<ProductResponse>? ProductResponse { get; set; }
 
@@ -39,6 +52,13 @@ else
 	{
 		var parameters = new ProductParameters();
 
+		if (PageIndex != 0) parameters.PageIndex = PageIndex;
+
+		ProductResponse = await ProductService.GetProductsAsync(parameters);
+
+		pageCount = ProductResponse?.Count / ProductResponse?.PageSize;
+
 		ProductResponse = await ProductService.GetProductsAsync(parameters);
 	}
+
 }
