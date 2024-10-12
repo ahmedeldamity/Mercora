@@ -1,4 +1,5 @@
 using BlazorEcommerce.Client;
+using BlazorEcommerce.Client.Services.CategoryService;
 using BlazorEcommerce.Client.Services.ProductService;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -15,5 +16,7 @@ builder.Services.AddScoped(sp => new HttpClient
 });
 
 builder.Services.AddScoped(typeof(IProductService), typeof(ProductService));
+
+builder.Services.AddScoped(typeof(ICategoryService), typeof(CategoryService));
 
 await builder.Build().RunAsync();

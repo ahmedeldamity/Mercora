@@ -1,6 +1,7 @@
 ﻿@page "/products"
 @page "/products/{PageIndex:int}"
-@page "/products/{pageIndex:int}/{categoryId:int}"
+@page "/Category/{categoryId:int}"
+@page "/productsCategory/{categoryId:int}/{PageIndex:int}"
 
 @inject IProductService ProductService
 
@@ -35,8 +36,10 @@ else
 	<div class="mb-1 text-center @(pageCount <= 0 ? "d-none" : "d-block")">
 		@for (var i = 1; i <= pageCount; i++)
 		{
+			var path = $"/productsCategory{(CategoryId == 0 ? "" : $"/{CategoryId}")}/{i}";
+
 			<a class="btn @(i == ProductResponse.PageIndex ? "btn-info" : "btn-outline-info") page-selection
-			@(i != pageCount ? "me-2" : "me-0")" href="/products/@i">@i</a>
+			@(i != pageCount ? "me-2" : "me-0")" href="@path">@i</a>
 		}
 	</div>
 }
@@ -47,7 +50,7 @@ else
 
 	[Parameter] public int CategoryId { get; set; }
 
-	public int? pageCount { get; set; }
+	public int pageCount { get; set; }
 
 	public PaginationToReturn<ProductResponse>? ProductResponse { get; set; }
 
@@ -61,7 +64,8 @@ else
 
 		ProductResponse = await ProductService.GetProductsAsync(parameters);
 
-		pageCount = ProductResponse?.Count / ProductResponse?.PageSize;
+		if (ProductResponse != null)
+			pageCount = (int) Math.Ceiling((double)ProductResponse.Count / (double)ProductResponse.PageSize);
 
 		ProductResponse = await ProductService.GetProductsAsync(parameters);
 	}
