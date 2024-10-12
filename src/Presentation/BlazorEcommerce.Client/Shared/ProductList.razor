@@ -1,0 +1,24 @@
+﻿@page "/products"
+
+@inject IProductService ProductService
+
+@if (ProductResponse is null || ProductResponse.Data.Count == 0)
+{
+	<p class="text-center">No products found</p>
+}
+else
+{
+	<p>Here</p>
+}
+
+@code {
+
+	public PaginationToReturn<ProductResponse>? ProductResponse { get; set; }
+
+	protected override async Task OnParametersSetAsync()
+	{
+		var parameters = new ProductParameters();
+
+		ProductResponse = await ProductService.GetProductsAsync(parameters);
+	}
+}
