@@ -1,14 +1,14 @@
 ﻿using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Domain.Entities.ProductEntities;
 using BlazorEcommerce.Domain.ErrorHandling;
+using BlazorEcommerce.Shared.Category;
 
 namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface ICategoryService
 {
-    Task<Result<IReadOnlyList<ProductCategory>>> GetCategoriesAsync();
-    Task<Result<ProductCategory>> GetCategoryByIdAsync(int id);
-    Task<Result<IReadOnlyList<ProductCategory>>> SearchCategoriesAsync(string search);
-    Task<Result<ProductCategory>> CreateCategoryAsync(ProductCategoryRequest categoryRequest);
-    Task<Result<ProductCategory>> UpdateCategoryAsync(int id, ProductCategoryRequest categoryRequest);
-    Task<Result<ProductCategory>> DeleteCategoryAsync(int id);
+    Task<Result<IReadOnlyList<CategoryResponse>>> GetCategoriesAsync();
+    Task<Result<CategoryResponse>> GetCategoryByIdAsync(int id);
+    Task<Result<IReadOnlyList<CategoryResponse>>> SearchCategoriesAsync(string search);
+    Task<Result<CategoryResponse>> CreateCategoryAsync(ProductCategoryRequest categoryRequest);
+    Task<Result<CategoryResponse>> UpdateCategoryAsync(int id, ProductCategoryRequest categoryRequest);
+    Task<Result<CategoryResponse>> DeleteCategoryAsync(int id);
 }

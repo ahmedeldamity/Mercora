@@ -4,6 +4,7 @@ using BlazorEcommerce.Domain.Entities.BasketEntities;
 using BlazorEcommerce.Domain.Entities.IdentityEntities;
 using BlazorEcommerce.Domain.Entities.OrderEntities;
 using BlazorEcommerce.Domain.Entities.ProductEntities;
+using BlazorEcommerce.Shared.Category;
 using BlazorEcommerce.Shared.Product;
 
 namespace BlazorEcommerce.Application.MappingProfıles;
@@ -31,6 +32,8 @@ public class MappingProfiles : Profile
             .ForMember(d => d.ImageCover, o => o.MapFrom<ProductBrandImageCoverResolver>());
 
         CreateMap<ProductBrandRequest, ProductBrand>();
+
+        CreateMap<ProductCategory, CategoryResponse>();
 
         CreateMap<BasketRequest, Basket>();
 
