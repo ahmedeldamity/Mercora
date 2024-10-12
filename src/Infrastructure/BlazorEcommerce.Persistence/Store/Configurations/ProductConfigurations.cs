@@ -14,13 +14,7 @@ public class ProductConfigurations : IEntityTypeConfiguration<Product>
             .HasMaxLength(500);
 
         builder.Property(p => p.ImageCover)
-            .HasMaxLength(100);
-
-        builder.Property(e => e.Images)
-        .HasConversion(
-            v => string.Join(',', v),
-            v => v.Split(',', StringSplitOptions.RemoveEmptyEntries)
-        );
+            .HasMaxLength(300);
 
         builder.Property(p => p.Price)
             .HasColumnType("decimal(18,2)");

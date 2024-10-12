@@ -13,11 +13,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj" />
+    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
   </ItemGroup>
 
   <ItemGroup>
-    <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
+    <Folder Include="Services\ProductService\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\..\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj" />
   </ItemGroup>
 
 </Project>

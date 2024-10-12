@@ -1,6 +1,7 @@
 ﻿using BlazorEcommerce.Application.Dtos;
 using BlazorEcommerce.Application.Specifications.ProductSpecifications;
 using BlazorEcommerce.Domain.ErrorHandling;
+using BlazorEcommerce.Shared.Product;
 
 namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IProductService

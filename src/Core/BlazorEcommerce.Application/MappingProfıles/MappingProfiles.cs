@@ -4,6 +4,7 @@ using BlazorEcommerce.Domain.Entities.BasketEntities;
 using BlazorEcommerce.Domain.Entities.IdentityEntities;
 using BlazorEcommerce.Domain.Entities.OrderEntities;
 using BlazorEcommerce.Domain.Entities.ProductEntities;
+using BlazorEcommerce.Shared.Product;
 
 namespace BlazorEcommerce.Application.MappingProfıles;
 public class MappingProfiles : Profile
@@ -13,17 +14,16 @@ public class MappingProfiles : Profile
         //_configuration = configuration;
 
         CreateMap<Product, ProductResponse>()
-            .ForMember(f => f.Brand, c => c.MapFrom(s => s.Brand.Name))
-            .ForMember(f => f.Category, c => c.MapFrom(s => s.Category.Name))
-            // -- We wanted to bring configuration to bring "ApiBaseUrl From app setting 
-            // -- but this isn't work because when we register automapper in program class 
-            // -- it create this class with parameter less constructor 
-            // -- so it will chain on the parameter less constructor and didn't see this constructor
-            // -- so I commented the below line and configuration
-            //.ForMember(d => d.PictureUrl, o => o.MapFrom(s => $"{_configuration["ApiBaseUrl"]}/{s.PictureUrl}"))
-            // -- the solution of this issue is: instead of using MapFrom I use MapFrom<"class inherit from IValueResolver<source, destination, member>">
-			.ForMember(d => d.ImageCover, o => o.MapFrom<ProductImageCoverResolver>())
-            .ForMember(d => d.Images, o => o.MapFrom<ProductImagesResolver>());
+	        .ForMember(f => f.Brand, c => c.MapFrom(s => s.Brand.Name))
+	        .ForMember(f => f.Category, c => c.MapFrom(s => s.Category.Name))
+	        // -- We wanted to bring configuration to bring "ApiBaseUrl From app setting 
+	        // -- but this isn't work because when we register automapper in program class 
+	        // -- it create this class with parameter less constructor 
+	        // -- so it will chain on the parameter less constructor and didn't see this constructor
+	        // -- so I commented the below line and configuration
+	        //.ForMember(d => d.PictureUrl, o => o.MapFrom(s => $"{_configuration["ApiBaseUrl"]}/{s.PictureUrl}"))
+	        // -- the solution of this issue is: instead of using MapFrom I use MapFrom<"class inherit from IValueResolver<source, destination, member>">
+	        .ForMember(d => d.ImageCover, o => o.MapFrom<ProductImageCoverResolver>());
 
         CreateMap<ProductRequest, Product>();
 

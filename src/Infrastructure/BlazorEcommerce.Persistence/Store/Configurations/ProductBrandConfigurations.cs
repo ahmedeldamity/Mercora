@@ -11,6 +11,6 @@ public class ProductBrandConfigurations: IEntityTypeConfiguration<ProductBrand>
             .HasMaxLength(100);
 
         builder.Property(p => p.ImageCover)
-            .HasMaxLength(100);
+            .HasMaxLength(300);
     }
 }
