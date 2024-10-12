@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Services\ProductService\" />
+    <Folder Include="wwwroot\sample-data\" />
   </ItemGroup>
 
   <ItemGroup>
