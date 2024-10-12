@@ -8,7 +8,27 @@
 }
 else
 {
-	<p>Here</p>
+	<div class="row">
+		@foreach (var product in ProductResponse.Data)
+		{
+			<div class="col-md-3">
+				<div class="card mb-4 shadow-sm">
+					<img class="card-img-top media-img" src="@product.ImageCover" alt="@product.Name" style="object-fit: contain; width: 100%; height: 300px;">
+					<div class="card-body">
+						<p class="card-text">@product.Name</p>
+						<p class="card-text" style="height: 120px">@product.Description</p>
+						<div class="d-flex justify-content-between align-items-center">
+							<div class="btn-group">
+								<a type="button" class="btn btn-sm btn-outline-success" href="/product/@product.Id">View</a>
+								<button type="button" class="btn btn-sm btn-outline-primary">Add to Cart</button>
+							</div>
+							<small class="price">@product.Price.ToString("C")</small>
+						</div>
+					</div>
+				</div>
+			</div>
+		}
+	</div>
 }
 
 @code {
