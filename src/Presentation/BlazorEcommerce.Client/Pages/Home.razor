@@ -1,7 +1,53 @@
 ﻿@page "/"
+@page "/products/{PageIndex:int}"
+@page "/Category/{CategoryId:int}"
+@page "/productsCategory/{CategoryId:int}/{PageIndex:int}"
+
+@inject IProductService ProductService
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (CategoryId <= 0)
+{
+	<FeaturedProducts Products="@Products" />
+}
+else
+{
+	<ProductList ProductsResponse="@ProductsResponse" PageIndex="@PageIndex" CategoryId="@CategoryId" />
+}
 
-Welcome to your new app.
+@code{
+	[Parameter] public int PageIndex { get; set; }
+
+	[Parameter] public int CategoryId { get; set; }
+
+	private PaginationToReturn<ProductResponse>? ProductsResponse { get; set; }
+
+	private List<ProductResponse>? Products { get; set; }
+
+	private int pageCount { get; set; }
+
+	protected override async Task OnParametersSetAsync()
+	{
+		if (CategoryId <= 0)
+		{
+			Products = await ProductService.GetFeaturedProductsAsync();
+		}
+		else
+		{
+			var parameters = new ProductParameters();
+
+			if (PageIndex != 0) parameters.PageIndex = PageIndex;
+
+			if (CategoryId != 0) parameters.CategoryId = CategoryId;
+
+			ProductsResponse = await ProductService.GetProductsAsync(parameters);
+
+			if (ProductsResponse != null)
+				pageCount = (int)Math.Ceiling((double)ProductsResponse.Count / ProductsResponse.PageSize);
+
+			ProductsResponse = await ProductService.GetProductsAsync(parameters);
+		}
+	}
+
+}

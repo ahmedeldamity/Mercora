@@ -1,18 +1,13 @@
-﻿@page "/products"
-@page "/products/{PageIndex:int}"
-@page "/Category/{categoryId:int}"
-@page "/productsCategory/{categoryId:int}/{PageIndex:int}"
+﻿@inject IProductService ProductService
 
-@inject IProductService ProductService
-
-@if (ProductResponse is null || ProductResponse.Data.Count == 0)
+@if (ProductsResponse is null || ProductsResponse.Data.Count == 0)
 {
 	<p class="text-center">No products found</p>
 }
 else
 {
 	<div class="row">
-		@foreach (var product in ProductResponse.Data)
+		@foreach (var product in ProductsResponse.Data)
 		{
 			<div class="col-md-3">
 				<div class="card mb-4 shadow-sm">
@@ -38,7 +33,7 @@ else
 		{
 			var path = $"/productsCategory{(CategoryId == 0 ? "" : $"/{CategoryId}")}/{i}";
 
-			<a class="btn @(i == ProductResponse.PageIndex ? "btn-info" : "btn-outline-info") page-selection
+			<a class="btn @(i == ProductsResponse.PageIndex ? "btn-info" : "btn-outline-info") page-selection
 			@(i != pageCount ? "me-2" : "me-0")" href="@path">@i</a>
 		}
 	</div>
@@ -50,24 +45,14 @@ else
 
 	[Parameter] public int CategoryId { get; set; }
 
-	public int pageCount { get; set; }
+	[Parameter] public PaginationToReturn<ProductResponse>? ProductsResponse { get; set; }
 
-	public PaginationToReturn<ProductResponse>? ProductResponse { get; set; }
+	private int pageCount { get; set; }
 
-	protected override async Task OnParametersSetAsync()
+	protected override void OnParametersSet()
 	{
-		var parameters = new ProductParameters();
-
-		if (PageIndex != 0) parameters.PageIndex = PageIndex;
-
-		if (CategoryId != 0) parameters.CategoryId = CategoryId;
-
-		ProductResponse = await ProductService.GetProductsAsync(parameters);
-
-		if (ProductResponse != null)
-			pageCount = (int) Math.Ceiling((double)ProductResponse.Count / (double)ProductResponse.PageSize);
-
-		ProductResponse = await ProductService.GetProductsAsync(parameters);
+		if (ProductsResponse != null)
+			pageCount = (int)Math.Ceiling((double)ProductsResponse.Count / ProductsResponse.PageSize);
 	}
 
 }

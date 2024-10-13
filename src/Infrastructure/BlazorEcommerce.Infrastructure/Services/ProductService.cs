@@ -34,7 +34,18 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : IProductSe
         return productsCount;
     }
 
-    public async Task<Result<ProductResponse>> GetProductAsync(int id)
+    public async Task<Result<IReadOnlyList<ProductResponse>>> GetFeaturedProductsAsync()
+    {
+	    var spec = new ProductFeaturedSpecifications();
+
+	    var products = await unitOfWork.Repository<Product>().GetAllAsync(spec);
+
+	    var productsDto = mapper.Map<IReadOnlyList<Product>, IReadOnlyList<ProductResponse>>(products);
+
+	    return Result.Success(productsDto); 
+    }
+
+	public async Task<Result<ProductResponse>> GetProductAsync(int id)
     {
         var spec = new ProductWithBrandAndCategorySpecifications(id);
 

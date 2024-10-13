@@ -1,6 +1,6 @@
-﻿using System.Net.Http.Json;
-using BlazorEcommerce.Shared.Product;
+﻿using BlazorEcommerce.Shared.Product;
 using BlazorEcommerce.Shared.Specifications.ProductSpecifications;
+using System.Net.Http.Json;
 
 namespace BlazorEcommerce.Client.Services.ProductService;
 public class ProductService(HttpClient httpClient) : IProductService
@@ -24,5 +24,12 @@ public class ProductService(HttpClient httpClient) : IProductService
 		var response = await httpClient.GetFromJsonAsync<PaginationToReturn<ProductResponse>>(uri);
 
 		return response;
+	}
+
+	public async Task<List<ProductResponse>> GetFeaturedProductsAsync()
+	{
+		var response = await httpClient.GetFromJsonAsync<List<ProductResponse>>("api/Product/featured");
+
+		return response ?? [];
 	}
 }

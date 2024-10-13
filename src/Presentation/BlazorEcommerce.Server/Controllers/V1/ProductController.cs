@@ -17,7 +17,16 @@ public class ProductController(IProductService productService) : BaseController
         return Ok(result.Value);
     }
 
-    [HttpGet("{id:int}")]
+    [HttpGet("featured")]
+    [Cached(600)]
+    public async Task<ActionResult> GetFeaturedProducts()
+    {
+	    var result = await productService.GetFeaturedProductsAsync();
+
+	    return Ok(result.Value);
+    }
+
+	[HttpGet("{id:int}")]
     [Cached(600)]
     public async Task<ActionResult> GetProduct(int id)
     {
