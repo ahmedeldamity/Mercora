@@ -59,4 +59,12 @@ public class ProductController(IProductService productService) : BaseController
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 
+    [HttpGet("SearchSuggestions/{searchText}")]
+    public async Task<ActionResult> GetProductSearchSuggestions(string searchText)
+	{
+		var result = await productService.GetProductSearchSuggestions(searchText);
+
+		return Ok(result);
+	}
+
 }
