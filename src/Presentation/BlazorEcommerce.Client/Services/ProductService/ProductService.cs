@@ -23,12 +23,20 @@ public class ProductService(HttpClient httpClient) : IProductService
 
 		var response = await httpClient.GetFromJsonAsync<PaginationToReturn<ProductResponse>>(uri);
 
+
 		return response;
 	}
 
 	public async Task<List<ProductResponse>> GetFeaturedProductsAsync()
 	{
 		var response = await httpClient.GetFromJsonAsync<List<ProductResponse>>("api/Product/featured");
+
+		return response ?? [];
+	}
+
+	public async Task<List<string>> GetProductSearchSuggestions(string searchText)
+	{
+		var response = await httpClient.GetFromJsonAsync<List<string>>($"api/Product/SearchSuggestions/{searchText}");
 
 		return response ?? [];
 	}

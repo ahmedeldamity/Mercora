@@ -6,4 +6,5 @@ public interface IProductService
 {
 	Task<PaginationToReturn<ProductResponse>?> GetProductsAsync(ProductParameters specParams);
 	Task<List<ProductResponse>> GetFeaturedProductsAsync();
+	Task<List<string>> GetProductSearchSuggestions(string searchText);
 }
