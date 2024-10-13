@@ -1,0 +1,56 @@
+﻿@inject NavigationManager NavigationManager
+@inject IProductService ProductService
+
+<div class="input-group">
+	<input type="search" @bind-value="searchText" @bind-value:event="oninput" list="products" @onkeyup="SearchTextChanged"
+		   class="form-control rounded" placeholder="Search products" @ref="searchInput" aria-label="Search" aria-describedby="search-addon" />
+	<datalist id="products">
+		@foreach (var suggestion in suggestions)
+		{
+			<option value="@suggestion"></option>
+		}
+	</datalist>
+	<div class="input-group-append">
+		<button class="btn btn-outline-primary" data-mdb-ripple-init @onclick="SearchProducts">
+			<i class="bi bi-search"></i>
+		</button>
+	</div>
+</div>
+
+@code {
+
+	[Parameter] public int CategoryId { set; get; }
+
+	private string searchText = string.Empty;
+
+	private List<string> suggestions = [];
+
+	private ElementReference searchInput;
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (firstRender)
+		{
+			await searchInput.FocusAsync();
+		}
+	}
+
+	private void SearchProducts()
+	{
+		Console.WriteLine($"ya maan {CategoryId}");
+		NavigationManager.NavigateTo($"/products?pageIndex=1{(CategoryId == 0 ? "" : $"&categoryId={CategoryId}")}&search={searchText}");
+	}
+
+	private async Task SearchTextChanged(KeyboardEventArgs args)
+	{
+		if (args.Key is null or "Enter")
+		{
+			SearchProducts();
+		}
+		else if(searchText.Length > 1)
+		{
+			suggestions = await ProductService.GetProductSearchSuggestions(searchText);
+		}
+	}
+
+}

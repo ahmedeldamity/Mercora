@@ -1,12 +1,8 @@
 ﻿@inject ICategoryService CategoryService
 
-
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
-        <a class="navbar-brand" href="">Mercora</a>
-        <button title="Navigation menu" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
+		<a class="navbar-brand" href="@($"products?categoryId=0")" @onclick="() => Change(0)">Mercora</a>
     </div>
 </div>
 
@@ -15,7 +11,8 @@
 		@foreach(var category in Categories)
 		{
 			<div class="nav-item px-3">
-                <NavLink class="nav-link" href="@($"Category/{category.Id}")">
+				<NavLink class="nav-link" href="@($"products?pageIndex=1&categoryId={category.Id}")"
+						 @onclick="() => Change(category.Id)" Match="NavLinkMatch.Prefix">
 					<span class="bi bi-tags-fill fs-5" aria-hidden="true"></span> @category.Name
 				</NavLink>
 			</div>
@@ -24,6 +21,14 @@
 </div>
 
 @code {
+
+	[Parameter] public EventCallback<int> DataChange { set; get; }
+
+	private void Change(int categoryId)
+	{
+		DataChange.InvokeAsync(categoryId);
+	}
+
     private bool collapseNavMenu = true;
 
     private static List<CategoryResponse> Categories = [];

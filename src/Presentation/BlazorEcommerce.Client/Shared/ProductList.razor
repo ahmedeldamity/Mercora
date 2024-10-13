@@ -31,7 +31,9 @@ else
 	<div class="mb-1 text-center @(pageCount <= 0 ? "d-none" : "d-block")">
 		@for (var i = 1; i <= pageCount; i++)
 		{
-			var path = $"/productsCategory{(CategoryId == 0 ? "" : $"/{CategoryId}")}/{i}";
+			var path = $"/products?pageIndex={i}{(CategoryId is null or 0 ? "" : $"&categoryId={CategoryId}")}{(string.IsNullOrEmpty(Search) ? "" : $"&search={Search}")}";
+
+			Console.WriteLine($"HI: {path}");
 
 			<a class="btn @(i == ProductsResponse.PageIndex ? "btn-info" : "btn-outline-info") page-selection
 			@(i != pageCount ? "me-2" : "me-0")" href="@path">@i</a>
@@ -43,11 +45,23 @@ else
 
 	[Parameter] public int PageIndex { get; set; }
 
-	[Parameter] public int CategoryId { get; set; }
+	[Parameter] public int? CategoryId { get; set; }
+
+	[Parameter] public string? Search { get; set; }
 
 	[Parameter] public PaginationToReturn<ProductResponse>? ProductsResponse { get; set; }
 
 	private int pageCount { get; set; }
+
+	// protected override void OnInitialized()
+	// {
+	// 	ProductService.ProductsChanged += StateHasChanged;
+	// }
+
+	// public void Dispose()
+	// {
+	// 	ProductService.ProductsChanged -= StateHasChanged;
+	// }
 
 	protected override void OnParametersSet()
 	{

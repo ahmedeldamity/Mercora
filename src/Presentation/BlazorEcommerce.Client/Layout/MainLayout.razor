@@ -1,12 +1,12 @@
 ﻿@inherits LayoutComponentBase
 <div class="page">
     <div class="sidebar">
-        <NavMenu />
+        <NavMenu DataChange="GetData"/>
     </div>
 
     <main>
         <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
+            <Search CategoryId="@CategoryId"></Search>
         </div>
 
         <article class="content px-4">
@@ -14,3 +14,14 @@
         </article>
     </main>
 </div>
+
+
+@code
+{
+	private int CategoryId { set; get; }
+
+    public void GetData(int categoryId)
+	{
+        CategoryId = categoryId;
+	}
+}

@@ -1,25 +1,28 @@
 ﻿@page "/"
-@page "/products/{PageIndex:int}"
-@page "/Category/{CategoryId:int}"
-@page "/productsCategory/{CategoryId:int}/{PageIndex:int}"
+@page "/products"
 
 @inject IProductService ProductService
+@inject NavigationManager NavigationManager
 
 <PageTitle>Home</PageTitle>
 
-@if (CategoryId <= 0)
+@if (CategoryId is null or 0 && string.IsNullOrWhiteSpace(Search))
 {
 	<FeaturedProducts Products="@Products" />
 }
 else
 {
-	<ProductList ProductsResponse="@ProductsResponse" PageIndex="@PageIndex" CategoryId="@CategoryId" />
+	<ProductList ProductsResponse="@ProductsResponse" PageIndex="@PageIndex" CategoryId="@CategoryId" Search="@Search" />
 }
 
-@code{
-	[Parameter] public int PageIndex { get; set; }
+@code {
+	[Parameter] public int PageIndex { get; set; } = 1;
 
-	[Parameter] public int CategoryId { get; set; }
+	[Parameter] public int? CategoryId { get; set; }
+
+	[Parameter] public string? Sort { get; set; }
+
+	[Parameter] public string? Search { get; set; }
 
 	private PaginationToReturn<ProductResponse>? ProductsResponse { get; set; }
 
@@ -27,27 +30,73 @@ else
 
 	private int pageCount { get; set; }
 
-	protected override async Task OnParametersSetAsync()
+	protected override async Task OnInitializedAsync()
 	{
-		if (CategoryId <= 0)
+		// Subscribe to the LocationChanged event to handle URL changes
+		NavigationManager.LocationChanged += OnLocationChanged;
+		await ProcessQueryParamsAsync();
+	}
+
+	private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+	{
+		await ProcessQueryParamsAsync();
+		StateHasChanged(); // Notify Blazor to re-render the page after query parameters change
+	}
+
+	private async Task ProcessQueryParamsAsync()
+	{
+		var uri = new Uri(NavigationManager.Uri);
+		var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
+
+		// Safe parsing of query parameters
+		if (queryParams.ContainsKey("pageIndex") && int.TryParse(queryParams["pageIndex"], out var pageIndex))
+			PageIndex = pageIndex;
+
+		if (queryParams.ContainsKey("categoryId") && int.TryParse(queryParams["categoryId"], out var categoryId))
+			CategoryId = categoryId;
+
+		Console.WriteLine($"Here {CategoryId}");
+
+		if (queryParams.ContainsKey("sort"))
+			Sort = queryParams["sort"];
+
+		if (queryParams.ContainsKey("search"))
+			Search = queryParams["search"];
+
+		// Fetch data based on updated parameters
+		if (CategoryId is null or 0 && string.IsNullOrEmpty(Search))
 		{
+			Console.WriteLine("MLM");
 			Products = await ProductService.GetFeaturedProductsAsync();
 		}
 		else
 		{
-			var parameters = new ProductParameters();
+			Console.WriteLine($"How {CategoryId} - {Search}");
 
-			if (PageIndex != 0) parameters.PageIndex = PageIndex;
+			var parameters = new ProductParameters
+			{
+				PageIndex = PageIndex
+			};
 
-			if (CategoryId != 0) parameters.CategoryId = CategoryId;
+			if (CategoryId is not null and not 0)
+				parameters.CategoryId = CategoryId;
+
+			if (!string.IsNullOrWhiteSpace(Search))
+				parameters.Search = Search;
+
+			if (!string.IsNullOrWhiteSpace(Sort))
+				parameters.Sort = Sort;
 
 			ProductsResponse = await ProductService.GetProductsAsync(parameters);
 
 			if (ProductsResponse != null)
 				pageCount = (int)Math.Ceiling((double)ProductsResponse.Count / ProductsResponse.PageSize);
-
-			ProductsResponse = await ProductService.GetProductsAsync(parameters);
 		}
 	}
 
+	// Dispose event subscription to avoid memory leaks
+	public void Dispose()
+	{
+		NavigationManager.LocationChanged -= OnLocationChanged;
+	}
 }
