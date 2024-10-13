@@ -141,4 +141,38 @@ public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : IProductSe
         return Result.Success(productDto);
     }
 
+    public async Task<List<string>> GetProductSearchSuggestions(string searchText)
+    {
+        var parameters = new ProductSpecificationParameters
+        {
+	        Search = searchText,
+        };
+
+	    var spec = new ProductWithBrandAndCategorySpecifications(parameters);
+
+		var products = await unitOfWork.Repository<Product>().GetAllAsync(spec);
+
+		var result = new List<string>();
+
+	    foreach (var product in products)
+	    {
+		    if (product.Name.Contains(searchText, StringComparison.OrdinalIgnoreCase))
+			    result.Add(product.Name);
+
+			var punctuation = product.Description.Where(char.IsPunctuation).Distinct().ToArray();
+
+			var words = product.Description.Split().Select(s => s.Trim(punctuation));
+
+			foreach (var word in words)
+			{
+			    if (word.Contains(searchText, StringComparison.OrdinalIgnoreCase) && !result.Contains(word))
+			    {
+				    result.Add(word);
+			    }
+			}
+	    }
+
+	    return result;
+    }
+
 }
