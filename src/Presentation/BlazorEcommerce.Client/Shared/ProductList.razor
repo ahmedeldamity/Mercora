@@ -53,20 +53,12 @@ else
 
 	private int pageCount { get; set; }
 
-	// protected override void OnInitialized()
-	// {
-	// 	ProductService.ProductsChanged += StateHasChanged;
-	// }
-
-	// public void Dispose()
-	// {
-	// 	ProductService.ProductsChanged -= StateHasChanged;
-	// }
-
 	protected override void OnParametersSet()
 	{
 		if (ProductsResponse != null)
 			pageCount = (int)Math.Ceiling((double)ProductsResponse.Count / ProductsResponse.PageSize);
+
+		Console.WriteLine($"PC: {pageCount} - {ProductsResponse?.Count} - {ProductsResponse?.PageSize}");
 	}
 
 }
