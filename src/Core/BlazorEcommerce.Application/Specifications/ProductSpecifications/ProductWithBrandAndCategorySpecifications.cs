@@ -8,12 +8,16 @@ public class ProductWithBrandAndCategorySpecifications : BaseSpecifications<Prod
         IncludesCriteria.Add(p => p.Brand);
         IncludesCriteria.Add(p => p.Category);
 
-        WhereCriteria =
-           p => (string.IsNullOrEmpty(specParams.Search) || p.Name.ToLower().Contains(specParams.Search.ToLower())) &&
-           (!specParams.BrandId.HasValue || p.BrandId == specParams.BrandId.Value) &&
-           (!specParams.CategoryId.HasValue || p.CategoryId == specParams.CategoryId.Value);
+		WhereCriteria = p =>
+			(string.IsNullOrEmpty(specParams.Search) ||
+			 p.Name.ToLower().Contains(specParams.Search.ToLower()) ||
+			 p.Description.ToLower().Contains(specParams.Search.ToLower())) &&
+			(!specParams.BrandId.HasValue || p.BrandId == specParams.BrandId.Value) &&
+			(!specParams.CategoryId.HasValue || p.CategoryId == specParams.CategoryId.Value);
 
-        if (!string.IsNullOrEmpty(specParams.Sort))
+
+
+		if (!string.IsNullOrEmpty(specParams.Sort))
         {
             switch (specParams.Sort)
             {

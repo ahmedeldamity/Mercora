@@ -12,4 +12,5 @@ public interface IProductService
     Task<Result<ProductResponse>> CreateProductAsync(ProductRequest productRequest);
     Task<Result<ProductResponse>> UpdateProductAsync(int id, ProductRequest productRequest);
     Task<Result<ProductResponse>> DeleteProductAsync(int id);
+    Task<List<string>> GetProductSearchSuggestions(string searchText);
 }
