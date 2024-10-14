@@ -1,0 +1,26 @@
+﻿@inherits LayoutComponentBase
+
+<div class="page">
+	<main>
+		<div class="top-row px-4">
+			<HomeButton></HomeButton>
+			<Search CategoryId="@CategoryId"></Search>
+		</div>
+		<div class="nav-menu">
+			<MercoraNavMenu DataChange="GetData"/>
+		</div>
+		<article class="content px-4">
+			@Body
+		</article>
+	</main>
+</div>
+
+@code
+{
+	private int CategoryId { set; get; }
+
+	public void GetData(int categoryId)
+	{
+		CategoryId = categoryId;
+	}
+}
