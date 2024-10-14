@@ -1,4 +1,5 @@
 ﻿using BlazorEcommerce.Domain.ErrorHandling;
+using BlazorEcommerce.Shared.Response;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlazorEcommerce.Server.Extensions;
@@ -9,36 +10,18 @@ public static class ResultExtensions
         if (result.IsSuccess)
             throw new InvalidOperationException("Cannot convert success result to a problem");
 
-        var problem = Results.Problem(statusCode: result.Error?.StatusCode, title: result.Error?.Title.Split(", ")[0]);
+		if (result.IsSuccess)
+			throw new InvalidOperationException("Cannot convert success result to a problem");
 
-        var problemDetails = problem.GetType().GetProperty(nameof(ProblemDetails))!.GetValue(problem) as ProblemDetails;
+		var error = new ErrorResponse
+		{
+			StatusCode = result.Error?.StatusCode ?? 500,
+			Message = result.Error?.Title ?? "An error occurred"
+		};
 
-        problemDetails!.Type = null;
-
-        if (result.Error?.StatusCode != 200)
-        {
-            problemDetails!.Extensions = new Dictionary<string, object?>
-            {
-                {
-                    "errors", result.Error?.Title.Split(", ")
-                }
-            };
-        }
-
-        return new ObjectResult(problemDetails);
-    }
-
-    public static ActionResult ToSuccess(this Result result)
-    {
-        if (!result.IsSuccess)
-            throw new InvalidOperationException("Cannot convert success result to a problem");
-
-        var problem = Results.Problem(statusCode: result.Error?.StatusCode, title: result.SuccessMessage);
-
-        var problemDetails = problem.GetType().GetProperty(nameof(ProblemDetails))!.GetValue(problem) as ProblemDetails;
-
-        problemDetails!.Type = null;
-
-        return new ObjectResult(problemDetails);
-    }
+		return new ObjectResult(error)
+		{
+			StatusCode = error.StatusCode
+		};
+	}
 }
