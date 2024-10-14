@@ -1,0 +1,68 @@
+﻿@page "/product/{id:int}"
+@inject IProductService ProductService
+
+@if (Product != null)
+{
+    <div class="product-details row container mx-auto p-4 border rounded shadow-sm">
+        <div class="col-md-4 col-lg-3">
+            <img src="@Product.ImageCover" alt="@Product.Name" class="product-image rounded"
+                 style="object-fit: contain; width: 100%; height: auto; max-height: 350px;" />
+        </div>
+        <div class="col-md-8 col-lg-9">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="fs-1 fw-bold mb-0">@Product.Name</h2>
+                <button class="btn btn-success">@Product.BrandName</button>
+            </div>
+            <div class="d-flex align-items-center mb-3">
+                <i class="bi bi-star-fill fs-3" style="color: #f5c518;"></i>
+                <span class="ms-2 fs-4">
+                    <strong class="text-primary">@Product.RatingsAverage</strong>
+                    <span class="text-muted">/5</span>
+                </span>
+            </div>
+            <p class="text-muted">@Product.Description</p>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                    <label for="quantity" class="form-label"><strong>Quantity:</strong></label>
+                    <input type="number" id="quantity" class="form-control"
+                           min="1" max="@Product.Quantity" @bind="CurrentQuantity" style="width: 80px;" />
+                    <small class="text-muted">@Product.Quantity in stock</small>
+                </div>
+                <button class="btn btn-primary btn-lg">Add to Cart</button>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+                <p class="fs-4 text-success mb-0">
+                    <strong>Price per item:</strong> $@Product.Price
+                </p>
+                <p class="fs-4 text-danger mb-0">
+                    <strong>Total Price:</strong> $@(Product.Price * CurrentQuantity)
+                </p>
+            </div>
+        </div>
+    </div>
+}
+else
+{
+	<p><em>@Message</em></p>
+}
+
+@code {
+
+	[Parameter] public int Id { get; set; }
+
+	private int CurrentQuantity = 1;
+
+	private ProductResponse? Product;
+
+	private string Message { get; set; } = "Loading Product...";
+
+	protected override async Task OnInitializedAsync()
+	{
+		var result = await ProductService.GetProductAsync(Id);
+
+		if (result != null)
+			Product = result;
+		else
+			Message = ProductService.Message;
+	}
+}
