@@ -1,8 +1,8 @@
 ﻿@page "/"
 @page "/products"
-
 @inject IProductService ProductService
 @inject NavigationManager NavigationManager
+@implements IDisposable
 
 <PageTitle>Home</PageTitle>
 
@@ -12,7 +12,6 @@
 }
 else
 {
-	Console.WriteLine("D:");
 	<ProductList ProductsResponse="@ProductsResponse" PageIndex="@PageIndex" CategoryId="@CategoryId" Search="@Search" />
 }
 
@@ -33,7 +32,6 @@ else
 
 	protected override async Task OnInitializedAsync()
 	{
-		// Subscribe to the LocationChanged event to handle URL changes
 		NavigationManager.LocationChanged += OnLocationChanged;
 		await ProcessQueryParamsAsync();
 	}
@@ -41,7 +39,7 @@ else
 	private async void OnLocationChanged(object? sender, LocationChangedEventArgs e)
 	{
 		await ProcessQueryParamsAsync();
-		StateHasChanged(); // Notify Blazor to re-render the page after query parameters change
+		StateHasChanged();
 	}
 
 	private async Task ProcessQueryParamsAsync()
@@ -49,7 +47,6 @@ else
 		var uri = new Uri(NavigationManager.Uri);
 		var queryParams = Microsoft.AspNetCore.WebUtilities.QueryHelpers.ParseQuery(uri.Query);
 
-		// Safe parsing of query parameters
 		if (queryParams.ContainsKey("pageIndex") && int.TryParse(queryParams["pageIndex"], out var pageIndex))
 			PageIndex = pageIndex;
 
@@ -64,7 +61,6 @@ else
 		if (queryParams.ContainsKey("search"))
 			Search = queryParams["search"];
 
-		// Fetch data based on updated parameters
 		if (CategoryId is null or 0 && string.IsNullOrEmpty(Search))
 		{
 			Console.WriteLine("MLM");
@@ -95,7 +91,6 @@ else
 		}
 	}
 
-	// Dispose event subscription to avoid memory leaks
 	public void Dispose()
 	{
 		NavigationManager.LocationChanged -= OnLocationChanged;

@@ -1,0 +1,65 @@
+﻿.nav-bg-color {
+    background-color: #6F42C1;
+}
+
+.top-row {
+    height: 3.5rem;
+}
+
+.navbar-brand {
+    font-size: 1.1rem;
+}
+
+.bi {
+    top: -0.9rem;
+    display: inline-block;
+    position: relative;
+    width: 1rem;
+    height: 1.25rem;
+    margin-right: 1rem;
+    background-size: cover;
+}
+
+.nav-item {
+    font-size: 0.9rem;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+}
+
+.nav-item ::deep a {
+    color: #d7d7d7;
+    border-radius: 4px;
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    line-height: 3rem;
+}
+
+.nav-item ::deep a.active {
+    background-color: rgba(255,255,255,0.37);
+    color: white;
+}
+
+.nav-item ::deep a:hover {
+    background-color: rgba(255,255,255,0.1);
+    color: white;
+}
+
+.flex-nav {
+    flex-direction: column;
+}
+
+@media (min-width: 641px) {
+    .navbar-for-display-toggler {
+        display: none !important;
+    }
+
+    .flex-nav {
+        display: flex;
+        flex-direction: row;
+    }
+
+    .collapse {
+        display: block;
+    }
+}
