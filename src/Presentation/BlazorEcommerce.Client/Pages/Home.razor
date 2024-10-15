@@ -53,8 +53,6 @@ else
 		if (queryParams.ContainsKey("categoryId") && int.TryParse(queryParams["categoryId"], out var categoryId))
 			CategoryId = categoryId;
 
-		Console.WriteLine($"Here {CategoryId}");
-
 		if (queryParams.ContainsKey("sort"))
 			Sort = queryParams["sort"];
 
@@ -63,13 +61,10 @@ else
 
 		if (CategoryId is null or 0 && string.IsNullOrEmpty(Search))
 		{
-			Console.WriteLine("MLM");
 			Products = await ProductService.GetFeaturedProductsAsync();
 		}
 		else
 		{
-			Console.WriteLine($"How {CategoryId} - {Search}");
-
 			var parameters = new ProductParameters
 			{
 				PageIndex = PageIndex

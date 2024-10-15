@@ -11,7 +11,7 @@
 		}
 	</datalist>
 	<div class="input-group-append ms-1">
-		<button class="btn btn-info" data-mdb-ripple-init @onclick="SearchProducts">
+		<button class="btn btn-light" data-mdb-ripple-init @onclick="SearchProducts">
 			<i class="bi bi-search"></i>
 		</button>
 	</div>
@@ -37,7 +37,6 @@
 
 	private void SearchProducts()
 	{
-		Console.WriteLine($"ya maan {CategoryId}");
 		NavigationManager.NavigateTo($"/products?pageIndex=1{(CategoryId == 0 ? "" : $"&categoryId={CategoryId}")}&search={searchText}");
 	}
 
