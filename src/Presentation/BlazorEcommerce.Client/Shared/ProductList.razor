@@ -1,59 +1,181 @@
-﻿@inject IProductService ProductService
+﻿@page "/products"
+@inject IProductService ProductService
 
-@if (ProductsResponse is null || ProductsResponse.Data.Count == 0)
-{
-	<p class="text-center">No products found</p>
-}
-else
-{
+
+<div class="container p-1" style="margin-top: 15px;">
 	<div class="row">
-		@foreach (var product in ProductsResponse.Data)
-		{
-			<div class="col-xl-3 col-md-4 col-sm-6">
-				<div class="card mb-4 shadow-sm">
-					<img class="card-img-top media-img" src="@product.ImageCover" alt="@product.Name" style="object-fit: contain; width: 100%; height: 300px;">
-					<div class="card-body">
-						<p class="card-text text-primary fw-bold">@product.Name</p>
-						<p class="card-text" style="height: 120px">@product.Description</p>
-						<div class="d-flex justify-content-between align-items-center">
-							<div class="btn-group">
-								<a type="button" class="btn btn-sm btn-outline-success" href="/product/@product.Id">View</a>
-								<button type="button" class="btn btn-sm btn-outline-primary">Add to Cart</button>
-							</div>
-							<strong class="text-success">@product.Price.ToString("C")</strong>
-						</div>
+		<section class="col-3">
+			<h5 class="text-warning ms-3 fw-bold">Sort</h5>
+			<select class="form-select mb-4 pointer" @onchange="SortChange">
+				@foreach (var sortOption in SortOptions)
+				{
+					<option value="@sortOption.Value" selected="@(ProductService.SpecificationParameters.Sort == sortOption.Value)">@sortOption.Name</option>
+				}
+			</select>
+			<h5 class="text-warning ms-3 fw-bold">Brands </h5>
+			<ul class="list-group my-3" style="cursor: pointer">
+				@foreach (var brand in ProductService.Brands)
+				{
+					<li class="list-group-item @(brand.Id == ProductService.SpecificationParameters.BrandId ? "active" : "")"
+					@onclick="() => BrandChange(brand.Id)">@brand.Name</li>
+				}
+			</ul>
+			<h5 class="text-warning ms-3 fw-bold">Categories </h5>
+			<ul class="list-group my-3" style="cursor: pointer">
+				@foreach (var category in ProductService.Categories)
+				{
+					<li class="list-group-item @(category.Id == ProductService.SpecificationParameters.CategoryId ? "active" : "")"
+						@onclick="() => CategoryChange(category.Id)">@category.Name</li>
+				}
+			</ul>
+		</section>
+		<section class="col-9">
+			<div class="d-flex justify-content-between align-items-center pb-2">
+				<div>
+					<PaginationHeader
+						totalCount="@ProductService.ProductsResponse?.Count" pageIndex="@ProductService.ProductsResponse?.PageIndex"
+						pageSize="@ProductService.ProductsResponse?.PageSize">
+					</PaginationHeader>
+				</div>
+				<div class="input-group w-75">
+					<input type="search" @bind-value="searchText" @bind-value:event="oninput" list="ProductsSuggestions" @onkeyup="SearchTextChanged"
+						   class="form-control rounded" placeholder="🔍  Search products..." @ref="searchInput" aria-label="Search" aria-describedby="search-addon" />
+					<datalist id="ProductsSuggestions">
+						@foreach (var suggestion in suggestions)
+						{
+							<option value="@suggestion"></option>
+						}
+					</datalist>
+					<div class="input-group-append ms-1">
+						<button class="btn btn-light" data-mdb-ripple-init @onclick="SearchProducts">
+							<i class="bi bi-search text-success fs-5"></i>
+						</button>
+						<button class="btn btn-light" data-mdb-ripple-init @onclick="ResetSearch">
+							<i class="bi bi-slash-circle-fill text-danger fs-5"></i>
+						</button>
 					</div>
 				</div>
 			</div>
-		}
+			<div class="row row-cols-3 g-3 pt-1">
+				@if(ProductService.ProductsResponse is null || ProductService.ProductsResponse.Data.Count == 0)
+				{
+					<div class="col mx-auto mt-4">
+						<div class="alert alert-danger text-center">No products found</div>
+					</div>
+				}
+				else
+				{
+					@foreach (var product in ProductService.ProductsResponse.Data)
+					{
+						<div class="col">
+							<ProductItem Product="@product"></ProductItem>
+						</div>
+					}
+				}
+			</div>
+			<div class="mt-4 d-flex justify-content-center">
+				<Pagination 
+					TotalCount="@ProductService.ProductsResponse?.Count" PageSize="@ProductService.ProductsResponse?.PageSize"
+					PageChanged="PageChanged" PageIndex="@(ProductService.ProductsResponse?.PageIndex ?? 1)">
+				</Pagination>
+			</div>
+		</section>
 	</div>
+</div>
 
-	<div class="mb-1 text-center @(pageCount <= 0 ? "d-none" : "d-block")">
-		@for (var i = 1; i <= pageCount; i++)
-		{
-			var path = $"/products?pageIndex={i}{(CategoryId is null or 0 ? "" : $"&categoryId={CategoryId}")}{(string.IsNullOrEmpty(Search) ? "" : $"&search={Search}")}";
-			<a class="btn @(i == ProductsResponse.PageIndex ? "btn-info" : "btn-outline-info") page-selection
-			@(i != pageCount ? "me-2" : "me-0")" href="@path">@i</a>
-		}
-	</div>
-}
 
 @code {
 
-	[Parameter] public int PageIndex { get; set; }
+	private string searchText = string.Empty;
 
-	[Parameter] public int? CategoryId { get; set; }
+	private List<string> suggestions = [];
 
-	[Parameter] public string? Search { get; set; }
+	private readonly List<(string Name, string Value)> SortOptions =
+	[
+		("Alphabetical", "name"), ("Price: Low to high", "price"), ("Price: High to low", "priceDesc")
+	];
 
-	[Parameter] public PaginationToReturn<ProductResponse>? ProductsResponse { get; set; }
+	private ElementReference searchInput;
 
-	private int pageCount { get; set; }
-
-	protected override void OnParametersSet()
+	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
-		if (ProductsResponse != null)
-			pageCount = (int)Math.Ceiling((double)ProductsResponse.Count / ProductsResponse.PageSize);
+		if (firstRender)
+		{
+			await searchInput.FocusAsync();
+		}
+	}
+
+	protected override async Task OnInitializedAsync()
+	{
+		await ProcessQueryParamsAsync();
+	}
+
+	private async Task PageChanged(int pageIndex)
+	{
+		ProductService.SpecificationParameters.PageIndex = pageIndex;
+
+		await ProductService.GetProductsAsync();
+	}
+
+	private async Task BrandChange(int brandId)
+	{
+		ProductService.SpecificationParameters.BrandId = brandId;
+		ProductService.SpecificationParameters.PageIndex = 1;
+
+		await ProductService.GetProductsAsync();
+	}
+
+	private async Task CategoryChange(int categoryId)
+	{
+		ProductService.SpecificationParameters.CategoryId = categoryId;
+		ProductService.SpecificationParameters.PageIndex = 1;
+
+		await ProductService.GetProductsAsync();
+	}
+
+	private async Task SortChange(ChangeEventArgs e)
+	{
+		ProductService.SpecificationParameters.Sort = e.Value?.ToString();
+
+		await ProductService.GetProductsAsync();
+	}
+
+	private async Task SearchProducts()
+	{
+		ProductService.SpecificationParameters.Search = searchText;
+		ProductService.SpecificationParameters.PageIndex = 1;
+
+		await ProductService.GetProductsAsync();
+	}
+
+	private async Task ResetSearch()
+	{
+		searchText = string.Empty;
+
+		await SearchProducts();
+	}
+
+	private async Task SearchTextChanged(KeyboardEventArgs args)
+	{
+		if (args.Key is null or "Enter")
+		{
+			await SearchProducts();
+		}
+		else if (searchText.Length > 1)
+		{
+			suggestions = await ProductService.GetProductSearchSuggestions(searchText);
+		}
+	}
+
+	private async Task ProcessQueryParamsAsync()
+	{
+		ProductService.SpecificationParameters = new ProductParameters();
+
+		await ProductService.GetProductsAsync();
+
+		await ProductService.GetBrandsAsync();
+
+		await ProductService.GetCategoriesAsync();
 	}
 
 }
