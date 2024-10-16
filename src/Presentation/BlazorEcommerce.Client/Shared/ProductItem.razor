@@ -1,4 +1,5 @@
 ﻿@inject ICartService CartService
+@inject IToastService ToastService
 
 @if(Product != null)
 {
@@ -8,7 +9,7 @@
 				<img style="max-width: 100%; max-height: 100%; object-fit: cover;" src="@Product.ImageCover" alt="@Product.Name" class="w-auto p-2">
 			</div>
 			<div class="hover-overlay d-flex align-items-center justify-content-center">
-				<a class="btn btn-primary me-2" @onclick="() => UpdateQuantity(Product)"><i class="bi bi-cart-dash-fill"></i></a>
+				<a class="btn btn-primary me-2" @onclick="UpdateQuantity"><i class="bi bi-cart-dash-fill"></i></a>
 				<a href="/product/@Product.Id" class="btn btn-danger"><i class="bi bi-eye-fill"></i></a>
 			</div>
 		</div>
@@ -40,9 +41,13 @@
 @code {
 	[Parameter] public ProductResponse? Product { get; set; }
 
-	private async Task UpdateQuantity(ProductResponse product)
+	private async Task UpdateQuantity()
 	{
-		if (product is not null)
-			await CartService.AddProductToBasket(product, 1);
+		if (Product != null)
+		{
+			await CartService.AddProductToBasket(Product, 1);
+
+			ToastService.ShowSuccess("Product Added To Cart Successfully");
+		}
 	}
 }
