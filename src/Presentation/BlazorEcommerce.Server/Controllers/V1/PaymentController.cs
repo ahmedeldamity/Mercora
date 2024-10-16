@@ -1,5 +1,5 @@
 ﻿using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Domain.Entities.BasketEntities;
+using BlazorEcommerce.Domain.Entities.CartEntities;
 using BlazorEcommerce.Domain.Entities.OrderEntities;
 using BlazorEcommerce.Server.Extensions;
 using Microsoft.AspNetCore.Authorization;
@@ -13,7 +13,7 @@ public class PaymentController(IPaymentService paymentService, ILogger<PaymentCo
 
     [Authorize]
     [HttpPost("{basketId}")]
-    public async Task<ActionResult<Basket>> CreateOrUpdatePaymentIntend(string basketId)
+    public async Task<ActionResult<Cart>> CreateOrUpdatePaymentIntend(string basketId)
     {
         var result = await paymentService.CreateOrUpdatePaymentIntent(basketId);
 

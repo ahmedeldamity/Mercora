@@ -24,8 +24,8 @@ public static class ApplicationServicesExtension
         // Register Brand Service
         services.AddScoped(typeof(IBrandService), typeof(BrandService));
 
-        // Register Basket Repository
-        services.AddScoped(typeof(IBasketRepository), typeof(BasketRepository));
+        // Register Cart Repository
+        services.AddScoped(typeof(IBasketRepository), typeof(CartRepository));
 
         // Register Order Service
         services.AddScoped(typeof(IOrderService), typeof(OrderService));
@@ -36,8 +36,8 @@ public static class ApplicationServicesExtension
         // Register Delivery Method Service
         services.AddScoped(typeof(IDeliveryMethodService), typeof(DeliveryMethodService));
 
-        // Register Basket Service
-        services.AddScoped(typeof(IBasketService), typeof(BasketService));
+        // Register Cart Service
+        services.AddScoped(typeof(ICartService), typeof(CartService));
 
         // Register Account Service 
         services.AddScoped(typeof(IAccountService), typeof(AccountService));
