@@ -29,7 +29,7 @@ public class OrderService(IUnitOfWork unitOfWork, IBasketRepository basketReposi
         if (basket?.DeliveryMethodId is null || basket.PaymentIntentId is null)
             return Result.Failure<OrderResponse>(new Error(404, "Invalid basket data. Ensure that the basket, delivery method, and payment intent are properly provided."));
 
-        // 2. Get Items at Basket from Product repository for get the real products price
+        // 2. Get Items at Cart from Product repository for get the real products price
         var orderItems = new List<OrderItem>();
 
         if (basket?.Items?.Count > 0)

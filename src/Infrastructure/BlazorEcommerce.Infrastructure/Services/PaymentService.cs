@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
-using BlazorEcommerce.Application.Dtos;
 using BlazorEcommerce.Application.Interfaces.Repositories;
 using BlazorEcommerce.Application.Interfaces.Services;
 using BlazorEcommerce.Application.Specifications.OrderSpecifications;
-using BlazorEcommerce.Domain.Entities.BasketEntities;
+using BlazorEcommerce.Domain.Entities.CartEntities;
 using BlazorEcommerce.Domain.Entities.OrderEntities;
 using BlazorEcommerce.Domain.ErrorHandling;
+using BlazorEcommerce.Shared.Cart;
 using Microsoft.Extensions.Configuration;
 using Stripe;
 using Product = BlazorEcommerce.Domain.Entities.ProductEntities.Product;
@@ -13,7 +13,7 @@ using Product = BlazorEcommerce.Domain.Entities.ProductEntities.Product;
 namespace BlazorEcommerce.Infrastructure.Services;
 public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepository, IConfiguration configuration, IMapper mapper) : IPaymentService
 {
-    public async Task<Result<BasketResponse>> CreateOrUpdatePaymentIntent(string basketId)
+    public async Task<Result<CartResponse>> CreateOrUpdatePaymentIntent(string basketId)
     {
         // ser secret key of stripe
         StripeConfiguration.ApiKey = configuration["StripeSettings:Secretkey"];
@@ -22,7 +22,7 @@ public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepo
         var basket = await basketRepository.GetBasketAsync(basketId);
 
         if (basket is null)
-            return Result.Failure<BasketResponse>(new Error(404, "The specified basket could not be found. Please check the basket details and try again."));
+            return Result.Failure<CartResponse>(new Error(404, "The specified basket could not be found. Please check the basket details and try again."));
 
         if (basket.DeliveryMethodId.HasValue)
         {
@@ -30,7 +30,7 @@ public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepo
 
             if (deliveryMethod is null)
             {
-                return Result.Failure<BasketResponse>(new Error(404, "The specified delivery method could not be found. Please check the basket details and try again."));
+                return Result.Failure<CartResponse>(new Error(404, "The specified delivery method could not be found. Please check the basket details and try again."));
             }
 
             basket.ShippingPrice = deliveryMethod.Cost;
@@ -44,7 +44,7 @@ public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepo
 
                 if (product is null)
                 {
-                    return Result.Failure<BasketResponse>(new Error(404, $"Product with ID {item.Id} was not found. Please review your basket."));
+                    return Result.Failure<CartResponse>(new Error(404, $"Product with ID {item.Id} was not found. Please review your basket."));
                 }
 
                 if (item.Price != product.Price)
@@ -89,9 +89,9 @@ public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepo
 
         await basketRepository.CreateOrUpdateBasketAsync(basket);
 
-        var basketResponse = mapper.Map<Basket, BasketResponse>(basket);
+        var CartResponse = mapper.Map<Cart, CartResponse>(basket);
 
-        return Result.Success(basketResponse);
+        return Result.Success(CartResponse);
     }
 
     public async Task<Order> UpdatePaymentIntentToSucceededOrFailed(string paymentIntentId, bool isSucceeded)

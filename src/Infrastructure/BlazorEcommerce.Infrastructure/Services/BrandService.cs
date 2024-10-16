@@ -5,6 +5,7 @@ using BlazorEcommerce.Application.Interfaces.Services;
 using BlazorEcommerce.Application.Specifications;
 using BlazorEcommerce.Domain.Entities.ProductEntities;
 using BlazorEcommerce.Domain.ErrorHandling;
+using BlazorEcommerce.Shared.Brand;
 
 namespace BlazorEcommerce.Infrastructure.Services;
 public class BrandService(IUnitOfWork unitOfWork, IMapper mapper) : IBrandService
