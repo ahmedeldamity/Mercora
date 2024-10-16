@@ -1,0 +1,13 @@
+﻿.empty-cart {
+    min-height: 50vh; 
+    background-color: #f9f9f9; 
+}
+
+.empty-cart-img {
+    max-width: 200px;
+}
+
+h2 {
+    font-size: 1.8rem;
+    color: #333;
+}

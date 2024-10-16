@@ -1,0 +1,55 @@
+﻿@page "/cart"
+@inject ICartService CartService
+
+@if (Basket is null || Basket.Items.Count == 0)
+{
+	<div class="empty-cart d-flex flex-column justify-content-center align-items-center rounded-1 text-center py-5 shadow-sm">
+		<img src="https://oddegg.s3.us-east-2.amazonaws.com/generalImages/siteImages/emptyCart.png" alt="Empty Cart" class="empty-cart-img mb-4 h-auto w-100">
+		<h2 class="mb-3 fw-bolder">Your Cart is Empty!</h2>
+		<p class="text-muted mb-4">Looks like you haven't added anything to your cart yet.</p>
+		<a href="" class="btn btn-primary rounded-4 btn-lg px-4 py-2">Browse</a>
+	</div>
+}
+else
+{
+	<section class="container mt-2">
+		<div>
+			<div class="container">
+				<div class="row">
+					<CartSummary IncreaseItem="AddItem" DecreaseItem="RemoveItem"></CartSummary>
+				</div>
+				<div class="row mt-3 mb-3">
+					<div class="col-6 offset-6">
+						<OrderTotals></OrderTotals>
+						<div class="d-grid">
+							<a href="checkout" class="btn btn-info">Proceed to checkout</a>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+}
+
+@code {
+
+	private CartResponse? Basket { get; set; }
+
+	protected override void OnInitialized()
+	{
+		Basket = CartService.Basket;
+	}
+
+	public void AddItem((CartItemResponse basketItem, decimal quantity) pair)
+	{
+		CartService.IncreaseItemCountInBasket(pair.basketItem, pair.quantity);
+		Basket = CartService.Basket;
+	}
+
+	public void RemoveItem((int id, decimal quantity) pair)
+	{
+		CartService.RemoveItemFromBasket(pair.id, pair.quantity);
+		Basket = CartService.Basket;
+	}
+
+}
