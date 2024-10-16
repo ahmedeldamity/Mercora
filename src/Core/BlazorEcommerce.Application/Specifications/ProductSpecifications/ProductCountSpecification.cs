@@ -9,7 +9,7 @@ public class ProductCountSpecification : BaseSpecifications<Product>
 	        (string.IsNullOrEmpty(specParams.Search) ||
 	         p.Name.ToLower().Contains(specParams.Search.ToLower()) ||
 	         p.Description.ToLower().Contains(specParams.Search.ToLower())) &&
-	        (!specParams.BrandId.HasValue || p.BrandId == specParams.BrandId.Value) &&
-	        (!specParams.CategoryId.HasValue || p.CategoryId == specParams.CategoryId.Value);
+	        (specParams.BrandId == null || specParams.BrandId == 0 || p.BrandId == specParams.BrandId.Value) &&
+	        (specParams.CategoryId == null || specParams.CategoryId == 0 || p.CategoryId == specParams.CategoryId.Value);
 	}
 }
