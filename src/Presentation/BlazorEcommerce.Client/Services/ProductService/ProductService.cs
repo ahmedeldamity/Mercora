@@ -1,6 +1,8 @@
 ﻿using BlazorEcommerce.Shared.Product;
 using BlazorEcommerce.Shared.Specifications.ProductSpecifications;
 using System.Net.Http.Json;
+using BlazorEcommerce.Shared.Brand;
+using BlazorEcommerce.Shared.Category;
 using BlazorEcommerce.Shared.Response;
 
 namespace BlazorEcommerce.Client.Services.ProductService;
@@ -8,25 +10,31 @@ public class ProductService(HttpClient httpClient) : IProductService
 {
 	public string Message { get; set; } = "Loading products...";
 
-	public async Task<PaginationToReturn<ProductResponse>?> GetProductsAsync(ProductParameters specParams)
+	public ProductParameters SpecificationParameters { get; set; } = new();
+
+	public PaginationToReturn<ProductResponse>? ProductsResponse { get; set; }
+
+	public List<ProductBrandResponse> Brands { get; set; } = [];
+
+	public List<CategoryResponse> Categories { get; set; } = [];
+
+	public async Task GetProductsAsync()
 	{
-		var uri = "api/Product?pageIndex=" + specParams.PageIndex;
+		var uri = "api/Product?pageIndex=" + SpecificationParameters.PageIndex;
 
-		if (specParams.BrandId.HasValue)
-			uri += "&brandId=" + specParams.BrandId;
+		uri += "&brandId=" + SpecificationParameters.BrandId;
 
-		if (specParams.CategoryId.HasValue)
-			uri += "&categoryId=" + specParams.CategoryId;
+		uri += "&categoryId=" + SpecificationParameters.CategoryId;
 
-		if (!string.IsNullOrWhiteSpace(specParams.Sort))
-			uri += "&sort=" + specParams.Sort;
+		if (!string.IsNullOrWhiteSpace(SpecificationParameters.Sort))
+			uri += "&sort=" + SpecificationParameters.Sort;
 
-		if (!string.IsNullOrWhiteSpace(specParams.Search))
-			uri += "&search=" + specParams.Search;
+		if (!string.IsNullOrWhiteSpace(SpecificationParameters.Search))
+			uri += "&search=" + SpecificationParameters.Search;
 
 		var response = await httpClient.GetFromJsonAsync<PaginationToReturn<ProductResponse>>(uri);
 
-		return response;
+		ProductsResponse = response ?? null;
 	}
 
 	public async Task<List<ProductResponse>> GetFeaturedProductsAsync()
@@ -39,8 +47,6 @@ public class ProductService(HttpClient httpClient) : IProductService
 	public async Task<ProductResponse?> GetProductAsync(int id)
 	{
 		var response = await httpClient.GetAsync($"api/Product/{id}");
-
-		Console.WriteLine($"Status: {response.IsSuccessStatusCode}");
 
 		if (response.IsSuccessStatusCode is false)
 		{
@@ -62,4 +68,23 @@ public class ProductService(HttpClient httpClient) : IProductService
 
 		return response ?? [];
 	}
+
+	public async Task GetBrandsAsync()
+	{
+		var response = await httpClient.GetFromJsonAsync<List<ProductBrandResponse>>("api/brand");
+
+		Brands =  response ?? [];
+
+		Brands.Insert(0, new ProductBrandResponse(0, "All", ""));
+	}
+
+	public async Task GetCategoriesAsync()
+	{
+		var response = await httpClient.GetFromJsonAsync<List<CategoryResponse>>("api/category");
+
+		Categories = response ?? [];
+
+		Categories.Insert(0, new CategoryResponse { Id = 0, Name = "All", Url = ""});
+	}
+
 }
