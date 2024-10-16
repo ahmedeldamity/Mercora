@@ -1,0 +1,22 @@
+﻿@if (totalCount != null && pageIndex != null && pageSize != null && totalCount > 0 && pageIndex > 0 && pageSize > 0)
+{
+	<p class="m-0">
+		Showing
+		<strong class="text-warning">
+			@((pageIndex - 1) * pageSize + 1) - @(pageIndex * pageSize > totalCount ? totalCount : pageIndex * pageSize)
+		</strong> of <strong class="text-warning">@totalCount</strong> Results
+	</p>
+}
+else
+{
+	<p>There are <strong class="text-danger">0</strong> results for this filter</p>
+}
+
+@code {
+
+	[Parameter] public int? totalCount { get; set; }
+
+	[Parameter] public int? pageIndex { get; set; }
+
+	[Parameter] public int? pageSize { get; set; }
+}

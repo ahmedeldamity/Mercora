@@ -1,0 +1,39 @@
+﻿@if (TotalCount != null && TotalCount != 0 && PageCount != null && PageCount != 0)
+{
+	<div class="mb-3 text-center">
+		@for (var i = 1; i <= PageCount; i++)
+		{
+			Console.WriteLine($"I: {i} - {PageIndex}");
+			var i1 = i;
+			<a class="btn @(i == PageIndex ? "btn-info" : "btn-outline-info") page-selection @(i != PageCount ? "me-2" : "me-0")"
+			   @onclick="() => Change(i1)">@i</a>
+		}
+	</div>
+}
+
+@code {
+
+	[Parameter] public int PageIndex { get; set; }
+
+	[Parameter] public int? TotalCount { get; set; }
+
+	[Parameter] public int? PageSize { get; set; }
+
+	[Parameter] public EventCallback<int> PageChanged { get; set; }
+
+	private int? PageCount { get; set; }
+
+	private async Task Change(int pageIndex)
+	{
+		PageIndex = pageIndex;
+
+		await PageChanged.InvokeAsync(pageIndex);
+	}
+
+	protected override void OnParametersSet()
+	{
+		if (TotalCount != null && PageSize != null)
+			PageCount = (int)Math.Ceiling((double)TotalCount / (double)PageSize);
+	}
+
+}
