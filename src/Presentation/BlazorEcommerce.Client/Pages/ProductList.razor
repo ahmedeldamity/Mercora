@@ -13,7 +13,7 @@
 				}
 			</select>
 			<h5 class="text-warning ms-3 fw-bold">Brands </h5>
-			<ul class="list-group my-3" style="cursor: pointer">
+			<ul class="list-group my-3 pointer">
 				@foreach (var brand in ProductService.Brands)
 				{
 					<li class="list-group-item @(brand.Id == ProductService.SpecificationParameters.BrandId ? "active" : "")"
@@ -21,7 +21,7 @@
 				}
 			</ul>
 			<h5 class="text-warning ms-3 fw-bold">Categories </h5>
-			<ul class="list-group my-3" style="cursor: pointer">
+			<ul class="list-group my-3 pointer">
 				@foreach (var category in ProductService.Categories)
 				{
 					<li class="list-group-item @(category.Id == ProductService.SpecificationParameters.CategoryId ? "active" : "")"
