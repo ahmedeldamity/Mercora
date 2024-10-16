@@ -1,0 +1,14 @@
+﻿.product-image {
+    object-fit: contain;
+    width: 100%;
+    height: auto;
+    max-height: 350px;
+}
+
+.category-btn {
+    cursor: default;
+}
+
+.rating-icon {
+    color: #f5c518;
+}
