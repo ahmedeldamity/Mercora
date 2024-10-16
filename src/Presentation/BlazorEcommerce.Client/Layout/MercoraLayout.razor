@@ -1,10 +1,16 @@
 ﻿@inherits LayoutComponentBase
 
+<BlazoredToasts Position="ToastPosition.BottomRight"
+				Timeout="10"
+				IconType="IconType.FontAwesome"
+				SuccessClass="success-toast-override"
+				SuccessIcon="fa fa-thumbs-up"
+				ErrorIcon="fa fa-bug" />
+
 <div class="page">
 	<main>
-		<div class="top-row px-4 pt-2 pb-1">
+		<div class="top-row justify-content-between px-4 pt-2 pb-1">
 			<HomeButton></HomeButton>
-			<Search CategoryId="@CategoryId"></Search>
 			<CartCounter></CartCounter>
 		</div>
 		<div class="bg-primary">
