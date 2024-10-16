@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Domain.Entities.BasketEntities;
+using BlazorEcommerce.Domain.Entities.CartEntities;
 using BlazorEcommerce.Domain.Entities.IdentityEntities;
 using BlazorEcommerce.Domain.Entities.OrderEntities;
 using BlazorEcommerce.Domain.Entities.ProductEntities;
+using BlazorEcommerce.Shared.Brand;
+using BlazorEcommerce.Shared.Cart;
 using BlazorEcommerce.Shared.Category;
 using BlazorEcommerce.Shared.Product;
 
@@ -26,13 +28,13 @@ public class MappingProfiles : Profile
 
         CreateMap<ProductCategory, CategoryResponse>();
 
-        CreateMap<BasketRequest, Basket>();
+        CreateMap<CartRequest, Cart>();
 
-        CreateMap<BasketItemRequest, BasketItem>();
+        CreateMap<CartItemRequest, CartItem>();
 
-        CreateMap<Basket, BasketResponse>();
+        CreateMap<Cart, CartResponse>();
 
-        CreateMap<BasketItem, BasketItemResponse>();
+        CreateMap<CartItem, CartItemResponse>();
 
         CreateMap<OrderAddressRequest, OrderAddress>().ReverseMap();
 

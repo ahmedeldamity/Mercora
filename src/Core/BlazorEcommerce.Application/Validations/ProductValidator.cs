@@ -24,10 +24,6 @@ public class ProductValidator: AbstractValidator<ProductRequest>
             .MaximumLength(100)
             .WithMessage("Image cover must not exceed 100 characters");
 
-        RuleFor(x => x.Images)
-            .NotEmpty()
-            .WithMessage("Images are required");
-
         RuleFor(x => x.Quantity)
             .NotEmpty()
             .WithMessage("Quantity is required")

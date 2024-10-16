@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using BlazorEcommerce.Application.Dtos;
 using BlazorEcommerce.Domain.Entities.ProductEntities;
+using BlazorEcommerce.Shared.Brand;
 using Microsoft.Extensions.Configuration;
 
 namespace BlazorEcommerce.Application.MappingProfıles;

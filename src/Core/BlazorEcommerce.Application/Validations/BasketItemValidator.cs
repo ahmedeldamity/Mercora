@@ -1,8 +1,8 @@
-﻿using BlazorEcommerce.Application.Dtos;
+﻿using BlazorEcommerce.Shared.Cart;
 using FluentValidation;
 
 namespace BlazorEcommerce.Application.Validations;
-public class BasketItemValidator : AbstractValidator<BasketItemRequest>
+public class BasketItemValidator : AbstractValidator<CartItemRequest>
 {
     public BasketItemValidator()
     {
@@ -31,10 +31,6 @@ public class BasketItemValidator : AbstractValidator<BasketItemRequest>
             .WithMessage("Image cover must be a valid URL")
             .MaximumLength(50)
             .WithMessage("Image cover must not exceed 50 characters");
-
-        RuleFor(x => x.Images)
-            .NotEmpty()
-            .WithMessage("Images are required");
 
         RuleFor(x => x.Quantity)
             .NotEmpty()
