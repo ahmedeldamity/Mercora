@@ -1,0 +1,8 @@
+﻿.basket-image {
+    max-height: 50px;
+    width: 50px;
+}
+
+.clickable {
+    cursor: pointer;
+}
