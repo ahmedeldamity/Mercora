@@ -1,7 +1,7 @@
 ﻿@inject ICartService CartService
 @implements IDisposable
 
-<a href="cart" class="btn btn-info position-relative">
+<a href="cart" class="btn btn-info position-relative overflow-visible">
 	<i class="bi bi-cart"></i>
 	<span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
 		@GetCartItemCount() <span class="visually-hidden">cart items</span>
