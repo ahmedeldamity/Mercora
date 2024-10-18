@@ -1,0 +1,67 @@
+﻿@page "/register"
+@inject IAccountService AccountService
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Register</PageTitle>
+
+<EditForm Model="User" OnValidSubmit="HandleValidSubmit" class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2" style="max-width: 450px;">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<h2 class="text-center mb-4 fw-bold">Join Us Today!</h2>
+
+	<div class="form-floating my-2">
+		<InputText id="username" class="form-control" @bind-Value="User.DisplayName" placeholder="Enter your username" />
+		<label for="username" class="fw-bold">Name</label>
+		<ValidationMessage For="@(() => User.DisplayName)" />
+	</div>
+
+	<div class="form-floating my-2">
+		<InputText type="email" id="email" class="form-control" @bind-Value="User.Email" placeholder="Enter your email" />
+		<label for="email" class="fw-bold">Email</label>
+		<ValidationMessage For="@(() => User.Email)" />
+	</div>
+
+	<button type="submit" class="btn btn-primary w-100 py-2 btn-block mt-2">Register</button>
+
+	<hr class="my-4" />
+
+	<div class="text-center">
+		<p>or register with:</p>
+		<button @onclick="ClickGoogleLogin" class="btn btn-danger w-100 py-2">
+			<i class="fab fa-google"></i> Google
+		</button>
+		<button @onclick="ClickGithubLogin" class="btn btn-dark w-100 py-2 mt-2">
+			<i class="fab fa-github"></i> GitHub
+		</button>
+	</div>
+
+	<div class="text-center mt-3">
+		<p>Already have an account? <a class="text-primary text-decoration-none" href="/login">Login here</a></p>
+	</div>
+
+</EditForm>
+
+@code {
+    readonly RegisterVerificationRequest User = new();
+
+    private async Task HandleValidSubmit()
+    {
+        var isValid = await AccountService.SendEmailVerification(User);
+
+		if (isValid is false)
+		{
+			ToastService.ShowError("Email already exists.");
+			return;
+		}
+
+        NavigationManager.NavigateTo("/verify-email/" + User.Email);
+    }
+
+    private void ClickGoogleLogin() => NavigationManager.NavigateTo("/api/v1/account/google-login", true);
+
+
+	private void ClickGithubLogin() => NavigationManager.NavigateTo("/api/v1/account/github-login", true);
+}
+
