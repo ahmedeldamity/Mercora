@@ -1,7 +1,7 @@
 ﻿using Asp.Versioning;
-using BlazorEcommerce.Application.Dtos;
 using BlazorEcommerce.Application.Interfaces.Services;
 using BlazorEcommerce.Server.Extensions;
+using BlazorEcommerce.Shared.Account;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -15,20 +15,11 @@ public class AccountController(IAccountService accountService) : ControllerBase
 {
 	[HttpPost("register-email-verification-code")]
 	[EnableRateLimiting("ConcurrencyPolicy")]
-	public async Task<ActionResult<AppUserResponse>> SendRegisterEmailVerificationCode(string email)
-	{
-		var result = await accountService.SendEmailVerificationCode(email);
+    public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode(RegisterVerificationRequest request)
+    {
+        var result = await accountService.SendEmailVerificationCode(request);
 
-		return result.IsSuccess ? Ok() : result.ToProblem();
-	}
-
-	[HttpPost("login-email-verification-code")]
-	[EnableRateLimiting("ConcurrencyPolicy")]
-	public async Task<ActionResult<AppUserResponse>> SendLoginEmailVerificationCode(string email)
-	{
-		var result = await accountService.SendEmailVerificationCode(email, 2,false);
-
-		return result.IsSuccess ? Ok() : result.ToProblem();
-	}
+        return result.IsSuccess ? Ok() : result.ToProblem();
+    }
 
 }
