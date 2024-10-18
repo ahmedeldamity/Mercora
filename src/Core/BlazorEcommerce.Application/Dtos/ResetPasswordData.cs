@@ -1,4 +1,2 @@
 ﻿namespace BlazorEcommerce.Application.Dtos;
-public record LoginRequest(
-	string Email
-);
+public record ResetPasswordData(string Email);
