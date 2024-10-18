@@ -1,17 +1,24 @@
 ﻿@inherits LayoutComponentBase
 
-<BlazoredToasts Position="ToastPosition.BottomRight"
-				Timeout="4"
-				IconType="IconType.FontAwesome"
-				SuccessClass="success-toast-override"
-				SuccessIcon="fa fa-thumbs-up"
-				ErrorIcon="fa fa-bug" />
+<BlazoredToasts Position="ToastPosition.BottomRight" Timeout="4" IconType="IconType.FontAwesome" SuccessClass="success-toast-override"
+				SuccessIcon="fa fa-thumbs-up" ErrorIcon="fa fa-bug" />
 
 <div class="page">
 	<main>
 		<div class="top-row justify-content-between px-4 pt-2 pb-1">
 			<HomeButton></HomeButton>
-			<CartCounter></CartCounter>
+			<div class="d-flex justify-content-center align-items-center">
+				<CartCounter></CartCounter>
+				<div class="dropdown ms-3">
+					<button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
+						<i class="bi bi-person-lines-fill fs-5 pe-1"></i>
+					</button>
+					<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+						<li><a class="dropdown-item text-decoration-none m-0 p-2 fw-bold" href="/register"><i class="bi bi-person-fill-add fs-5 pe-2"></i> Register</a></li>
+						<li><a class="dropdown-item text-decoration-none m-0 p-2 fw-bold" href="/login"><i class="bi bi-person-fill fs-5 pe-2"></i> Login</a></li>
+					</ul>
+				</div>
+			</div>
 		</div>
 		<div class="bg-primary">
 			<MercoraNavMenu DataChange="GetData"/>
