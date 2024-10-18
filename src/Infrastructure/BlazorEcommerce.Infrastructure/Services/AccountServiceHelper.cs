@@ -119,94 +119,165 @@ public static class AccountServiceHelper
 		return JToken.Parse(json);
 	}
 
-	internal static string LoadEmailTemplate(string filePath, string code, string userName, string title, string message)
-	{
-		var template = File.ReadAllText(filePath);
-
-		template = template.Replace("{{Code}}", code)
-						   .Replace("{{UserName}}", userName)
-						   .Replace("{{Title}}", title)
-						   .Replace("{{Message}}", message)
-						   .Replace("{{Year}}", DateTime.Now.Year.ToString());
-
-		return template;
-	}
-
-	internal static string EmailBody(string code, string userName, string title, string message)
+	internal static string RegisterEmailBody(string verificationUrl, string userName)
 	{
 		return $@"
-            <!DOCTYPE html>
-            <html lang=""en"">
-                <head>
-                    <meta charset=""UTF-8"">
-                    <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
-                    <title>Email Verification</title>
-                    <style>
-                        body {{
-                            font-family: Arial, sans-serif;
-                            line-height: 1.6;
-                            background-color: #f5f5f5;
-                            margin: 0;
-                            padding: 0;
-                        }}
-                        .container {{
-                            max-width: 600px;
-                            margin: auto;
-                            padding: 20px;
-                            background-color: #ffffff;
-                            border-radius: 8px;
-                            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                        }}
-                        .header {{
-                            background-color: #007bff;
-                            color: #ffffff;
-                            padding: 10px;
-                            text-align: center;
-                            border-top-left-radius: 8px;
-                            border-top-right-radius: 8px;
-                        }}
-                        .content {{
-                            padding: 20px;
-                        }}
-                        .code {{
-                            font-size: 24px;
-                            font-weight: bold;
-                            text-align: center;
-                            margin-top: 20px;
-                            margin-bottom: 30px;
-                            color: #007bff;
-                        }}
-                        .footer {{
-                            background-color: #f7f7f7;
-                            padding: 10px;
-                            text-align: center;
-                            border-top: 1px solid #dddddd;
-                            font-size: 12px;
-                            color: #777777;
-                        }}
-                    </style>
-                </head>
-                <body>
-                    <div class=""container"">
-                        <div class=""header"">
-                            <h2>{title}</h2>
-                        </div>
-                        <div class=""content"">
-                            <p>Dear {userName},</p>
-                            <p>{message}, please use the following verification code:</p>
-                            <div class=""code"">{code}</div>
-                            <p>This code will expire in 5 minutes. Please use it promptly to verify your email address.</p>
-                            <p>If you did not request this verification, please ignore this email.</p>
-                        </div>
-                        <div class=""footer"">
-                            <p>&copy; 2024 Mercora. All rights reserved.</p>
-                        </div>
+        <!DOCTYPE html>
+        <html lang=""en"">
+            <head>
+                <meta charset=""UTF-8"">
+                <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                <title>Email Verification</title>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        background-color: #f5f5f5; /* Light background */
+                        color: #333; /* Dark text */
+                        text-align: center;
+                        padding: 40px;
+                        margin: 0;
+                    }}
+                    .container {{
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 30px;
+                        background-color: #ffffff; /* White background for the email */
+                        border-radius: 10px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    }}
+                    .header {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        margin-bottom: 20px;
+                        color: #1e90ff; /* Light blue color */
+                    }}
+                    .message {{
+                        font-size: 16px;
+                        margin-bottom: 30px;
+                        line-height: 1.5;
+                    }}
+                    .verify-btn {{
+                        display: inline-block;
+                        background-color: #1e90ff; /* Button color */
+                        color: white !important;
+                        padding: 15px 30px;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        font-size: 18px;
+                        font-weight: bold;
+                    }}
+                    .verify-btn:hover {{
+                        background-color: #00bfff; /* Button hover color */
+                    }}
+                    .disclaimer {{
+                        font-size: 12px;
+                        margin-top: 30px;
+                        color: #777; /* Lighter text color for disclaimer */
+                    }}
+                    .disclaimer a {{
+                        color: #1e90ff; /* Link color */
+                        text-decoration: none;
+                    }}
+                    .space-image {{
+                        width: 100px;
+                        height: auto;
+                        margin-bottom: 20px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class=""container"">
+                    <div class=""header"">Verify Your Email Address</div>
+                    <div class=""message"">Hi {userName},<br><br>Thank you for registering with our service. To complete your registration verify your email address.</div>
+                    <a href=""{verificationUrl}"" class=""verify-btn"">Verify Email Address</a>
+                    <div class=""disclaimer"">
+                        This link will expire after 3 hours. If you did not make this request, please disregard this email. For assistance, visit our <a href=""https://yourdomain.com/help"">Help Center</a>.
                     </div>
-                </body>
-            </html>";
+                </div>
+            </body>
+        </html>";
 	}
 
-	internal static string GenerateSecureCode()
+    internal static string ResetPasswordEmailBody(string verificationUrl, string userName)
+    {
+        return $@"
+        <!DOCTYPE html>
+        <html lang=""en"">
+            <head>
+                <meta charset=""UTF-8"">
+                <meta name=""viewport"" content=""width=device-width, initial-scale=1.0"">
+                <title>Reset Password</title>
+                <style>
+                    body {{
+                        font-family: Arial, sans-serif;
+                        background-color: #f5f5f5; /* Light background */
+                        color: #333; /* Dark text */
+                        text-align: center;
+                        padding: 40px;
+                        margin: 0;
+                    }}
+                    .container {{
+                        max-width: 600px;
+                        margin: 0 auto;
+                        padding: 30px;
+                        background-color: #ffffff; /* White background for the email */
+                        border-radius: 10px;
+                        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+                    }}
+                    .header {{
+                        font-size: 24px;
+                        font-weight: bold;
+                        margin-bottom: 20px;
+                        color: #1e90ff; /* Light blue color */
+                    }}
+                    .message {{
+                        font-size: 16px;
+                        margin-bottom: 30px;
+                        line-height: 1.5;
+                    }}
+                    .verify-btn {{
+                        display: inline-block;
+                        background-color: #1e90ff; /* Button color */
+                        color: white !important;
+                        padding: 15px 30px;
+                        text-decoration: none;
+                        border-radius: 5px;
+                        font-size: 18px;
+                        font-weight: bold;
+                    }}
+                    .verify-btn:hover {{
+                        background-color: #00bfff; /* Button hover color */
+                    }}
+                    .disclaimer {{
+                        font-size: 12px;
+                        margin-top: 30px;
+                        color: #777; /* Lighter text color for disclaimer */
+                    }}
+                    .disclaimer a {{
+                        color: #1e90ff; /* Link color */
+                        text-decoration: none;
+                    }}
+                    .space-image {{
+                        width: 100px;
+                        height: auto;
+                        margin-bottom: 20px;
+                    }}
+                </style>
+            </head>
+            <body>
+                <div class=""container"">
+                    <div class=""header"">Reset Your Password</div>
+                    <div class=""message"">Hi {userName},<br><br>To continue exploring our universe, please verify that this is your email address.</div>
+                    <a href=""{verificationUrl}"" class=""verify-btn"">Reset Your Password</a>
+                    <div class=""disclaimer"">
+                        This link will expire after 3 hours. If you did not make this request, please disregard this email. For assistance, visit our <a href=""https://yourdomain.com/help"">Help Center</a>.
+                    </div>
+                </div>
+            </body>
+        </html>";
+    }
+
+    internal static string GenerateSecureCode()
 	{
 		var randomNumber = new byte[4];
 

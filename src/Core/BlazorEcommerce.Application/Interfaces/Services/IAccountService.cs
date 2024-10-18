@@ -1,20 +1,24 @@
 ﻿using BlazorEcommerce.Application.Dtos;
 using BlazorEcommerce.Domain.ErrorHandling;
 using System.Security.Claims;
+using BlazorEcommerce.Shared.Account;
+using BlazorEcommerce.Shared.AccountValidation;
 
 namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IAccountService
 {
-	Task<Result> SendEmailVerificationCode(string email, int version = 1, bool forRegister = true);
-	Task<Result<AppUserResponse>> VerifyCodeForRegister(RegisterCodeVerificationRequest model);
-	Task<Result<AppUserResponse>> VerifyCodeForLogin(LoginCodeVerificationRequest model);
-    Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal userClaims);
-    Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims);
+    Task<Result> SendEmailVerificationCode(RegisterVerificationRequest request);
+    Task<Result<AppUserResponse>> VerifyCodeForRegister(RegisterRequest registerRequest);
+    Task<Result<AppUserResponse>> GetUserAsync(string email);
+    Task<Result<AppUserResponse>> Login(LoginRequest model);
+	Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims);
     Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims);
     string GoogleLogin();
-    Task<Result<AppUserResponse>> GoogleResponse(string code);
-	string GithubLogin();
-	Task<Result<AppUserResponse>> GithubResponse(string code);
-	Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync();
+    Task<Result<string>> GoogleResponse(string code);
+    string GithubLogin();
+    Task<Result<string>> GithubResponse(string code);
+    Task<Result> SendResetPasswordCode(ResetPasswordRequest request);
+    Task<Result<AppUserResponse>> ResetPassword(ResetPassword resetUserData);
+    Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync();
     Task<Result> RevokeRefreshTokenAsync();
 }

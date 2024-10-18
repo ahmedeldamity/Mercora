@@ -1,329 +1,149 @@
 ﻿using AutoMapper;
 using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Application.Interfaces.Repositories;
 using BlazorEcommerce.Application.Interfaces.Services;
 using BlazorEcommerce.Application.Models;
-using BlazorEcommerce.Application.Specifications.Identity;
 using BlazorEcommerce.Domain.Entities.IdentityEntities;
 using BlazorEcommerce.Domain.ErrorHandling;
 using BlazorEcommerce.Infrastructure.Utility;
+using BlazorEcommerce.Shared.Account;
 using Hangfire;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Newtonsoft.Json;
+using StackExchange.Redis;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 
 namespace BlazorEcommerce.Infrastructure.Services;
-public class AccountService(UserManager<AppUser> userManager, IMapper mapper, IOptions<GoogleData> googleData, IOptions<GithubData> githubData,
-IEmailSettingService emailSettings, IOptions<JwtData> jWtData, IHttpContextAccessor httpContextAccessor,
-IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
+public class AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IHttpContextAccessor httpContextAccessor,
+IOptions<Urls> urls, IOptions<JwtData> jWtData, IOptions<GoogleData> googleData, IOptions<GithubData> githubData,
+IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper mapper) : IAccountService
 {
     private readonly JwtData _jWtData = jWtData.Value;
     private readonly GoogleData _googleData = googleData.Value;
     private readonly GithubData _githubData = githubData.Value;
     private readonly Urls _urls = urls.Value;
+    private readonly IDatabase _database = connection.GetDatabase();
 
-    public async Task<Result> SendEmailVerificationCode(string email, int version = 1, bool forRegister = true)
+	public async Task<Result> SendEmailVerificationCode(RegisterVerificationRequest registerRequest)
 	{
-		if (forRegister)
-		{
-			var user = await userManager.FindByEmailAsync(email);
+		var user = await userManager.FindByEmailAsync(registerRequest.Email);
 
-			if (user is not null)
-				return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
-		}
+		if (user is not null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
 
 		var code = AccountServiceHelper.GenerateSecureCode();
 
-		var subject = $"✅ {email.Split('@')[0]}, Your pin code is {code}. \r\nPlease confirm your email address";
+        var securedCode = AccountServiceHelper.HashCode(code);
 
-		var body = version == 1 ? AccountServiceHelper.EmailBody(code, email.Split('@')[0], "Email Verification", "Thank you for using our service! To complete your registration or continue your login")
-				: AccountServiceHelper.LoadEmailTemplate("Templates/EmailTemplate.html", code, email.Split('@')[0], "Reset Password", "You have requested to reset your password."); ;
+        var subject = $"✅ {registerRequest.Email.Split('@')[0]}, Please confirm your email address";
 
-		EmailResponse emailToSend = new(subject, body, email);
-		
-		var identityCode = new IdentityCode
-		{
-			Code = AccountServiceHelper.HashCode(code),
-			IsActive = true,
-			Email = email,
-			ForRegistrationConfirmed = forRegister
-		};
+		var redirectUrl = $"https://localhost:7055/verify-email/{registerRequest.Email}/{securedCode}";
 
-		await unitOfWork.Repository<IdentityCode>().AddAsync(identityCode);
+		var body = AccountServiceHelper.RegisterEmailBody(redirectUrl, registerRequest.DisplayName);
 
-		await unitOfWork.CompleteAsync();
+        var key = $"verification:{registerRequest.Email}";
+        
+		var model = new RegisterVerificationData(registerRequest.Email, securedCode, registerRequest.DisplayName);
+
+        await _database.StringSetAsync(key, JsonConvert.SerializeObject(model), TimeSpan.FromMinutes(5));
+        
+        var emailToSend = new EmailResponse(subject, body, registerRequest.Email);
 
 		BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
 
 		return Result.Success();
 	}
-
-	public async Task<Result<AppUserResponse>> VerifyCodeForRegister(RegisterCodeVerificationRequest model)
+    
+    public async Task<Result<AppUserResponse>> VerifyCodeForRegister(RegisterRequest registerRequest)
 	{
+		var key = $"verification:{registerRequest.Email}";
+
+		var response = await _database.StringGetAsync(key);
+
+		_database.KeyDelete(key);
+
+		if (response.IsNullOrEmpty)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
+		var model = JsonConvert.DeserializeObject<RegisterVerificationData>(response!);
+
+		if(model is null)
+			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
 		var user = await userManager.FindByEmailAsync(model.Email);
 
 		if (user is not null)
 			return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
 
-		var spec = new IdentityCodeSpecification(model.Email);
-
-		var identityCodes = await unitOfWork.Repository<IdentityCode>().GetAllAsync(spec);
-
-		var identityCode = identityCodes.LastOrDefault();
-
-		if (identityCode is null)
+		if (!AccountServiceHelper.ConstantComparison(registerRequest.Code, model.Code))
 			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
 
-		var lastCode = identityCode.Code; 
+		var tryRegister = await Register(model.Name, model.Email);
+		
+		if (tryRegister.IsSuccess is false)
+			return Result.Failure<AppUserResponse>(new Error(400, "Failed to create user."));
 
-		if (!AccountServiceHelper.ConstantComparison(lastCode, AccountServiceHelper.HashCode(model.VerificationCode)))
-			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+		var userResponse = await GetUserAsync(model.Email);
 
-		if (!identityCode.IsActive || identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
-			return Result.Failure<AppUserResponse>(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
-
-		identityCode.IsActive = false;
-
-		unitOfWork.Repository<IdentityCode>().Update(identityCode);
-
-		await unitOfWork.CompleteAsync();
-
-		var registerRequest = new RegisterRequest(model.DisplayName, model.Email);
-
-		var result = await Register(registerRequest);
-
-		return result;
+		return userResponse;
 	}
 
-	public async Task<Result<AppUserResponse>> VerifyCodeForLogin(LoginCodeVerificationRequest model)
+	public async Task<Result<AppUserResponse>> GetUserAsync(string email)
 	{
-		var spec = new IdentityCodeSpecification(model.Email, false);
+		var user = await userManager.FindByEmailAsync(email);
 
-		var identityCodes = await unitOfWork.Repository<IdentityCode>().GetAllAsync(spec);
+		if (user is null)
+			return Result.Failure<AppUserResponse>(new Error(404, "The user is not available in our system."));
 
-		var identityCode = identityCodes.LastOrDefault();
+		var token = GenerateAccessTokenAsync(user.Id, user.DisplayName, email);
 
-		if (identityCode is null)
-			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+		RefreshToken refreshToken;
 
-		var lastCode = identityCode.Code;
+		if (user.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
+			refreshToken = user.RefreshTokens.First(t => t.IsActive);
+		else
+		{
+			refreshToken = GenerateRefreshToken();
+			user.RefreshTokens!.Add(refreshToken);
+			await userManager.UpdateAsync(user);
+		}
+		
+		SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
 
-		if (!AccountServiceHelper.ConstantComparison(lastCode, AccountServiceHelper.HashCode(model.VerificationCode)))
-			return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+		var userResponse = new AppUserResponse(user.DisplayName, email, token, refreshToken.ExpireAt);
 
-		if (!identityCode.IsActive || identityCode.CreationTime.Minute + 5 < DateTime.UtcNow.Minute)
-			return Result.Failure<AppUserResponse>(new Error(400, "The reset code has either expired or is not active. Please request a new code."));
-
-		identityCode.IsActive = false;
-
-		unitOfWork.Repository<IdentityCode>().Update(identityCode);
-
-		await unitOfWork.CompleteAsync();
-
-		var loginRequest = new LoginRequest(model.Email);
-
-		var result = await Login(loginRequest);
-
-		return result;
+		return Result.Success(userResponse);
 	}
 
-	public async Task<Result<AppUserResponse>> Register(RegisterRequest model)
-    {
-        var user = await userManager.FindByEmailAsync(model.Email);
-
-        if (user is not null)
-            return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is already taken, Please try a different one."));
-
-        var newUser = new AppUser
-        {
-            DisplayName = model.DisplayName,
-            Email = model.Email,
-            UserName = model.Email.Split('@')[0],
-            EmailConfirmed = true
-        };
-
-		var result = await userManager.CreateAsync(newUser);
-
-		if (result.Succeeded is false)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            return Result.Failure<AppUserResponse>(new Error(400, errors));
-        }
-
-        var token = GenerateAccessTokenAsync(newUser.Id, newUser.DisplayName, newUser.Email);
-
-        var refreshToken = GenerateRefreshToken();
-
-        var userResponse = new AppUserResponse(newUser.DisplayName, newUser.Email, token, refreshToken.ExpireAt);
-
-        newUser.RefreshTokens!.Add(refreshToken);
-
-        await userManager.UpdateAsync(newUser);
-
-        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
-
-        return Result.Success(userResponse);
-    }
-
-    public async Task<Result<AppUserResponseV21>> RegisterV2(RegisterRequest model)
-    {
-        var user = await userManager.FindByEmailAsync(model.Email);
-
-		if (user is not null)
-			return Result.Failure<AppUserResponseV21>(new Error(400, "The email address you entered is already taken, Please try a different one."));
-
-		var newUser = new AppUser
-        {
-            DisplayName = model.DisplayName,
-            Email = model.Email,
-            UserName = model.Email.Split('@')[0],
-            EmailConfirmed = false
-        };
-
-		var result = await userManager.CreateAsync(newUser);
-
-		if (result.Succeeded is false)
-        {
-            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-            return Result.Failure<AppUserResponseV21>(new Error(400, errors));
-        }
-
-        var token = GenerateAccessTokenAsync(newUser.Id, newUser.DisplayName, newUser.Email);
-
-        var refreshToken = GenerateRefreshToken();
-
-        var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
-
-        var firstName = model.DisplayName.Trim().Split(' ')[0];
-
-        var lastName = model.DisplayName.Trim().Split(' ')[1];
-
-        var userResponse = new AppUserResponseV21(firstName, lastName, newUser.Email, token, refreshTokenExpireAt);
-
-        newUser.RefreshTokens!.Add(refreshToken);
-
-        await userManager.UpdateAsync(newUser);
-
-        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
-
-        return Result.Success(userResponse);
-    }
-	
     public async Task<Result<AppUserResponse>> Login(LoginRequest model)
     {
         var user = await userManager.FindByEmailAsync(model.Email);
-	    
-        if (user is null)
+
+        if (user is null || model.Password is null)
             return Result.Failure<AppUserResponse>(new Error(400, "The email or password you entered is incorrect, Check your credentials and try again."));
 
-        var token = GenerateAccessTokenAsync(user.Id, user.DisplayName, user.Email!);
+        var hasPassword = await userManager.HasPasswordAsync(user);
 
-        RefreshToken refreshToken;
+        if (hasPassword is false)
+            return Result.Failure<AppUserResponse>(new Error(400, "You need to reset your password."));
 
-        if (user.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
+        var result = await signInManager.CheckPasswordSignInAsync(user, model.Password, false);
+
+        if (result.Succeeded is false)
         {
-            refreshToken = user.RefreshTokens.First(t => t.IsActive);
-        }
-        else
-        {
-            refreshToken = GenerateRefreshToken();
-            user.RefreshTokens!.Add(refreshToken);
-            await userManager.UpdateAsync(user);
+            var errors = string.Join(", ", "The email or password you entered is incorrect, Check your credentials and try again.");
+            return Result.Failure<AppUserResponse>(new Error(400, errors));
         }
 
-        var userResponse = new AppUserResponse(user.DisplayName, user.Email!, token, refreshToken.ExpireAt);
+        var userResponse = await GetUserAsync(model.Email);
 
-        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
-
-        return Result.Success(userResponse);
-    }
-
-    public async Task<Result<AppUserResponseV20>> LoginV2(LoginRequest model)
-    {
-        var user = await userManager.FindByEmailAsync(model.Email);
-
-        if (user is null)
-            return Result.Failure<AppUserResponseV20>(new Error(400, "The email or password you entered is incorrect, Check your credentials and try again."));
-
-        var token = GenerateAccessTokenAsync(user.Id, user.DisplayName, user.Email!);
-
-        RefreshToken refreshToken;
-
-        if (user.RefreshTokens is not null && user.RefreshTokens.Any(t => t.IsActive))
-        {
-            refreshToken = user.RefreshTokens.First(t => t.IsActive);
-        }
-        else
-        {
-            refreshToken = GenerateRefreshToken();
-            user.RefreshTokens!.Add(refreshToken);
-            await userManager.UpdateAsync(user);
-        }
-
-        var refreshTokenExpireAt = refreshToken.ExpireAt.ToString("MM/dd/yyyy hh:mm tt");
-
-        var userResponse = new AppUserResponseV20(user.DisplayName, user.Email!, token, refreshTokenExpireAt);
-
-        SetRefreshTokenInCookie(refreshToken.Token, refreshToken.ExpireAt);
-
-        return Result.Success(userResponse);
-    }
-
-    public async Task<Result<CurrentUserResponse>> GetCurrentUser(ClaimsPrincipal userClaims)
-    {
-        var email = userClaims.FindFirstValue(ClaimTypes.Email);
-
-        var user = await userManager.FindByEmailAsync(email!);
-
-		var token = GenerateAccessTokenAsync(user!.Id, user.DisplayName, user.Email!);
-
-		var userResponse = new CurrentUserResponse(user!.DisplayName, user.Email!, token);
-
-        return Result.Success(userResponse);
-    }
-
-    public async Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims)
-    {
-        var email = userClaims.FindFirstValue(ClaimTypes.Email);
-
-        var user = await userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
-
-        if (user?.Address is null)
-            return Result.Failure<UserAddressResponse>(new Error(404, "The address is not available in our system."));
-
-        var address = mapper.Map<UserAddress, UserAddressResponse>(user.Address);
-
-        return Result.Success(address);
-    }
-
-    public async Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims)
-    {
-        var email = userClaims.FindFirstValue(ClaimTypes.Email);
-
-        var address = mapper.Map<UserAddressResponse, UserAddress>(updatedAddress);
-
-        var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
-
-        var user = await userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == userEmail);
-
-        user!.Address = address;
-
-        address.AppUserId = user.Id;
-
-        var result = await userManager.UpdateAsync(user);
-
-        if (result.Succeeded)
-            return Result.Success(updatedAddress);
-
-        var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-
-        return Result.Failure<UserAddressResponse>(new Error(400, errors));
+        return userResponse;
     }
 
     public string GoogleLogin()
@@ -337,35 +157,34 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 		return googleOAuthUrl;
     }
 
-    public async Task<Result<AppUserResponse>> GoogleResponse(string code)
+    public async Task<Result<string>> GoogleResponse(string code)
     {
 	    if (string.IsNullOrEmpty(code))
-		    return Result.Failure<AppUserResponse>(new Error(400, "Authorization code is missing."));
+		    return Result.Failure<string>(new Error(400, "Authorization code is missing."));
 
 	    var tokenResponse = await AccountServiceHelper.GetGoogleAccessTokenAsync(code, _googleData.ClientId, _googleData.ClientSecret, _urls.BaseUrl);
 
 	    if (tokenResponse == null)
-		    return Result.Failure<AppUserResponse>(new Error(400, "Failed to get access token from Google."));
+		    return Result.Failure<string>(new Error(400, "Failed to get access token from Google."));
 
 	    var googleUserInfo = await AccountServiceHelper.GetGoogleUserInfoAsync(tokenResponse.Access_Token);
 
 	    if (googleUserInfo == null)
-		    return Result.Failure<AppUserResponse>(new Error(400, "Failed to get user information from Google."));
+		    return Result.Failure<string>(new Error(400, "Failed to get user information from Google."));
 
 	    var user = await userManager.FindByEmailAsync(googleUserInfo.Email);
 
 	    if (user == null)
 	    {
-		    var model = new RegisterRequest(googleUserInfo.Name, googleUserInfo.Email);
+		    var response = await Register(googleUserInfo.Name, googleUserInfo.Email);
 
-		    return await Register(model);
-	    }
-	    else
-	    {
-		    var model = new LoginRequest(googleUserInfo.Email);
+			if (response.IsSuccess is false)
+                return Result.Failure<string>(new Error(400, "Failed to create user."));
 
-		    return await Login(model);
+			return Result.Success<string>(googleUserInfo.Email);
 	    }
+
+        return Result.Success<string>(googleUserInfo.Email);
     }
 
 	public string GithubLogin()
@@ -378,38 +197,97 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 		return githubOAuthUrl;
 	}
 
-	public async Task<Result<AppUserResponse>> GithubResponse(string code)
+	public async Task<Result<string>> GithubResponse(string code)
 	{
 		if (string.IsNullOrEmpty(code))
-			return Result.Failure<AppUserResponse>(new Error(400, "Authorization code is missing."));
+			return Result.Failure<string>(new Error(400, "Authorization code is missing."));
 
 		var tokenResponse = await AccountServiceHelper.GetGitHubAccessTokenAsync(code, _githubData.ClientId, _githubData.ClientSecret);
 
 		if (tokenResponse == null)
-			return Result.Failure<AppUserResponse>(new Error(400, "Failed to get access token from GitHub."));
+			return Result.Failure<string>(new Error(400, "Failed to get access token from GitHub."));
 
 		var githubUserInfo = await AccountServiceHelper.GetGitHubUserInfoAsync(tokenResponse.Access_Token);
 
 		if (githubUserInfo == null)
-			return Result.Failure<AppUserResponse>(new Error(400, "Failed to get user information from GitHub."));
+			return Result.Failure<string>(new Error(400, "Failed to get user information from GitHub."));
 
 		var user = await userManager.FindByEmailAsync(githubUserInfo.Email);
 
 		if (user == null)
 		{
-			var model = new RegisterRequest(githubUserInfo.Name, githubUserInfo.Email);
+            var response = await Register(githubUserInfo.Name, githubUserInfo.Email);
 
-			return await Register(model);
-		}
-		else
-		{
-			var model = new LoginRequest(githubUserInfo.Email);
+            if (response.IsSuccess is false)
+                return Result.Failure<string>(new Error(400, "Failed to create user."));
 
-			return await Login(model);
+            return Result.Success<string>(githubUserInfo.Email);
 		}
+
+		return Result.Success<string>(githubUserInfo.Email);
 	}
 
-	public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
+    public async Task<Result> SendResetPasswordCode(ResetPasswordRequest request)
+    {
+        var user = await userManager.FindByEmailAsync(request.Email);
+
+        if (user is null)
+            return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is not registered in our system."));
+
+        var token = await userManager.GeneratePasswordResetTokenAsync(user);
+
+        var encodedToken = System.Net.WebUtility.UrlEncode(token);
+
+        var subject = $"✅ {request.Email.Split('@')[0]}, Reset your password for Mercora";
+
+        var redirectUrl = $"https://localhost:7055/resetpassword/change/{user.Email}/{encodedToken}";
+
+        var body = AccountServiceHelper.ResetPasswordEmailBody(redirectUrl, request.Email.Split('@')[0]);
+
+        var key = $"reset:{request.Email}";
+
+		var model = new ResetPasswordData(request.Email);
+
+        await _database.StringSetAsync(key, JsonConvert.SerializeObject(model), TimeSpan.FromMinutes(5));
+
+        var emailToSend = new EmailResponse(subject, body, request.Email);
+
+        BackgroundJob.Enqueue(() => emailSettings.SendEmailMessage(emailToSend));
+
+        return Result.Success();
+    }
+
+    public async Task<Result<AppUserResponse>> ResetPassword(ResetPassword resetUserData)
+    {
+        var user = await userManager.FindByEmailAsync(resetUserData.Email);
+
+        if (user is null)
+            return Result.Failure<AppUserResponse>(new Error(400, "The email address you entered is not registered in our system."));
+
+        var response = await _database.StringGetAsync($"reset:{resetUserData.Email}");
+
+        if (response.IsNullOrEmpty)
+            return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
+        var model = JsonConvert.DeserializeObject<ResetPasswordData>(response!);
+
+        if (model is null)
+            return Result.Failure<AppUserResponse>(new Error(400, "The reset code is missing or invalid. Please request a new reset code."));
+
+        var result = await userManager.ResetPasswordAsync(user, resetUserData.Token, resetUserData.NewPassword);
+
+        if (result.Succeeded is false)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            return Result.Failure<AppUserResponse>(new Error(400, errors));
+        }
+
+        var userResponse = await GetUserAsync(model.Email);
+
+        return userResponse;
+    }
+
+    public async Task<Result<AppUserResponse>> CreateAccessTokenByRefreshTokenAsync()
 	{
 		var refreshTokenFromCookie = httpContextAccessor.HttpContext!.Request.Cookies["refreshToken"];
 
@@ -439,6 +317,44 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
 		SetRefreshTokenInCookie(newRefreshToken.Token, newRefreshToken.ExpireAt);
 
 		return Result.Success(userResponse);
+	}
+
+	public async Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims)
+	{
+		var email = userClaims.FindFirstValue(ClaimTypes.Email);
+
+		var user = await userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
+
+		if (user?.Address is null)
+			return Result.Failure<UserAddressResponse>(new Error(404, "The address is not available in our system."));
+
+		var address = mapper.Map<UserAddress, UserAddressResponse>(user.Address);
+
+		return Result.Success(address);
+	}
+
+	public async Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims)
+	{
+		var email = userClaims.FindFirstValue(ClaimTypes.Email);
+
+		var address = mapper.Map<UserAddressResponse, UserAddress>(updatedAddress);
+
+		var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
+
+		var user = await userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == userEmail);
+
+		user!.Address = address;
+
+		address.AppUserId = user.Id;
+
+		var result = await userManager.UpdateAsync(user);
+
+		if (result.Succeeded)
+			return Result.Success(updatedAddress);
+
+		var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+
+		return Result.Failure<UserAddressResponse>(new Error(400, errors));
 	}
 
 	public async Task<Result> RevokeRefreshTokenAsync()
@@ -517,5 +433,32 @@ IOptions<Urls> urls, IUnitOfWork unitOfWork) : IAccountService
         };
 
         httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", token, cookieOptions);
+    }
+
+    private async Task<Result<bool>> Register(string Name, string Email)
+    {
+        var user = await userManager.FindByEmailAsync(Email);
+
+        if (user is not null)
+            return Result.Failure<bool>(new Error(400, "The email address you entered is already taken, Please try a different one."));
+
+        var newUser = new AppUser
+        {
+            DisplayName = Name,
+            Email = Email,
+            UserName = Email.Split('@')[0],
+            EmailConfirmed = true
+        };
+
+        var result = await userManager.CreateAsync(newUser);
+
+        if (result.Succeeded is false)
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+
+            return Result.Failure<bool>(new Error(400, errors));
+        }
+
+        return Result.Success(true);
     }
 }
