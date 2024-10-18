@@ -1,4 +1,5 @@
 using BlazorEcommerce.Client;
+using BlazorEcommerce.Client.Services.Account;
 using BlazorEcommerce.Client.Services.CartService;
 using BlazorEcommerce.Client.Services.CategoryService;
 using BlazorEcommerce.Client.Services.ProductService;
@@ -27,5 +28,7 @@ builder.Services.AddScoped(typeof(IProductService), typeof(ProductService));
 builder.Services.AddScoped(typeof(ICategoryService), typeof(CategoryService));
 
 builder.Services.AddScoped(typeof(ICartService), typeof(CartService));
+
+builder.Services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
 await builder.Build().RunAsync();
