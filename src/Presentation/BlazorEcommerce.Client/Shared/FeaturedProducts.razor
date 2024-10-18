@@ -1,6 +1,7 @@
 ﻿@inject IProductService ProductService
 @inject ICartService CartService
 @inject NavigationManager NavigationManager
+@inject IToastService ToastService
 
 
 @if (Products is null ||  Products.Count == 0)
@@ -41,6 +42,6 @@ else
 		if (product is not null)
 			await CartService.AddProductToBasket(product, 1);
 
-		NavigationManager.NavigateTo("/cart");
+		ToastService.ShowSuccess("Product Added To Cart Successfully");
 	}
 }
