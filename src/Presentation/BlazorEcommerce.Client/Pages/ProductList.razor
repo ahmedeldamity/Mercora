@@ -5,25 +5,25 @@
 	<div class="row">
 		<section class="col-3">
 			<h5 class="text-warning ms-3 fw-bold">Sort</h5>
-			<select class="form-select mb-4 pointer" @onchange="SortChange">
+			<select class="form-select mb-4 pointer bg-light-subtle shadow-sm rounded-2" @onchange="SortChange">
 				@foreach (var sortOption in SortOptions)
 				{
 					<option value="@sortOption.Value" selected="@(ProductService.SpecificationParameters.Sort == sortOption.Value)">@sortOption.Name</option>
 				}
 			</select>
 			<h5 class="text-warning ms-3 fw-bold">Brands </h5>
-			<ul class="list-group my-3 pointer">
+			<ul class="list-group my-3 pointer bg-light-subtle shadow-sm rounded-2">
 				@foreach (var brand in ProductService.Brands)
 				{
-					<li class="list-group-item @(brand.Id == ProductService.SpecificationParameters.BrandId ? "active" : "")"
+					<li class="list-group-item @(brand.Id == ProductService.SpecificationParameters.BrandId ? "active bg-primary text-white" : "")"
 					@onclick="() => BrandChange(brand.Id)">@brand.Name</li>
 				}
 			</ul>
-			<h5 class="text-warning ms-3 fw-bold">Categories </h5>
+			<h5 class="text-warning ms-3 fw-bold bg-light-subtle shadow-sm rounded-2">Categories </h5>
 			<ul class="list-group my-3 pointer">
 				@foreach (var category in ProductService.Categories)
 				{
-					<li class="list-group-item @(category.Id == ProductService.SpecificationParameters.CategoryId ? "active" : "")"
+					<li class="list-group-item @(category.Id == ProductService.SpecificationParameters.CategoryId ? "active bg-primary text-white " : "")"
 						@onclick="() => CategoryChange(category.Id)">@category.Name</li>
 				}
 			</ul>
@@ -38,7 +38,7 @@
 				</div>
 				<div class="input-group w-75">
 					<input type="search" @bind-value="searchText" @bind-value:event="oninput" list="ProductsSuggestions" @onkeyup="SearchTextChanged"
-						   class="form-control rounded" placeholder="🔍  Search products..." @ref="searchInput" aria-label="Search" aria-describedby="search-addon" />
+						   class="form-control rounded z-1" placeholder="🔍  Search products..." @ref="searchInput" aria-label="Search" aria-describedby="search-addon" />
 					<datalist id="ProductsSuggestions">
 						@foreach (var suggestion in suggestions)
 						{
@@ -99,9 +99,7 @@
 	protected override async Task OnAfterRenderAsync(bool firstRender)
 	{
 		if (firstRender)
-		{
 			await searchInput.FocusAsync();
-		}
 	}
 
 	protected override async Task OnInitializedAsync()
@@ -157,13 +155,9 @@
 	private async Task SearchTextChanged(KeyboardEventArgs args)
 	{
 		if (args.Key is null or "Enter")
-		{
 			await SearchProducts();
-		}
 		else if (searchText.Length > 1)
-		{
 			suggestions = await ProductService.GetProductSearchSuggestions(searchText);
-		}
 	}
 
 	private async Task ProcessQueryParamsAsync()
