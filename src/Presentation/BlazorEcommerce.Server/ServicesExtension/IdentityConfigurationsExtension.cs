@@ -19,7 +19,8 @@ public static class IdentityConfigurationsExtension
 			option.Password.RequireNonAlphanumeric = true;
 			option.Password.RequiredUniqueChars = 3;
 			option.Password.RequiredLength = 6;
-		}).AddEntityFrameworkStores<StoreContext>();
+		}).AddEntityFrameworkStores<StoreContext>()
+		.AddDefaultTokenProviders();
 		// ? this because the three services talking to another Store Services
 		// such as (UserManager talk to IUserStore to take all services like createAsync)
 		// so we allowed dependency injection to these services too
