@@ -1,0 +1,50 @@
+﻿@page "/check-authentication"
+@inject NavigationManager Navigation
+@inject IAccountService AccountService
+@inject IToastService ToastService
+
+<p>@Message</p>
+
+@code {
+	private const string Message = "Checking authentication...";
+
+	protected override async Task OnInitializedAsync()
+    {
+        var uri = Navigation.ToAbsoluteUri(Navigation.Uri);
+        var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+        if (query["auth"] == "success" && !string.IsNullOrEmpty(query["email"]))
+        {
+            var email = query["email"];
+
+            if (email is null)
+            {
+	            ToastService.ShowError("Authentication failed or not initiated.");
+
+	            Navigation.NavigateTo("/login");
+            }
+            else
+            {
+                var result = await AccountService.GetUserAsync(email);
+
+                if (result is not null)
+				{
+					Navigation.NavigateTo("/");
+				}
+				else
+				{
+					ToastService.ShowError("Authentication failed or not initiated.");
+
+					Navigation.NavigateTo("/login");
+				}
+			}
+        }
+        else
+        {
+            ToastService.ShowError("Authentication failed or not initiated.");
+
+            Navigation.NavigateTo("/login");
+        }
+    }
+
+}
