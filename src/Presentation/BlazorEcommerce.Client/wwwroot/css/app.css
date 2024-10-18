@@ -101,3 +101,13 @@ h1:focus {
 code {
     color: #c02d76;
 }
+
+button:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+a:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
