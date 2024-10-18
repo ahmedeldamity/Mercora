@@ -1,0 +1,80 @@
+﻿@page "/login"
+@inject IAccountService AccountService
+@inject NavigationManager NavigationManager
+@inject IToastService ToastService
+
+<PageTitle>Login</PageTitle>
+
+<EditForm Model="User" OnValidSubmit="HandleValidSubmit" class="mx-auto p-4 bg-light-subtle shadow-sm rounded-3" style="max-width: 450px;">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger" />
+
+    <h2 class="text-center mb-4 fw-bold">Welcome Back!</h2>
+
+    <div class="form-floating my-3">
+        <InputText type="email" id="email" class="form-control" @bind-Value="User.Email" placeholder="Enter your email" />
+        <label for="email" class="fw-bold">Email</label>
+        <ValidationMessage For="@(() => User.Email)" />
+    </div>
+
+    <div class="form-floating my-3">
+        <InputText type="password" id="password" class="form-control" @bind-Value="User.Password" placeholder="Enter your password" />
+        <label for="password" class="fw-bold">New Password</label>
+        <ValidationMessage For="@(() => User.Password)" />
+    </div>
+
+    <div class="form-floating my-3">
+        <InputText type="password" id="confirmPassword" class="form-control" @bind-Value="User.ConfirmPassword" placeholder="Confirm your password" />
+        <label for="confirmPassword" class="fw-bold">Confirm New Password</label>
+        <ValidationMessage For="@(() => User.ConfirmPassword)" />
+    </div>
+
+    <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Login</button>
+
+    <hr class="my-4" />
+
+    <div class="text-center my-3">
+        <a href="/resetpassword/start" class="text-decoration-none">Forgot your password?</a>
+    </div>
+
+    <div class="text-center">
+        <p>or login with:</p>
+        <button @onclick="ClickGoogleLogin" class="btn btn-danger w-100 py-2 mb-2">
+            <i class="fab fa-google"></i> Google
+        </button>
+        <button @onclick="ClickGithubLogin" class="btn btn-dark w-100 py-2">
+            <i class="fab fa-github"></i> GitHub
+        </button>
+    </div>
+</EditForm>
+
+@code {
+    public readonly LoginRequest User = new();
+
+    async Task HandleValidSubmit()
+    {
+        var model = new LoginRequest
+		{
+			Email = User.Email,
+			Password = User.Password
+		};
+
+        var user = await AccountService.Login(model);
+
+        if (user is not null)
+        {
+            ToastService.ShowSuccess("Email verified successfully.");
+
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            ToastService.ShowError("Invalid email or password.");
+        }
+    }
+
+	private void ClickGoogleLogin() => NavigationManager.NavigateTo("/api/v1/account/google-login", true);
+
+
+	private void ClickGithubLogin() => NavigationManager.NavigateTo("/api/v1/account/github-login", true);
+}
