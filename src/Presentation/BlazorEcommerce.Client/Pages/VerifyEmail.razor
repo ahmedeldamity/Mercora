@@ -1,0 +1,66 @@
+﻿@page "/verify-email/{email}/{code?}"
+@inject NavigationManager NavigationManager
+@inject IAccountService AccountService
+@inject IToastService ToastService
+
+@if(Email is not null)
+{
+	<div class="mx-auto p-3 bg-light-subtle shadow rounded-2 text-center w-50">
+		<h1 class="fw-bold mb-3">Verify your email</h1>
+		<p>We emailed <strong>@Email</strong>.</p>
+		<p>Click the link inside to get started.</p>
+
+		<div class="button-container">
+			<button @onclick="OpenGmail" class="open-gmail bg-black text-white py-2 px-3 fs-5 fw-semibold">
+				<img class="me-1" src="https://ssl.gstatic.com/ui/v1/icons/mail/rfr/gmail.ico" alt="Gmail Logo" />
+				Open Gmail
+			</button>
+		</div>
+
+		<p><a href="javascript:void(0)" @onclick="ResendEmail">Resend email</a></p>
+	</div>
+}
+
+@code {
+
+	[Parameter] public string? Email { get; set; }
+
+	[Parameter] public string? Code { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		if (string.IsNullOrEmpty(Email) is false && string.IsNullOrEmpty(Code) is false)
+		{
+			var model = new RegisterRequest
+			{
+				Email = Email,
+				Code = Code
+			};
+
+			var user = await AccountService.Register(model);
+
+			if(user is not null)
+			{
+				ToastService.ShowSuccess("Email verified successfully.");
+
+				NavigationManager.NavigateTo("/");
+			}
+			else
+			{
+				ToastService.ShowError("Invalid or expired email verification code.");
+
+				NavigationManager.NavigateTo("/register");
+			}
+		}
+	}
+
+	private void OpenGmail()
+	{
+		NavigationManager.NavigateTo("https://mail.google.com/");
+	}
+
+	private void ResendEmail()
+	{
+		Console.WriteLine($"Resending email to: {Email} with code: {Code}");
+	}
+}

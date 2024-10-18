@@ -1,0 +1,22 @@
+﻿p {
+    font-size: 1.2em;
+    margin-bottom: 15px;
+}
+
+.button-container {
+    margin: 20px 0;
+}
+
+.open-gmail img {
+    height: 20px;
+}
+
+a {
+    color: #00cc66;
+    text-decoration: none;
+    font-size: 1.1em;
+}
+
+a:hover {
+    text-decoration: underline;
+}
