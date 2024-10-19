@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Domain.Common;
-
-namespace BlazorEcommerce.Domain.Entities.IdentityEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.IdentityEntities;
 public class IdentityCode: BaseEntity
 {
     public string Email { get; set; } = null!;

@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.OrderEntities;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Microsoft.EntityFrameworkCore;
-
-namespace BlazorEcommerce.Persistence.Store.Configurations;
+﻿namespace BlazorEcommerce.Persistence.Store.Configurations;
 public class OrderConfigurations : IEntityTypeConfiguration<Order>
 {
     public void Configure(EntityTypeBuilder<Order> builder)

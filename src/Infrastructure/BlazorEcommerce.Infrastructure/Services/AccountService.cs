@@ -1,23 +1,5 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Application.Models;
-using BlazorEcommerce.Domain.Entities.IdentityEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Infrastructure.Utility;
-using BlazorEcommerce.Shared.Account;
-using Hangfire;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
-using Microsoft.IdentityModel.Tokens;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using StackExchange.Redis;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace BlazorEcommerce.Infrastructure.Services;
 public class AccountService(UserManager<AppUser> userManager, SignInManager<AppUser> signInManager, IHttpContextAccessor httpContextAccessor,

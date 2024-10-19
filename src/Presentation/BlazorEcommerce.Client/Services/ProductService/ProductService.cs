@@ -1,11 +1,4 @@
-﻿using BlazorEcommerce.Shared.Product;
-using BlazorEcommerce.Shared.Specifications.ProductSpecifications;
-using System.Net.Http.Json;
-using BlazorEcommerce.Shared.Brand;
-using BlazorEcommerce.Shared.Category;
-using BlazorEcommerce.Shared.Response;
-
-namespace BlazorEcommerce.Client.Services.ProductService;
+﻿namespace BlazorEcommerce.Client.Services.ProductService;
 public class ProductService(HttpClient httpClient) : IProductService
 {
 	public string Message { get; set; } = "Loading products...";

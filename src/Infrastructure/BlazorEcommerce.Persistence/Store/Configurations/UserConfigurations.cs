@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.IdentityEntities;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Builders;
-
-namespace BlazorEcommerce.Persistence.Store.Configurations;
+﻿namespace BlazorEcommerce.Persistence.Store.Configurations;
 
 public class UserConfigurations : IEntityTypeConfiguration<AppUser>
 {

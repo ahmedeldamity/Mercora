@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Shared.Cart;
-using FluentValidation;
-
-namespace BlazorEcommerce.Application.Validations;
+﻿namespace BlazorEcommerce.Application.Validations;
 public class BasketItemValidator : AbstractValidator<CartItemRequest>
 {
     public BasketItemValidator()

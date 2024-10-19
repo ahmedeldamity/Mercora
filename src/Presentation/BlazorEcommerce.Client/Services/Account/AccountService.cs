@@ -1,8 +1,4 @@
-﻿using System.Net.Http.Json;
-using BlazorEcommerce.Shared.Account;
-using Blazored.LocalStorage;
-
-namespace BlazorEcommerce.Client.Services.Account;
+﻿namespace BlazorEcommerce.Client.Services.Account;
 public class AccountService(HttpClient httpClient, ILocalStorageService LocalStorage) : IAccountService
 {
 	public async Task<bool> SendEmailVerification(RegisterVerificationRequest registerVerificationRequest)

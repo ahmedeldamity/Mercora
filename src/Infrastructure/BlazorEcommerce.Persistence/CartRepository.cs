@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Repositories;
-using StackExchange.Redis;
-using System.Text.Json;
-using BlazorEcommerce.Domain.Entities.CartEntities;
+﻿using StackExchange.Redis;
 
 namespace BlazorEcommerce.Persistence;
 public class CartRepository(IConnectionMultiplexer connection) : IBasketRepository

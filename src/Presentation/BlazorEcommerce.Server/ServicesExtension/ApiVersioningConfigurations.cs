@@ -1,6 +1,4 @@
-﻿using Asp.Versioning;
-
-namespace BlazorEcommerce.Server.ServicesExtension;
+﻿namespace BlazorEcommerce.Server.ServicesExtension;
 public static class ApiVersioningConfigurations
 {
     public static IServiceCollection AddApiVersioningConfigurations(this IServiceCollection services)

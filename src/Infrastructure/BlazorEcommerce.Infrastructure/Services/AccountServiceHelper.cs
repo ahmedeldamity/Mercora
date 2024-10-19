@@ -1,9 +1,6 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Net.Http.Headers;
-using System.Security.Cryptography;
-using System.Text;
 
 namespace BlazorEcommerce.Infrastructure.Services;
 public static class AccountServiceHelper

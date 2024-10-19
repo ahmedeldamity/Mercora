@@ -1,9 +1,4 @@
-﻿using BlazorEcommerce.Shared.Cart;
-using BlazorEcommerce.Shared.Product;
-using Blazored.LocalStorage;
-using System.Net.Http.Json;
-
-namespace BlazorEcommerce.Client.Services.CartService;
+﻿namespace BlazorEcommerce.Client.Services.CartService;
 public class CartService(HttpClient httpClient, ILocalStorageService localStorageService) : ICartService
 {
 	public event Action? OnChange;

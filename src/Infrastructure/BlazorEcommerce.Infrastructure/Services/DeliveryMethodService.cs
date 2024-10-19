@@ -1,10 +1,4 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Interfaces.Repositories;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-
-namespace BlazorEcommerce.Infrastructure.Services;
+﻿namespace BlazorEcommerce.Infrastructure.Services;
 public class DeliveryMethodService(IUnitOfWork unitOfWork, IMapper mapper) : IDeliveryMethodService
 {
     public async Task<Result<IReadOnlyList<OrderDeliveryMethod>>> GetAllDeliveryMethodsAsync()

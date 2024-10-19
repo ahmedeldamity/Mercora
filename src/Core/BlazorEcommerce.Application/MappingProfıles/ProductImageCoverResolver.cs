@@ -1,10 +1,4 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Domain.Entities.ProductEntities;
-using BlazorEcommerce.Shared.Product;
-using Microsoft.Extensions.Configuration;
-
-namespace BlazorEcommerce.Application.MappingProfıles;
+﻿namespace BlazorEcommerce.Application.MappingProfıles;
 public class ProductImageCoverResolver(IConfiguration configuration) : IValueResolver<Product, ProductResponse, string>
 {
     public string Resolve(Product source, ProductResponse destination, string destMember, ResolutionContext context)

@@ -1,11 +1,4 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Server.Extensions;
-using BlazorEcommerce.Server.Helpers;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-
-namespace BlazorEcommerce.Server.Controllers.V1;
+﻿namespace BlazorEcommerce.Server.Controllers.V1;
 
 [Authorize]
 public class OrderController(IOrderService orderService) : BaseController

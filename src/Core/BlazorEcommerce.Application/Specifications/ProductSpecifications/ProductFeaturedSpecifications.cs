@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.ProductEntities;
-
-namespace BlazorEcommerce.Application.Specifications.ProductSpecifications;
+﻿namespace BlazorEcommerce.Application.Specifications.ProductSpecifications;
 public class ProductFeaturedSpecifications: BaseSpecifications<Product>
 {
 	public ProductFeaturedSpecifications()

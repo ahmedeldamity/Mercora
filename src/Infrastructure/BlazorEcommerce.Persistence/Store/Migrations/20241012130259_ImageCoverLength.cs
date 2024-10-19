@@ -1,11 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
+﻿#nullable disable
 
 namespace BlazorEcommerce.Persistence.Store.Migrations
 {
-    /// <inheritdoc />
-    public partial class ImageCoverLength : Migration
+	/// <inheritdoc />
+	public partial class ImageCoverLength : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

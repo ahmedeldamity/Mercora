@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Shared.Cart;
-using BlazorEcommerce.Shared.Product;
-
-namespace BlazorEcommerce.Client.Services.CartService;
+﻿namespace BlazorEcommerce.Client.Services.CartService;
 public interface ICartService
 {
 	public event Action OnChange;

@@ -1,10 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Domain.Entities.CartEntities;
-using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Server.Extensions;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Stripe;
+﻿using Stripe;
 
 namespace BlazorEcommerce.Server.Controllers.V1;
 public class PaymentController(IPaymentService paymentService, ILogger<PaymentController> logger) : BaseController

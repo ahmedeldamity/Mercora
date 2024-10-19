@@ -1,10 +1,4 @@
-﻿using BlazorEcommerce.Application.Models;
-using BlazorEcommerce.Infrastructure.Utility;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-
-namespace BlazorEcommerce.Server.ServicesExtension;
+﻿namespace BlazorEcommerce.Server.ServicesExtension;
 public static class JwtConfigurationsExtension
 {
     public static IServiceCollection AddJwtConfigurations(this IServiceCollection services, JwtData jWtData)

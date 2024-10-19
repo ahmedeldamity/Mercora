@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Domain.Entities.ProductEntities;
-using System.Text.Json;
-
-namespace BlazorEcommerce.Persistence.Store;
+﻿namespace BlazorEcommerce.Persistence.Store;
 public class StoreContextSeed
 {
     public static async Task SeedProductDataAsync(StoreContext storeContext)

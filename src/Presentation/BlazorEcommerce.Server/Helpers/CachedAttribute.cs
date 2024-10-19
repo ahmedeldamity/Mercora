@@ -1,9 +1,4 @@
-﻿using System.Text;
-using BlazorEcommerce.Application.Interfaces.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-
-namespace BlazorEcommerce.Server.Helpers;
+﻿namespace BlazorEcommerce.Server.Helpers;
 public class CachedAttribute(int timeToLiveInSeconds) : Attribute, IAsyncActionFilter
 {
     public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)

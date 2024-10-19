@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.OrderEntities;
-
-namespace BlazorEcommerce.Application.Specifications.OrderSpecifications;
+﻿namespace BlazorEcommerce.Application.Specifications.OrderSpecifications;
 public class OrderSpecification : BaseSpecifications<Order>
 {
     public OrderSpecification(string? buyerEmail) // For Get All Orders For Specific User

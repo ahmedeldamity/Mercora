@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Shared.Response;
-using Microsoft.AspNetCore.Mvc;
-
-namespace BlazorEcommerce.Server.Extensions;
+﻿namespace BlazorEcommerce.Server.Extensions;
 public static class ResultExtensions
 {
     public static ActionResult ToProblem(this Result result)

@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Interfaces.Repositories;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Application.Specifications.OrderSpecifications;
-using BlazorEcommerce.Domain.Entities.CartEntities;
-using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Shared.Cart;
-using Microsoft.Extensions.Configuration;
-using Stripe;
+﻿using Stripe;
 using Product = BlazorEcommerce.Domain.Entities.ProductEntities.Product;
 
 namespace BlazorEcommerce.Infrastructure.Services;

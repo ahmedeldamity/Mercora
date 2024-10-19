@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using FluentValidation;
-
-namespace BlazorEcommerce.Application.Validations;
+﻿namespace BlazorEcommerce.Application.Validations;
 public class OrderValidator: AbstractValidator<OrderRequest>
 {
     public OrderValidator()

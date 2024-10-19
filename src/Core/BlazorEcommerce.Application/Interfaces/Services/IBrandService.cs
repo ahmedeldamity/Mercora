@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Shared.Brand;
-
-namespace BlazorEcommerce.Application.Interfaces.Services;
+﻿namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IBrandService
 {
     Task<Result<IReadOnlyList<ProductBrandResponse>>> GetBrandsAsync();

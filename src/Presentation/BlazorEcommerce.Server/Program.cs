@@ -1,14 +1,3 @@
-using BlazorEcommerce.Persistence.Store;
-using BlazorEcommerce.Server;
-using BlazorEcommerce.Server.Errors;
-using BlazorEcommerce.Server.Middlewares;
-using BlazorEcommerce.Server.ServicesExtension;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Serilog;
-
 var builder = WebApplication.CreateBuilder(args);
 
 #region Add services to the container

@@ -1,11 +1,4 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Interfaces.Repositories;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Domain.Entities.CartEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Shared.Cart;
-
-namespace BlazorEcommerce.Infrastructure.Services;
+﻿namespace BlazorEcommerce.Infrastructure.Services;
 public class CartService(IBasketRepository basketRepository, IMapper mapper) : ICartService
 {
     public async Task<Result<CartResponse>> CreateOrUpdateCartAsync(CartRequest cartDto)

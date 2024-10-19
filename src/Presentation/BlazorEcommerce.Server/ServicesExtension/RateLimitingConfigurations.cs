@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.RateLimiting;
-using System.Threading.RateLimiting;
-
-namespace BlazorEcommerce.Server.ServicesExtension;
+﻿namespace BlazorEcommerce.Server.ServicesExtension;
 public static class RateLimitingConfigurations
 {
     public static IServiceCollection AddRateLimitingConfigurations(this IServiceCollection services)

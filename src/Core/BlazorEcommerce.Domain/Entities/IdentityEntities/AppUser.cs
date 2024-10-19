@@ -1,6 +1,4 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace BlazorEcommerce.Domain.Entities.IdentityEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.IdentityEntities;
 public class AppUser: IdentityUser
 {
 	public string DisplayName { get; set; } = null!;

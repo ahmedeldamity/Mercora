@@ -1,11 +1,4 @@
-﻿using System.Reflection;
-using BlazorEcommerce.Domain.Entities.IdentityEntities;
-using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Domain.Entities.ProductEntities;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
-
-namespace BlazorEcommerce.Persistence.Store;
+﻿namespace BlazorEcommerce.Persistence.Store;
 public class StoreContext(DbContextOptions<StoreContext> options) : IdentityDbContext<AppUser>(options) // we inherit from IdentityDbContext not DbContext to get 7 dbcontext
 {
 

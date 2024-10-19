@@ -1,12 +1,4 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Application.Models;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using Microsoft.Extensions.Options;
-using MimeKit;
-
-namespace BlazorEcommerce.Infrastructure.Services;
+﻿namespace BlazorEcommerce.Infrastructure.Services;
 public class EmailSettingService(IOptions<MailData> options) : IEmailSettingService
 {
     private readonly MailData _options = options.Value;

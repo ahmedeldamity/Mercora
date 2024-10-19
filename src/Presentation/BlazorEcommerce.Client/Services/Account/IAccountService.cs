@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Shared.Account;
-
-namespace BlazorEcommerce.Client.Services.Account;
+﻿namespace BlazorEcommerce.Client.Services.Account;
 public interface IAccountService
 {
 	public Task<bool> SendEmailVerification(RegisterVerificationRequest registerVerificationRequest);

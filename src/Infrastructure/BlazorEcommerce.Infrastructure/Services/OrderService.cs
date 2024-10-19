@@ -1,15 +1,4 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Interfaces.Repositories;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Application.Specifications.OrderSpecifications;
-using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Domain.Entities.ProductEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-using Microsoft.AspNetCore.Http;
-using System.Security.Claims;
-using BlazorEcommerce.Application.Dtos;
-
-namespace BlazorEcommerce.Infrastructure.Services;
+﻿namespace BlazorEcommerce.Infrastructure.Services;
 public class OrderService(IUnitOfWork unitOfWork, IBasketRepository basketRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor) : IOrderService
 {
     #region Why We Take OrderAddress

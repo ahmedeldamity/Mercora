@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Specifications;
-using BlazorEcommerce.Domain.Common;
-
-namespace BlazorEcommerce.Application.Interfaces.Repositories;
+﻿namespace BlazorEcommerce.Application.Interfaces.Repositories;
 public interface IGenericRepository<T> where T : BaseEntity
 {
     public Task<IReadOnlyList<T>> GetAllAsync();

@@ -1,10 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Repositories;
-using BlazorEcommerce.Application.Interfaces.Specifications;
-using BlazorEcommerce.Domain.Common;
-using BlazorEcommerce.Persistence.Store;
-using Microsoft.EntityFrameworkCore;
-
-namespace BlazorEcommerce.Persistence;
+﻿namespace BlazorEcommerce.Persistence;
 public class GenericRepository<T> (StoreContext storeContext) : IGenericRepository<T> where T : BaseEntity
 {
     public async Task<IReadOnlyList<T>> GetAllAsync() => await storeContext.Set<T>().ToListAsync();

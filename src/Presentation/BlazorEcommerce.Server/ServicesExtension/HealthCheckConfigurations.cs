@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Application.Models;
-using BlazorEcommerce.Server.Health;
-
-namespace BlazorEcommerce.Server.ServicesExtension;
+﻿namespace BlazorEcommerce.Server.ServicesExtension;
 public static class HealthCheckConfigurations
 {
     public static IServiceCollection AddHealthCheckConfigurations(this IServiceCollection services, DatabaseConnections connections)

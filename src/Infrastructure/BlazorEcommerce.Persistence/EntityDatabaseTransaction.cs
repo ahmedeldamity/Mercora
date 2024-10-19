@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Repositories;
-using BlazorEcommerce.Persistence.Store;
-
-namespace BlazorEcommerce.Persistence;
+﻿namespace BlazorEcommerce.Persistence;
 
 public class EntityDatabaseTransaction(StoreContext storeContext) : IDatabaseTransaction
 {

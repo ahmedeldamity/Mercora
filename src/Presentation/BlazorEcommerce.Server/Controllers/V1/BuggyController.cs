@@ -1,9 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.ProductEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Persistence.Store;
-using Microsoft.AspNetCore.Mvc;
-
-namespace BlazorEcommerce.Server.Controllers.V1;
+﻿namespace BlazorEcommerce.Server.Controllers.V1;
 public class BuggyController(StoreContext storeContext) : BaseController
 {
     [HttpGet("notfound")]

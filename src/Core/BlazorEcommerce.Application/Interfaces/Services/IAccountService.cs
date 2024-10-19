@@ -1,9 +1,4 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Domain.ErrorHandling;
-using System.Security.Claims;
-using BlazorEcommerce.Shared.Account;
-
-namespace BlazorEcommerce.Application.Interfaces.Services;
+﻿namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IAccountService
 {
     Task<Result> SendEmailVerificationCode(RegisterVerificationRequest request);

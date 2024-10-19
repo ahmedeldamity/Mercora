@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Domain.Common;
-
-namespace BlazorEcommerce.Domain.Entities.OrderEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.OrderEntities;
 public class OrderDeliveryMethod: BaseEntity
 {
     public OrderDeliveryMethod() { /* we create this constructor because EF need it while migration to make instance from this class */ }

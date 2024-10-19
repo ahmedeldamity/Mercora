@@ -1,11 +1,4 @@
-﻿using Asp.Versioning;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Server.Extensions;
-using BlazorEcommerce.Shared.Account;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.RateLimiting;
-
-namespace BlazorEcommerce.Server.Controllers.V2;
+﻿namespace BlazorEcommerce.Server.Controllers.V2;
 [ApiController]
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("2.0")]

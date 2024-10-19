@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-
-namespace BlazorEcommerce.Application.Interfaces.Services;
+﻿namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IDeliveryMethodService
 {
     Task<Result<IReadOnlyList<OrderDeliveryMethod>>> GetAllDeliveryMethodsAsync();

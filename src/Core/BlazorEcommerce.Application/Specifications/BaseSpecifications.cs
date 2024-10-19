@@ -1,8 +1,4 @@
-﻿using System.Linq.Expressions;
-using BlazorEcommerce.Application.Interfaces.Specifications;
-using BlazorEcommerce.Domain.Common;
-
-namespace BlazorEcommerce.Application.Specifications;
+﻿namespace BlazorEcommerce.Application.Specifications;
 public class BaseSpecifications<T> : ISpecifications<T> where T : BaseEntity
 {
     public Expression<Func<T, bool>> WhereCriteria { get; set; } = null!;

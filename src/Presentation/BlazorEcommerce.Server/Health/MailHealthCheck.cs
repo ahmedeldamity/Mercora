@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Application.Models;
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
+﻿
 
 namespace BlazorEcommerce.Server.Health;
 public class MailHealthCheck(IOptions<MailData> mailData) : IHealthCheck

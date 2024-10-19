@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Specifications;
-using BlazorEcommerce.Domain.Common;
-using Microsoft.EntityFrameworkCore;
-
-namespace BlazorEcommerce.Persistence;
+﻿namespace BlazorEcommerce.Persistence;
 public class SpecificationsEvaluator<T> where T : BaseEntity
 {
     public static IQueryable<T> GetQuery(IQueryable<T> inputQuery, ISpecifications<T> spec)

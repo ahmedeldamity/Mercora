@@ -1,5 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Services;
-using StackExchange.Redis;
+﻿using StackExchange.Redis;
 using System.Text.Json;
 
 namespace BlazorEcommerce.Infrastructure.Services;

@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Domain.Entities.ProductEntities;
-
-namespace BlazorEcommerce.Application.Specifications.ProductSpecifications;
+﻿namespace BlazorEcommerce.Application.Specifications.ProductSpecifications;
 public class ProductWithBrandAndCategorySpecifications : BaseSpecifications<Product>
 {
     public ProductWithBrandAndCategorySpecifications(ProductSpecificationParameters specParams)

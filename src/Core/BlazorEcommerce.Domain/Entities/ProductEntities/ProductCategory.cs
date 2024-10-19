@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Domain.Common;
-
-namespace BlazorEcommerce.Domain.Entities.ProductEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.ProductEntities;
 public class ProductCategory : BaseEntity
 {
     public string Name { get; set; } = null!;

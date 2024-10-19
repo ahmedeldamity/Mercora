@@ -1,9 +1,4 @@
-﻿using BlazorEcommerce.Shared.Brand;
-using BlazorEcommerce.Shared.Category;
-using BlazorEcommerce.Shared.Product;
-using BlazorEcommerce.Shared.Specifications.ProductSpecifications;
-
-namespace BlazorEcommerce.Client.Services.ProductService;
+﻿namespace BlazorEcommerce.Client.Services.ProductService;
 public interface IProductService
 {
 	public string Message { get; set; }

@@ -1,10 +1,4 @@
-﻿using BlazorEcommerce.Application.Models;
-using BlazorEcommerce.Server.Extensions;
-using Hangfire;
-using HangfireBasicAuthenticationFilter;
-using Microsoft.Extensions.Options;
-
-namespace BlazorEcommerce.Server.ServicesExtension;
+﻿namespace BlazorEcommerce.Server.ServicesExtension;
 public static class HangfireConfigurationsExtension
 {
 	public static IServiceCollection AddHangfireServices(this IServiceCollection services, string storeConnection)

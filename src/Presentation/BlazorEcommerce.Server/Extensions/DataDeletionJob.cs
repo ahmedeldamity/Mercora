@@ -1,7 +1,4 @@
-﻿using BlazorEcommerce.Persistence.Store;
-using Microsoft.EntityFrameworkCore;
-
-namespace BlazorEcommerce.Server.Extensions;
+﻿namespace BlazorEcommerce.Server.Extensions;
 public class DataDeletionJob(StoreContext identityContext)
 {
     public async Task Execute()

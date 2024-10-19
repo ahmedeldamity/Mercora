@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Domain.Common;
-
-namespace BlazorEcommerce.Application.Interfaces.Repositories;
+﻿namespace BlazorEcommerce.Application.Interfaces.Repositories;
 public interface IUnitOfWork : IDisposable, IAsyncDisposable
 {
 	public IGenericRepository<T> Repository<T>() where T : BaseEntity;

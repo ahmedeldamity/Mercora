@@ -1,8 +1,4 @@
-﻿using System.Reflection;
-using FluentValidation;
-using Microsoft.Extensions.DependencyInjection;
-
-namespace BlazorEcommerce.Infrastructure;
+﻿namespace BlazorEcommerce.Infrastructure;
 public static class ServiceExtensions
 {
 	public static void ConfigureApplication(this IServiceCollection services)

@@ -1,12 +1,9 @@
-﻿using System;
-using Microsoft.EntityFrameworkCore.Migrations;
-
-#nullable disable
+﻿#nullable disable
 
 namespace BlazorEcommerce.Persistence.Store.Migrations
 {
-    /// <inheritdoc />
-    public partial class Init : Migration
+	/// <inheritdoc />
+	public partial class Init : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

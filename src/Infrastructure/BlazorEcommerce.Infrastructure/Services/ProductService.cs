@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Application.Interfaces.Repositories;
-using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Application.Specifications.ProductSpecifications;
-using BlazorEcommerce.Domain.Entities.ProductEntities;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Shared.Product;
-
-namespace BlazorEcommerce.Infrastructure.Services;
+﻿namespace BlazorEcommerce.Infrastructure.Services;
 public class ProductService(IUnitOfWork unitOfWork, IMapper mapper) : IProductService
 {
     public async Task<Result<PaginationToReturn<ProductResponse>>> GetProductsAsync(ProductSpecificationParameters specParams)

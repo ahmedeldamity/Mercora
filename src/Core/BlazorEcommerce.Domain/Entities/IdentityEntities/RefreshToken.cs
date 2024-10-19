@@ -1,6 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
-
-namespace BlazorEcommerce.Domain.Entities.IdentityEntities;
+﻿namespace BlazorEcommerce.Domain.Entities.IdentityEntities;
 
 [Owned]
 public class RefreshToken

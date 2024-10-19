@@ -1,8 +1,4 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Shared.Category;
-
-namespace BlazorEcommerce.Application.Interfaces.Services;
+﻿namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface ICategoryService
 {
     Task<Result<IReadOnlyList<CategoryResponse>>> GetCategoriesAsync();

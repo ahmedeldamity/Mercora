@@ -1,0 +1,16 @@
+﻿global using BlazorEcommerce.Application.Interfaces.Repositories;
+global using BlazorEcommerce.Application.Interfaces.Specifications;
+global using BlazorEcommerce.Domain.Common;
+global using BlazorEcommerce.Domain.Entities.CartEntities;
+global using BlazorEcommerce.Domain.Entities.IdentityEntities;
+global using BlazorEcommerce.Domain.Entities.OrderEntities;
+global using BlazorEcommerce.Domain.Entities.ProductEntities;
+global using System.Reflection;
+global using Microsoft.EntityFrameworkCore;
+global using Microsoft.EntityFrameworkCore.Metadata.Builders;
+global using Microsoft.EntityFrameworkCore.Migrations;
+global using Microsoft.EntityFrameworkCore.Infrastructure;
+global using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+global using System.Text.Json;
+global using BlazorEcommerce.Persistence.Store;
+global using System.Collections.Concurrent;

@@ -1,10 +1,4 @@
-﻿using BlazorEcommerce.Application.Interfaces.Services;
-using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Server.Extensions;
-using BlazorEcommerce.Server.Helpers;
-using Microsoft.AspNetCore.Mvc;
-
-namespace BlazorEcommerce.Server.Controllers.V1;
+﻿namespace BlazorEcommerce.Server.Controllers.V1;
 public class DeliveryMethodController(IDeliveryMethodService deliveryMethodService) : BaseController
 {
     [HttpGet]

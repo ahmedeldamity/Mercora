@@ -1,15 +1,4 @@
-﻿using AutoMapper;
-using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Domain.Entities.CartEntities;
-using BlazorEcommerce.Domain.Entities.IdentityEntities;
-using BlazorEcommerce.Domain.Entities.OrderEntities;
-using BlazorEcommerce.Domain.Entities.ProductEntities;
-using BlazorEcommerce.Shared.Brand;
-using BlazorEcommerce.Shared.Cart;
-using BlazorEcommerce.Shared.Category;
-using BlazorEcommerce.Shared.Product;
-
-namespace BlazorEcommerce.Application.MappingProfıles;
+﻿namespace BlazorEcommerce.Application.MappingProfıles;
 public class MappingProfiles : Profile
 {
     public MappingProfiles()

@@ -1,9 +1,4 @@
-﻿using BlazorEcommerce.Application.Dtos;
-using BlazorEcommerce.Application.Specifications.ProductSpecifications;
-using BlazorEcommerce.Domain.ErrorHandling;
-using BlazorEcommerce.Shared.Product;
-
-namespace BlazorEcommerce.Application.Interfaces.Services;
+﻿namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IProductService
 {
     Task<Result<PaginationToReturn<ProductResponse>>> GetProductsAsync(ProductSpecificationParameters specParams);
