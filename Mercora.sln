@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B7756F1F-802
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Client", "src\Presentation\BlazorEcommerce.Client\BlazorEcommerce.Client.csproj", "{9FC113BD-1196-46C0-B8B1-C385BC3A7D5C}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Shared", "..\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj", "{35554CA5-62F0-4E8D-88C8-2E9BE6E3A0DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazorEcommerce.Shared", "src\Presentation\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj", "{2FE78ACE-68C0-4CD1-8872-8A9821754BF7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -61,10 +61,10 @@ Global
 		{9FC113BD-1196-46C0-B8B1-C385BC3A7D5C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9FC113BD-1196-46C0-B8B1-C385BC3A7D5C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{9FC113BD-1196-46C0-B8B1-C385BC3A7D5C}.Release|Any CPU.Build.0 = Release|Any CPU
-		{35554CA5-62F0-4E8D-88C8-2E9BE6E3A0DD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{35554CA5-62F0-4E8D-88C8-2E9BE6E3A0DD}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{35554CA5-62F0-4E8D-88C8-2E9BE6E3A0DD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{35554CA5-62F0-4E8D-88C8-2E9BE6E3A0DD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FE78ACE-68C0-4CD1-8872-8A9821754BF7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FE78ACE-68C0-4CD1-8872-8A9821754BF7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FE78ACE-68C0-4CD1-8872-8A9821754BF7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FE78ACE-68C0-4CD1-8872-8A9821754BF7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -79,7 +79,7 @@ Global
 		{EAC7EA89-0740-46FB-B1DA-DACE94EC4B6C} = {B7756F1F-8028-472F-BA1F-C799E80ACD17}
 		{DA7D5DB5-4111-4409-914D-061B63FF69EF} = {B7756F1F-8028-472F-BA1F-C799E80ACD17}
 		{9FC113BD-1196-46C0-B8B1-C385BC3A7D5C} = {DA7D5DB5-4111-4409-914D-061B63FF69EF}
-		{35554CA5-62F0-4E8D-88C8-2E9BE6E3A0DD} = {DA7D5DB5-4111-4409-914D-061B63FF69EF}
+		{2FE78ACE-68C0-4CD1-8872-8A9821754BF7} = {DA7D5DB5-4111-4409-914D-061B63FF69EF}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {7546FD8E-AD10-4232-840A-CFE304A35F29}

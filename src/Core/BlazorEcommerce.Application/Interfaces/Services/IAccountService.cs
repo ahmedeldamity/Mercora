@@ -2,7 +2,6 @@
 using BlazorEcommerce.Domain.ErrorHandling;
 using System.Security.Claims;
 using BlazorEcommerce.Shared.Account;
-using BlazorEcommerce.Shared.AccountValidation;
 
 namespace BlazorEcommerce.Application.Interfaces.Services;
 public interface IAccountService

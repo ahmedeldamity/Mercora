@@ -29,10 +29,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\..\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
     <UpToDateCheckInput Remove="Shared\AuthenticationButton.razor" />
   </ItemGroup>
 
@@ -42,6 +38,10 @@
 
   <ItemGroup>
     <None Include="Shared\AuthenticationButton.razor" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BlazorEcommerce.Shared\BlazorEcommerce.Shared.csproj" />
   </ItemGroup>
 
 </Project>
