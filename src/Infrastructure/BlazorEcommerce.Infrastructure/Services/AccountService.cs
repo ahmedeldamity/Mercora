@@ -414,7 +414,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
             Expires = expireAt.ToLocalTime()
         };
 
-        httpContextAccessor.HttpContext!.Response.Cookies.Append("refreshToken", token, cookieOptions);
+        httpContextAccessor.HttpContext!.Response.Cookies.Append("RefreshToken", token, cookieOptions);
     }
 
     private async Task<Result<bool>> Register(string Name, string Email)
@@ -443,4 +443,5 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 
         return Result.Success(true);
     }
+
 }

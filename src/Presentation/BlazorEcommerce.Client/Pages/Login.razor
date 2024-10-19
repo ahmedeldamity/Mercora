@@ -2,6 +2,7 @@
 @inject IAccountService AccountService
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
+@inject ILocalStorageService LocalStorageService
 
 <PageTitle>Login</PageTitle>
 
@@ -39,10 +40,10 @@
 
     <div class="text-center">
         <p>or login with:</p>
-        <button @onclick="ClickGoogleLogin" class="btn btn-danger w-100 py-2 mb-2">
+        <button type="button" @onclick="ClickGoogleLogin" class="btn btn-danger w-100 py-2 mb-2">
             <i class="fab fa-google"></i> Google
         </button>
-        <button @onclick="ClickGithubLogin" class="btn btn-dark w-100 py-2">
+        <button type="button" @onclick="ClickGithubLogin" class="btn btn-dark w-100 py-2">
             <i class="fab fa-github"></i> GitHub
         </button>
     </div>
@@ -64,6 +65,8 @@
         if (user is not null)
         {
             ToastService.ShowSuccess("Email verified successfully.");
+
+            await LocalStorageService.SetItemAsync("AuthenticationToken", user.Token);
 
             NavigationManager.NavigateTo("/");
         }

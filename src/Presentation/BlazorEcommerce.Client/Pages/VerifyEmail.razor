@@ -2,6 +2,7 @@
 @inject NavigationManager NavigationManager
 @inject IAccountService AccountService
 @inject IToastService ToastService
+@inject ILocalStorageService LocalStorageService
 
 @if(Email is not null)
 {
@@ -42,6 +43,8 @@
 			if(user is not null)
 			{
 				ToastService.ShowSuccess("Email verified successfully.");
+
+				await LocalStorageService.SetItemAsync("AuthenticationToken", user.Token);
 
 				NavigationManager.NavigateTo("/");
 			}

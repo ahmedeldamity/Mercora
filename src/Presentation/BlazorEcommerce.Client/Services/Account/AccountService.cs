@@ -36,13 +36,7 @@ public class AccountService(HttpClient httpClient, ILocalStorageService LocalSto
 				var result = await response.Content.ReadFromJsonAsync<AppUserResponse>();
 
 				if (result != null && string.IsNullOrEmpty(result.Token) is false)
-				{
-					Console.WriteLine("Token retrieved: " + result.Token);
-
-					await LocalStorage.SetItemAsync("authToken", result.Token);
-
 					return result;
-				}
 			}
 
 			return null;

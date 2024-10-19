@@ -2,6 +2,7 @@
 @inject NavigationManager Navigation
 @inject IAccountService AccountService
 @inject IToastService ToastService
+@inject ILocalStorageService LocalStorageService
 
 <p>@Message</p>
 
@@ -29,6 +30,10 @@
 
                 if (result is not null)
 				{
+                    ToastService.ShowSuccess("Authentication successful.");
+
+                    await LocalStorageService.SetItemAsync("AuthenticationToken", result.Token);
+
 					Navigation.NavigateTo("/");
 				}
 				else
