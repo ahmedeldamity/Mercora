@@ -92,6 +92,12 @@ code {
     color: #c02d76;
 }
 
+/*custom styles*/
+
+* {
+    font-family: 'Roboto', 'sans-serif' !important;
+}
+
 button:focus {
     box-shadow: none !important;
 }
@@ -99,3 +105,4 @@ button:focus {
 a:focus {
     box-shadow: none !important;
 }
+
