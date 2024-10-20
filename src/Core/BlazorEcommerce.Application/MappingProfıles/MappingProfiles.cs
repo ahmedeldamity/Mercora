@@ -38,5 +38,7 @@ public class MappingProfiles : Profile
             .ForMember(d => d.ImageCover, o => o.MapFrom<ProductImageCoverInOrderResolver>());
 
         CreateMap<UserAddressModel, UserAddress>().ReverseMap();
+
+        CreateMap<OrderDeliveryMethod, OrderDeliveryMethodModel>().ReverseMap();
     }
 }

@@ -21,6 +21,8 @@ builder.Services.AddScoped(typeof(ICartService), typeof(CartService));
 
 builder.Services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
+builder.Services.AddScoped(typeof(ICheckoutService), typeof(CheckoutService));
+
 builder.Services.AddOptions();
 
 builder.Services.AddAuthorizationCore();

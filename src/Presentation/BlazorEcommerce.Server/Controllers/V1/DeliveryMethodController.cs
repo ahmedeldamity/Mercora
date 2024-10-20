@@ -3,7 +3,7 @@ public class DeliveryMethodController(IDeliveryMethodService deliveryMethodServi
 {
     [HttpGet]
     [Cached(600)]
-    public async Task<ActionResult<IReadOnlyList<OrderDeliveryMethod>>> GetAllDeliveryMethods()
+    public async Task<ActionResult<IReadOnlyList<OrderDeliveryMethodModel>>> GetAllDeliveryMethods()
     {
         var result = await deliveryMethodService.GetAllDeliveryMethodsAsync();
 
@@ -12,7 +12,7 @@ public class DeliveryMethodController(IDeliveryMethodService deliveryMethodServi
 
     [HttpGet("{id:int}")]
     [Cached(600)]
-    public async Task<ActionResult<OrderDeliveryMethod>> GetDeliveryMethodById(int id)
+    public async Task<ActionResult<OrderDeliveryMethodModel>> GetDeliveryMethodById(int id)
     {
         var result = await deliveryMethodService.GetDeliveryMethodByIdAsync(id);
 
@@ -20,7 +20,7 @@ public class DeliveryMethodController(IDeliveryMethodService deliveryMethodServi
     }
 
     [HttpPost]
-    public async Task<ActionResult<OrderDeliveryMethod>> CreateDeliveryMethod(OrderDeliveryMethod deliveryMethod)
+    public async Task<ActionResult<OrderDeliveryMethodModel>> CreateDeliveryMethod(OrderDeliveryMethodModel deliveryMethod)
     {
         var result = await deliveryMethodService.CreateDeliveryMethodAsync(deliveryMethod);
 
@@ -28,7 +28,7 @@ public class DeliveryMethodController(IDeliveryMethodService deliveryMethodServi
     }
 
     [HttpPut("{id:int}")]
-    public async Task<ActionResult<OrderDeliveryMethod>> UpdateDeliveryMethod(int id, OrderDeliveryMethod deliveryMethod)
+    public async Task<ActionResult<OrderDeliveryMethodModel>> UpdateDeliveryMethod(int id, OrderDeliveryMethodModel deliveryMethod)
     {
         var result = await deliveryMethodService.UpdateDeliveryMethodAsync(id, deliveryMethod);
 
@@ -36,7 +36,7 @@ public class DeliveryMethodController(IDeliveryMethodService deliveryMethodServi
     }
 
     [HttpDelete("{id:int}")]
-    public async Task<ActionResult<OrderDeliveryMethod>> DeleteDeliveryMethod(int id)
+    public async Task<ActionResult<OrderDeliveryMethodModel>> DeleteDeliveryMethod(int id)
     {
         var result = await deliveryMethodService.DeleteDeliveryMethodAsync(id);
 

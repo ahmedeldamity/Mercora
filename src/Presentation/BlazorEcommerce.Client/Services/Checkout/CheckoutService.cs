@@ -1,6 +1,12 @@
-﻿namespace BlazorEcommerce.Client.Services.Checkout;
+﻿using BlazorEcommerce.Shared.Checkout;
 
-public class CheckoutService
+namespace BlazorEcommerce.Client.Services.Checkout;
+public class CheckoutService(HttpClient httpClient): ICheckoutService
 {
-	
+	public async Task<List<OrderDeliveryMethodModel>> GetDeliveryMethods()
+	{
+		var response = await httpClient.GetFromJsonAsync<List<OrderDeliveryMethodModel>>("api/deliverymethod");
+
+		return response ?? [];
+	}
 }
