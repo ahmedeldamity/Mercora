@@ -9,7 +9,11 @@ public interface IAccountService
 
 	Task<AppUserResponse?> Login(LoginRequest model);
 
+	Task Logout();
+
 	Task SendResetPasswordCode(ResetPasswordRequest resetPasswordRequest);
 	
 	Task<AppUserResponse?> ResetPassword(ResetPassword resetPassword);
+
+	Task<string?> TryRefreshTokenAsync();
 }

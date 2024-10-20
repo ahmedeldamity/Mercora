@@ -1,4 +1,6 @@
-﻿namespace BlazorEcommerce.Client.Services.Account;
+﻿using System.Net.Http.Headers;
+
+namespace BlazorEcommerce.Client.Services.Account;
 public class AccountService(HttpClient httpClient, ILocalStorageService LocalStorage) : IAccountService
 {
 	public async Task<bool> SendEmailVerification(RegisterVerificationRequest registerVerificationRequest)
@@ -65,7 +67,14 @@ public class AccountService(HttpClient httpClient, ILocalStorageService LocalSto
 			return null;
 		}
 	}
-    
+
+	public async Task Logout()
+	{
+		await LocalStorage.RemoveItemAsync("AuthenticationToken");
+
+		await httpClient.PostAsync("/api/account/v1/revoke-token", null);
+	}
+
 	public async Task SendResetPasswordCode(ResetPasswordRequest resetPasswordRequest)
 	{
 		await httpClient.PostAsJsonAsync("api/v1/account/send-reset-password-code", resetPasswordRequest);
@@ -88,6 +97,29 @@ public class AccountService(HttpClient httpClient, ILocalStorageService LocalSto
 		{
 			return null;
 		}
+	}
+
+	public async Task<string?> TryRefreshTokenAsync()
+	{
+		var response = await httpClient.GetAsync("/api/account/v1/refresh-token");
+
+		if (response.IsSuccessStatusCode)
+		{
+			var result = await response.Content.ReadFromJsonAsync<AppUserResponse>();
+
+			if (result != null && string.IsNullOrEmpty(result.Token) is false)
+			{
+				await LocalStorage.SetItemAsync("AuthenticationToken", result.Token);
+
+				httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", result.Token);
+
+				return result.Token;
+			}
+		}
+
+		await Logout();
+
+		return null;
 	}
 
 }
