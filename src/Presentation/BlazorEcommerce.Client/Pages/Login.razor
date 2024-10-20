@@ -3,12 +3,12 @@
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
 @inject ILocalStorageService LocalStorageService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <PageTitle>Login</PageTitle>
 
 <EditForm Model="User" OnValidSubmit="HandleValidSubmit" class="mx-auto p-4 bg-light-subtle shadow-sm rounded-3" style="max-width: 450px;">
     <DataAnnotationsValidator />
-    <ValidationSummary class="text-danger" />
 
     <h2 class="text-center mb-4 fw-bold">Welcome Back!</h2>
 
@@ -20,13 +20,13 @@
 
     <div class="form-floating my-3">
         <InputText type="password" id="password" class="form-control" @bind-Value="User.Password" placeholder="Enter your password" />
-        <label for="password" class="fw-bold">New Password</label>
+        <label for="password" class="fw-bold">Password</label>
         <ValidationMessage For="@(() => User.Password)" />
     </div>
 
     <div class="form-floating my-3">
         <InputText type="password" id="confirmPassword" class="form-control" @bind-Value="User.ConfirmPassword" placeholder="Confirm your password" />
-        <label for="confirmPassword" class="fw-bold">Confirm New Password</label>
+        <label for="confirmPassword" class="fw-bold">Confirm Password</label>
         <ValidationMessage For="@(() => User.ConfirmPassword)" />
     </div>
 
@@ -54,19 +54,15 @@
 
     async Task HandleValidSubmit()
     {
-        var model = new LoginRequest
-		{
-			Email = User.Email,
-			Password = User.Password
-		};
-
-        var user = await AccountService.Login(model);
+        var user = await AccountService.Login(User);
 
         if (user is not null)
         {
             ToastService.ShowSuccess("Email verified successfully.");
 
             await LocalStorageService.SetItemAsync("AuthenticationToken", user.Token);
+
+            await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
             NavigationManager.NavigateTo("/");
         }

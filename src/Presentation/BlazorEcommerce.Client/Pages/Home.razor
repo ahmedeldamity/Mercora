@@ -9,8 +9,6 @@
 
 	private List<ProductResponse>? Products { get; set; }
 
-	private int pageCount { get; set; }
-
 	protected override async Task OnInitializedAsync()
 	{
 		Products = await ProductService.GetFeaturedProductsAsync();
