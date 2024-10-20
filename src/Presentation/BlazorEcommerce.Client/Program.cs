@@ -21,4 +21,10 @@ builder.Services.AddScoped(typeof(ICartService), typeof(CartService));
 
 builder.Services.AddScoped(typeof(IAccountService), typeof(AccountService));
 
+builder.Services.AddOptions();
+
+builder.Services.AddAuthorizationCore();
+
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
 await builder.Build().RunAsync();
