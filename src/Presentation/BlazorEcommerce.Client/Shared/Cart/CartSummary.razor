@@ -10,49 +10,66 @@ else
 	<div class="table-responsive">
 		<table class="table">
 			<thead class="table-primary text-uppercase">
-				<tr>
-					<th><div class="py-2">Product</div></th>
-					<th><div class="py-2">Stock</div></th>
-					<th><div class="py-2">Price</div></th>
-					<th><div class="py-2">Quantity</div></th>
-					<th><div class="py-2">Total</div></th>
-					<th><div class="py-2">Remove</div></th>
-				</tr>
+			<tr>
+				<th><div class="py-2">Product</div></th>
+				@if (IsBasket) { <th><div class="py-2">Stock</div></th> }
+				<th><div class="py-2">Price</div></th>
+				<th><div class="py-2 @(!IsBasket ? "text-center" : "")">Quantity</div></th>
+				<th><div class="py-2">Total</div></th>
+				@if (IsBasket) { <th><div class="py-2">Remove</div></th> }
+			</tr>
 			</thead>
 			<tbody>
-				@foreach (var item in Basket.Items)
-				{
-					<tr>
-						<td>
-							<div class="p-2 d-inline-block">
-								<img class="img-fluid basket-image" src="@item.ImageCover" alt="@item.Name">
-								<div class="ms-3 d-inline-block align-middle">
-									<h5 class="mb-0">
-										<a href="/shop/@item.Id" class="text-primary fw-bold text-decoration-none">@item.Name</a>
-									</h5>
-									<span class="text-muted fst-italic">Category: @item.Category</span>
-								</div>
+			@foreach (var item in Basket.Items)
+			{
+				<tr>
+					<td>
+						<div class="p-2 d-inline-block">
+							<img class="img-fluid basket-image" src="@item.ImageCover" alt="@item.Name">
+							<div class="ms-3 d-inline-block align-middle">
+								<h5 class="mb-0">
+									<a href="/product/@item.Id" class="text-primary fw-bold text-decoration-none">@item.Name</a>
+								</h5>
+								<span class="text-muted fst-italic">Category: @item.Category</span>
 							</div>
-						</td>
-						<td class="align-middle"><strong>@item.Quantity</strong></td>
-						<td class="align-middle"><strong>@item.Price.ToString("C")</strong></td>
-						<td class="align-middle">
-							<div class="d-flex align-items-center">
+						</div>
+					</td>
+					@if (IsBasket) {
+							<td class="align-middle"><strong>@item.Quantity</strong></td>
+					}
+					<td class="align-middle"><strong>@item.Price.ToString("C")</strong></td>
+					<td class="align-middle">
+						<div class="d-flex align-items-center @(IsBasket ? "" : "justify-content-center")">
+							@if(IsBasket) {
 								<i class="bi bi-dash-circle-fill text-warning me-2 fs-3 clickable" @onclick="() => RemoveItem(item.Id, 1)"></i>
-								<strong class="fs-4">@item.CartItemQuantity</strong>
+							}
+							<strong class="fs-4">@item.CartItemQuantity</strong>
+							@if (IsBasket) {
 								<i class="bi bi-plus-circle-fill text-warning ms-2 fs-3 clickable" @onclick="() => AddItem(item, 1)"></i>
-							</div>
-						</td>
-						<td class="align-middle"><strong>@((item.Price * item.CartItemQuantity).ToString("C"))</strong></td>
-						<td class="align-middle ">
+							}
+						</div>
+					</td>
+					<td class="align-middle"><strong>@((item.Price * item.CartItemQuantity).ToString("C"))</strong></td>
+					@if (IsBasket)
+					{
+						<td class="align-middle">
 							<a class="text-danger">
 								<i class="bi bi-trash-fill fs-3 clickable" @onclick="() => RemoveItem(item.Id, item.CartItemQuantity)"></i>
 							</a>
 						</td>
-					</tr>
-				}
+					}
+				</tr>
+			}
 			</tbody>
 		</table>
+		<div class="d-flex justify-content-between flex-row mt-2">
+			<button class="btn btn-outline-primary rounded-2">
+				<i class="fa fa-angle-left"></i> Back to delivery
+			</button>
+			<button class="btn btn-primary rounded-2">
+				Go to payment <i class="fa fa-angle-right"></i>
+			</button>
+		</div>
 	</div>
 }
 
@@ -63,6 +80,8 @@ else
 	[Parameter] public EventCallback<(CartItemResponse, decimal)> IncreaseItem { set; get; }
 
 	[Parameter] public EventCallback<(int, decimal)> DecreaseItem { set; get; }
+
+	[Parameter] public bool IsBasket { get; set; } = true;
 
 	private void AddItem(CartItemResponse item, decimal quantity)
 	{
