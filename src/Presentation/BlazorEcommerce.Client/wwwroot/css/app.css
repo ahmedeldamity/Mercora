@@ -107,6 +107,6 @@ a:focus {
 }
 
 input:focus {
-    box-shadow: 0 0 0 0.25rem #2FA4E7 !important;
-    border-color: #2FA4E7 !important;
+    box-shadow: 0 0 0 0.25rem #593196 !important;
+    border-color: #593196 !important;
 }

@@ -1,6 +1,6 @@
 ﻿@inject IAccountService AccountService
 
-<EditForm Model="UserAddress" OnValidSubmit="HandleValidSubmit" class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2">
+<EditForm Model="UserAddress" OnValidSubmit="HandleValidSubmit" class="">
 	<DataAnnotationsValidator />
 	<ValidationSummary />
 
@@ -44,6 +44,14 @@
 				<ValidationMessage For="@(() => UserAddress.Country)"/>
 			</div>
 		</div>
+	</div>
+	<div class="d-flex justify-content-between flex-row mt-2">
+		<button class="btn btn-outline-primary rounded-2">
+			<i class="fa fa-angle-left"></i> Back to cart
+		</button>
+		<button class="btn btn-primary rounded-2">
+			Go to delivery <i class="fa fa-angle-right"></i>
+		</button>
 	</div>
 </EditForm>
 
