@@ -49,3 +49,4 @@ global using BlazorEcommerce.Server;
 global using BlazorEcommerce.Server.Middlewares;
 global using HealthChecks.UI.Client;
 global using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+global using BlazorEcommerce.Shared.Checkout;

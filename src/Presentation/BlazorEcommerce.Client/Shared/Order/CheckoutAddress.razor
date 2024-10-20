@@ -1,0 +1,57 @@
+﻿<EditForm Model="UserAddress" OnValidSubmit="HandleValidSubmit" class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2">
+	<DataAnnotationsValidator />
+	<ValidationSummary />
+
+	<div class="d-flex justify-content-between align-items-center text-primary fw-bold">
+		<h4>Shipping Address</h4>
+		<button class="btn btn-outline-success mb-3">Save as default address</button>
+	</div>
+	<div class="row">
+		<div class="col-6 my-2">
+			<div class="form-floating">
+				<InputText id="firstname" class="form-control" @bind-Value="UserAddress.FirstName" placeholder=""/>
+				<label for="firstname" class="fw-bold">First Name</label>
+				<ValidationMessage For="@(() => UserAddress.FirstName)"/>
+			</div>
+		</div>
+		<div class="col-6 my-2">
+			<div class="form-floating">
+				<InputText id="lastname" class="form-control" @bind-Value="UserAddress.LastName" placeholder="Last name"/>
+				<label for="lastname" class="fw-bold">Last Name</label>
+				<ValidationMessage For="@(() => UserAddress.LastName)"/>
+			</div>
+		</div>
+		<div class ="col-6 my-2">
+			<div class="form-floating">
+				<InputText id="street" class="form-control" @bind-Value="UserAddress.Street" placeholder="Street"/>
+				<label for="street" class="fw-bold">Street</label>
+				<ValidationMessage For="@(() => UserAddress.Street)"/>
+			</div>
+		</div>
+		<div class="col-6 my-2">
+			<div class="form-floating">
+				<InputText id="city" class="form-control" @bind-Value="UserAddress.City" placeholder="City"/>
+				<label for="city" class="fw-bold">City</label>
+				<ValidationMessage For="@(() => UserAddress.City)"/>
+			</div>
+		</div>
+		<div class="col-6 my-2">
+			<div class="form-floating">
+				<InputText id="country" class="form-control" @bind-Value="UserAddress.Country" placeholder="Country"/>
+				<label for="country" class="fw-bold">Country</label>
+				<ValidationMessage For="@(() => UserAddress.Country)"/>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+
+	UserAddressResponse UserAddress = new();
+
+	private async Task HandleValidSubmit()
+	{
+		Console.WriteLine("Right");
+	}
+
+}

@@ -34,3 +34,4 @@ global using System.Text;
 global using Microsoft.Extensions.Configuration;
 global using BlazorEcommerce.Application.Specifications.ProductSpecifications;
 global using BlazorEcommerce.Shared.Product;
+global using BlazorEcommerce.Shared.Checkout;

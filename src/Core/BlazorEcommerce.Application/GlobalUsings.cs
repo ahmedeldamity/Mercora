@@ -19,3 +19,4 @@ global using Microsoft.Extensions.Configuration;
 global using FluentValidation;
 global using Microsoft.Extensions.DependencyInjection;
 global using System.Reflection;
+global using BlazorEcommerce.Shared.Checkout;
