@@ -1,4 +1,6 @@
-﻿<EditForm Model="UserAddress" OnValidSubmit="HandleValidSubmit" class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2">
+﻿@inject IAccountService AccountService
+
+<EditForm Model="UserAddress" OnValidSubmit="HandleValidSubmit" class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2">
 	<DataAnnotationsValidator />
 	<ValidationSummary />
 
@@ -47,10 +49,19 @@
 
 @code {
 
-	UserAddressResponse UserAddress = new();
+	UserAddressModel UserAddress = new();
+
+	protected override async Task OnInitializedAsync()
+	{
+		UserAddress = await AccountService.GetUserAddressAsync() ?? new UserAddressModel();
+
+		Console.WriteLine(UserAddress.FirstName);
+	}
 
 	private async Task HandleValidSubmit()
 	{
+		await AccountService.UpdateUserAddressAsync(UserAddress);
+
 		Console.WriteLine("Right");
 	}
 

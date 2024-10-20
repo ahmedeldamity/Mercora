@@ -5,8 +5,8 @@ public interface IAccountService
     Task<Result<AppUserResponse>> VerifyCodeForRegister(RegisterRequest registerRequest);
     Task<Result<AppUserResponse>> GetUserAsync(string email);
     Task<Result<AppUserResponse>> Login(LoginRequest model);
-	Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims);
-    Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims);
+	Task<Result<UserAddressModel>> GetCurrentUserAddress(ClaimsPrincipal userClaims);
+    Task<Result<UserAddressModel>> UpdateUserAddress(UserAddressModel updatedAddress, ClaimsPrincipal userClaims);
     string GoogleLogin();
     Task<Result<string>> GoogleResponse(string code);
     string GithubLogin();

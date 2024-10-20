@@ -1,4 +1,6 @@
-﻿namespace BlazorEcommerce.Client.Services.Account;
+﻿using BlazorEcommerce.Shared.Checkout;
+
+namespace BlazorEcommerce.Client.Services.Account;
 public interface IAccountService
 {
 	public Task<bool> SendEmailVerification(RegisterVerificationRequest registerVerificationRequest);
@@ -16,4 +18,8 @@ public interface IAccountService
 	Task<AppUserResponse?> ResetPassword(ResetPassword resetPassword);
 
 	Task<string?> TryRefreshTokenAsync();
+
+	Task<UserAddressModel?> GetUserAddressAsync();
+
+	Task<UserAddressModel?> UpdateUserAddressAsync(UserAddressModel userAddressRequest);
 }

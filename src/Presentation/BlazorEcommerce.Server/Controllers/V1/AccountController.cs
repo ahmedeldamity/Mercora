@@ -97,7 +97,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
 
     [Authorize]
     [HttpGet("get-current-user-address")]
-    public async Task<ActionResult<UserAddressResponse>> GetCurrentUserAddress()
+    public async Task<ActionResult<UserAddressModel>> GetCurrentUserAddress()
     {
         var result = await accountService.GetCurrentUserAddress(User);
 
@@ -106,7 +106,7 @@ public class AccountController(IAccountService accountService) : ControllerBase
 
     [Authorize]
     [HttpPut("update-current-user-address")]
-    public async Task<ActionResult<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress)
+    public async Task<ActionResult<UserAddressModel>> UpdateUserAddress(UserAddressModel updatedAddress)
     {
         var result = await accountService.UpdateUserAddress(updatedAddress, User);
 

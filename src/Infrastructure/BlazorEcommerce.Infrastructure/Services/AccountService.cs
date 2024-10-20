@@ -301,25 +301,25 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 		return Result.Success(userResponse);
 	}
 
-	public async Task<Result<UserAddressResponse>> GetCurrentUserAddress(ClaimsPrincipal userClaims)
+	public async Task<Result<UserAddressModel>> GetCurrentUserAddress(ClaimsPrincipal userClaims)
 	{
 		var email = userClaims.FindFirstValue(ClaimTypes.Email);
 
 		var user = await userManager.Users.Include(x => x.Address).SingleOrDefaultAsync(u => u.Email == email);
 
 		if (user?.Address is null)
-			return Result.Failure<UserAddressResponse>(new Error(404, "The address is not available in our system."));
+			return Result.Failure<UserAddressModel>(new Error(404, "The address is not available in our system."));
 
-		var address = mapper.Map<UserAddress, UserAddressResponse>(user.Address);
+		var address = mapper.Map<UserAddress, UserAddressModel>(user.Address);
 
 		return Result.Success(address);
 	}
 
-	public async Task<Result<UserAddressResponse>> UpdateUserAddress(UserAddressResponse updatedAddress, ClaimsPrincipal userClaims)
+	public async Task<Result<UserAddressModel>> UpdateUserAddress(UserAddressModel updatedAddress, ClaimsPrincipal userClaims)
 	{
 		var email = userClaims.FindFirstValue(ClaimTypes.Email);
 
-		var address = mapper.Map<UserAddressResponse, UserAddress>(updatedAddress);
+		var address = mapper.Map<UserAddressModel, UserAddress>(updatedAddress);
 
 		var userEmail = userClaims.FindFirstValue(ClaimTypes.Email);
 
@@ -336,7 +336,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 
 		var errors = string.Join(", ", result.Errors.Select(e => e.Description));
 
-		return Result.Failure<UserAddressResponse>(new Error(400, errors));
+		return Result.Failure<UserAddressModel>(new Error(400, errors));
 	}
 
 	public async Task<Result> RevokeRefreshTokenAsync()

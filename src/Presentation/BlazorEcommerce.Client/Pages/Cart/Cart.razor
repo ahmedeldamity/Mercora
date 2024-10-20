@@ -21,9 +21,18 @@ else
 				<div class="row mt-3 mb-3">
 					<div class="col-6 offset-6">
 						<OrderTotals></OrderTotals>
-						<div class="d-grid">
-							<a href="checkout" class="btn btn-info">Proceed to checkout</a>
-						</div>
+						<AuthorizeView>
+							<Authorized>
+								<div class="d-grid mt-3">
+									<a href="checkout" class="btn btn-info">Proceed to checkout</a>
+								</div>
+							</Authorized>
+							<NotAuthorized>
+								<div class="d-grid mt-3">
+									<a href="login" class="btn btn-info">Proceed to checkout</a>
+								</div>
+							</NotAuthorized>
+						</AuthorizeView>
 					</div>
 				</div>
 			</div>
