@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Shared\AuthenticationButton.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="Blazored.LocalStorage" Version="4.5.0" />
     <PackageReference Include="Blazored.Toast" Version="4.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.Authorization" Version="8.0.10" />
@@ -27,18 +23,6 @@
   <ItemGroup>
     <Folder Include="Services\ProductService\" />
     <Folder Include="wwwroot\sample-data\" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <UpToDateCheckInput Remove="Shared\AuthenticationButton.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <_ContentIncludedByDefault Remove="Shared\AuthenticationButton.razor" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Include="Shared\AuthenticationButton.razor" />
   </ItemGroup>
 
   <ItemGroup>
