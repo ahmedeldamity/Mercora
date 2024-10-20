@@ -1,4 +1,8 @@
 ﻿@inherits LayoutComponentBase
+@inject IToastService ToastService
+@inject IAccountService AccountService
+@inject NavigationManager NavigationManager
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 <BlazoredToasts Position="ToastPosition.BottomRight" Timeout="4" IconType="IconType.FontAwesome" SuccessClass="success-toast-override"
 				SuccessIcon="fa fa-thumbs-up" ErrorIcon="fa fa-bug" />
@@ -14,14 +18,21 @@
 						<i class="bi bi-person-lines-fill fs-5 pe-1"></i>
 					</button>
 					<ul class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-						<li><a class="dropdown-item text-decoration-none m-0 p-2 fw-bold" href="/register"><i class="bi bi-person-fill-add fs-5 pe-2"></i> Register</a></li>
-						<li><a class="dropdown-item text-decoration-none m-0 p-2 fw-bold" href="/login"><i class="bi bi-person-fill fs-5 pe-2"></i> Login</a></li>
+						<AuthorizeView>
+							<Authorized>
+								<li><button type="button" class="dropdown-item text-decoration-none m-0 p-2 fw-bold" @onclick="Logout"><i class="bi bi-person-fill fs-5 pe-2"></i> Logout</button></li>
+							</Authorized>
+							<NotAuthorized>
+								<li><a class="dropdown-item text-decoration-none m-0 p-2 fw-bold" href="/register"><i class="bi bi-person-fill-add fs-5 pe-2"></i> Register</a></li>
+								<li><a class="dropdown-item text-decoration-none m-0 p-2 fw-bold" href="/login"><i class="bi bi-person-fill fs-5 pe-2"></i> Login</a></li>
+							</NotAuthorized>
+						</AuthorizeView>
 					</ul>
 				</div>
 			</div>
 		</div>
 		<div class="bg-primary">
-			<MercoraNavMenu DataChange="GetData"/>
+			<MercoraNavMenu/>
 		</div>
 		<article class="content px-4">
 			@Body
@@ -31,10 +42,14 @@
 
 @code
 {
-	private int CategoryId { set; get; }
-
-	public void GetData(int categoryId)
+	private async Task Logout()
 	{
-		CategoryId = categoryId;
+		await AccountService.Logout();
+
+		await AuthenticationStateProvider.GetAuthenticationStateAsync();
+
+		ToastService.ShowSuccess("Logout successful. See you soon!");
+
+		NavigationManager.NavigateTo("/login");
 	}
 }
