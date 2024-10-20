@@ -3,6 +3,8 @@
 @inject IAccountService AccountService
 @inject IToastService ToastService
 @inject ILocalStorageService LocalStorageService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
 
 <p>@Message</p>
 
@@ -33,6 +35,8 @@
                     ToastService.ShowSuccess("Authentication successful.");
 
                     await LocalStorageService.SetItemAsync("AuthenticationToken", result.Token);
+
+                    await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
 					Navigation.NavigateTo("/");
 				}

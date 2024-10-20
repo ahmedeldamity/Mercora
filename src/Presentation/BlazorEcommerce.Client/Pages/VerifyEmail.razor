@@ -3,6 +3,7 @@
 @inject IAccountService AccountService
 @inject IToastService ToastService
 @inject ILocalStorageService LocalStorageService
+@inject AuthenticationStateProvider AuthenticationStateProvider
 
 @if(Email is not null)
 {
@@ -45,6 +46,8 @@
 				ToastService.ShowSuccess("Email verified successfully.");
 
 				await LocalStorageService.SetItemAsync("AuthenticationToken", user.Token);
+
+				await AuthenticationStateProvider.GetAuthenticationStateAsync();
 
 				NavigationManager.NavigateTo("/");
 			}
