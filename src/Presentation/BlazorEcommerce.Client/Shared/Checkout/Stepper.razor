@@ -2,19 +2,23 @@
 	<ul class="nav nav-pills nav-justified">
 		<li class="nav-item">
 			<div class="d-flex">
-				<button class="nav-link py-3 text-uppercase fw-bold">
+				<button class="nav-link py-3 text-uppercase fw-bold @(CurrentStep == 1 ? "active" : "")">
 					Address
 				</button>
-				<button class="nav-link py-3 text-uppercase fw-bold">
+				<button class="nav-link py-3 text-uppercase fw-bold @(CurrentStep == 2 ? "active" : "")">
 					Delivery
 				</button>
-				<button class="nav-link py-3 text-uppercase fw-bold">
+				<button class="nav-link py-3 text-uppercase fw-bold @(CurrentStep == 3 ? "active" : "")">
 					Review
 				</button>
-				<button class="nav-link py-3 text-uppercase fw-bold">
+				<button class="nav-link py-3 text-uppercase fw-bold @(CurrentStep == 4 ? "active" : "")">
 					Payment
 				</button>
 			</div>
 		</li>
 	</ul>
 </div>
+
+@code{
+	[Parameter] public int CurrentStep { get; set; } = 1;
+}

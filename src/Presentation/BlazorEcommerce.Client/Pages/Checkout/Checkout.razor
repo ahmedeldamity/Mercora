@@ -3,23 +3,22 @@
 <div class="container mt-5">
 	<div class="row">
 		<div class="col-8">
-			<Stepper></Stepper>
+			<Stepper CurrentStep="CurrentStep"></Stepper>
 			<div class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2">
-				@if (CurrentStep == 1)
+				@switch (CurrentStep)
 				{
-					<CheckoutAddress Move="MoveBack"></CheckoutAddress>
-				}
-				else if (CurrentStep == 2)
-				{
-					<CheckoutDelivery Move="MoveBack"></CheckoutDelivery>
-				}
-				else if (CurrentStep == 3)
-				{
-					<CartSummary Move="MoveBack" IsBasket="false"></CartSummary>
-				}
-				else
-				{
-					Console.WriteLine("Last");
+					case 1:
+						<CheckoutAddress Move="MoveBack"></CheckoutAddress>
+						break;
+					case 2:
+						<CheckoutDelivery Move="MoveBack"></CheckoutDelivery>
+						break;
+					case 3:
+						<CartSummary Move="MoveBack" IsBasket="false"></CartSummary>
+						break;
+					default:
+						Console.WriteLine("Last");
+						break;
 				}
 			</div>
 		</div>
