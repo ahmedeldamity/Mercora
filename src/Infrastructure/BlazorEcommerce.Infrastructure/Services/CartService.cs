@@ -1,5 +1,5 @@
 ﻿namespace BlazorEcommerce.Infrastructure.Services;
-public class CartService(IBasketRepository basketRepository, IMapper mapper) : ICartService
+public class CartService(IBasketRepository basketRepository, IDeliveryMethodService deliveryMethodService, IMapper mapper) : ICartService
 {
     public async Task<Result<CartResponse>> CreateOrUpdateCartAsync(CartRequest cartDto)
     {
@@ -19,9 +19,25 @@ public class CartService(IBasketRepository basketRepository, IMapper mapper) : I
 
     public async Task<Result<CartResponse>> GetCartAsync(string id)
     {
-        var basket = await basketRepository.GetBasketAsync(id) ?? new Cart(id);
+        var basket = await basketRepository.GetBasketAsync(id);
 
-        var CartResponse = mapper.Map<Cart, CartResponse>(basket);
+        if (basket is null)
+        {
+	        var deliveryMethods = await deliveryMethodService.GetAllDeliveryMethodsAsync();
+
+	        var cheapestDeliveryMethod = deliveryMethods?.Value.FirstOrDefault(x => x.Cost == 0);
+
+	        if (cheapestDeliveryMethod != null)
+	        {
+		        basket = new Cart(id)
+		        {
+			        DeliveryMethodId = cheapestDeliveryMethod.Id,
+			        ShippingPrice = cheapestDeliveryMethod.Cost
+		        };
+	        }
+        }
+
+        var CartResponse = mapper.Map<Cart, CartResponse>(basket ?? new Cart(id));
 
         return Result.Success(CartResponse);
     }
