@@ -1,4 +1,4 @@
-﻿using BlazorEcommerce.Shared.Checkout;
+﻿using System.Net;
 using System.Net.Http.Headers;
 
 namespace BlazorEcommerce.Client.Services.Account;
@@ -102,7 +102,7 @@ public class AccountService(HttpClient httpClient, ILocalStorageService LocalSto
 
 	public async Task<string?> TryRefreshTokenAsync()
 	{
-		var response = await httpClient.GetAsync("/api/account/v1/refresh-token");
+		var response = await httpClient.GetAsync("api/v1/account/refresh-token");
 
 		if (response.IsSuccessStatusCode)
 		{
@@ -128,6 +128,18 @@ public class AccountService(HttpClient httpClient, ILocalStorageService LocalSto
 		try
 		{
 			var response = await httpClient.GetAsync("api/v1/account/get-current-user-address");
+
+			if (response.StatusCode == HttpStatusCode.Unauthorized)
+			{
+				var accessToken = await TryRefreshTokenAsync();
+
+				if (string.IsNullOrEmpty(accessToken) is false)
+				{
+					httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Replace("\"", ""));
+
+					response = await httpClient.GetAsync("api/v1/account/get-current-user-address");
+				}
+			}
 
 			if (response.IsSuccessStatusCode)
 			{
