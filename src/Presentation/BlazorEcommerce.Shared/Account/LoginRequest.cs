@@ -5,7 +5,8 @@ public class LoginRequest
 {
 	[Required(ErrorMessage = "Email is required")]
 	[EmailAddress(ErrorMessage = "Invalid Email Address")]
-	public string Email { get; set; } = string.Empty;
+    [StringLength(100, ErrorMessage = "Email must be at most 100 characters")]
+    public string Email { get; set; } = string.Empty;
 
 	[Required(ErrorMessage = "Password is required")]
 	[DataType(DataType.Password)]
