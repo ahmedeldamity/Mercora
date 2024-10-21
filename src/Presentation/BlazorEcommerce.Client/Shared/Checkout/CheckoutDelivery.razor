@@ -1,11 +1,13 @@
 ﻿@inject ICheckoutService CheckoutService
+@inject ICartService CartService
 
 <div class="mt-4">
 	<div class="row">
 		@foreach (var method in DeliveryMethods)
 		{
 			<div class="col-6 form-group">
-				<input type="radio" class="form-check-input" value="@method.Id">
+				<input type="radio" name="deliveryMethod" checked="@(SelectedDeliveryMethodId == method.Id)"
+					   @onchange="() => ChangeDeliveryMethod(method)" class="form-check-input border-black">
 				<label for="@method.Id" class="form-check-label ms-2 mb-3">
 					<strong>@method.Name - @method.Cost.ToString("C")</strong>
 					<br>
@@ -15,10 +17,10 @@
 		}
 	</div>
 	<div class="d-flex justify-content-between flex-row mt-2">
-		<button class="btn btn-outline-primary rounded-2">
+		<button class="btn btn-outline-primary rounded-2" @onclick="() => MoveStep(1)">
 			<i class="fa fa-angle-left"></i> Back to address
 		</button>
-		<button class="btn btn-primary rounded-2">
+		<button class="btn btn-primary rounded-2" @onclick="() => MoveStep(3)">
 			Go to review <i class="fa fa-angle-right"></i>
 		</button>
 	</div>
@@ -26,11 +28,29 @@
 
 @code{
 
+	[Parameter] public EventCallback<int> Move { set; get; }
+
+	private int SelectedDeliveryMethodId { get; set; } = 1;
+
 	List<OrderDeliveryMethodModel> DeliveryMethods { get; set; } = [];
 
 	protected override async Task OnInitializedAsync()
 	{
 		DeliveryMethods = await CheckoutService.GetDeliveryMethods();
+
+		if (CartService.Basket is { DeliveryMethodId: not null })
+			SelectedDeliveryMethodId = CartService.Basket.DeliveryMethodId ?? 1;
+	}
+
+	private void ChangeDeliveryMethod(OrderDeliveryMethodModel deliveryMethodModel)
+	{
+		SelectedDeliveryMethodId = deliveryMethodModel.Id;
+		CartService.ChangeDeliveryMethod(deliveryMethodModel);
+	}
+
+	private void MoveStep(int step)
+	{
+		Move.InvokeAsync(step);
 	}
 
 }

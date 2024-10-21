@@ -10,14 +10,14 @@ else
 	<div class="table-responsive">
 		<table class="table">
 			<thead class="table-primary text-uppercase">
-			<tr>
-				<th><div class="py-2">Product</div></th>
-				@if (IsBasket) { <th><div class="py-2">Stock</div></th> }
-				<th><div class="py-2">Price</div></th>
-				<th><div class="py-2 @(!IsBasket ? "text-center" : "")">Quantity</div></th>
-				<th><div class="py-2">Total</div></th>
-				@if (IsBasket) { <th><div class="py-2">Remove</div></th> }
-			</tr>
+				<tr class="bg-primary">
+					<th><div class="py-2">Product</div></th>
+					@if (IsBasket) { <th><div class="py-2">Stock</div></th> }
+					<th><div class="py-2">Price</div></th>
+					<th><div class="py-2 @(!IsBasket ? "text-center" : "")">Quantity</div></th>
+					<th><div class="py-2">Total</div></th>
+					@if (IsBasket) { <th><div class="py-2">Remove</div></th> }
+				</tr>
 			</thead>
 			<tbody>
 			@foreach (var item in Basket.Items)
@@ -35,7 +35,7 @@ else
 						</div>
 					</td>
 					@if (IsBasket) {
-							<td class="align-middle"><strong>@item.Quantity</strong></td>
+						<td class="align-middle"><strong>@item.Quantity</strong></td>
 					}
 					<td class="align-middle"><strong>@item.Price.ToString("C")</strong></td>
 					<td class="align-middle">
@@ -62,20 +62,25 @@ else
 			}
 			</tbody>
 		</table>
-		<div class="d-flex justify-content-between flex-row mt-2">
-			<button class="btn btn-outline-primary rounded-2">
-				<i class="fa fa-angle-left"></i> Back to delivery
-			</button>
-			<button class="btn btn-primary rounded-2">
-				Go to payment <i class="fa fa-angle-right"></i>
-			</button>
-		</div>
+		@if (!IsBasket)
+		{
+			<div class="d-flex justify-content-between flex-row mt-2">
+				<button class="btn btn-outline-primary rounded-2" @onclick="() => MoveStep(2)">
+					<i class="fa fa-angle-left"></i> Back to delivery
+				</button>
+				<button class="btn btn-primary rounded-2" @onclick="() => MoveStep(4)">
+					Go to payment <i class="fa fa-angle-right"></i>
+				</button>
+			</div>
+		}
 	</div>
 }
 
 @code {
 
 	private CartResponse? Basket { get; set; }
+
+	[Parameter] public EventCallback<int> Move { set; get; }
 
 	[Parameter] public EventCallback<(CartItemResponse, decimal)> IncreaseItem { set; get; }
 
@@ -111,4 +116,11 @@ else
 		CartService.OnChange -= StateHasChanged;
 	}
 
+	private void MoveStep(int step)
+	{
+		if(Basket is not null)
+			CartService.CreatePaymentIntend(Basket.Id);
+
+		Move.InvokeAsync(step);
+	}
 }

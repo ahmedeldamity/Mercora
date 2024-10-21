@@ -1,4 +1,6 @@
-﻿namespace BlazorEcommerce.Client.Services.CartService;
+﻿using BlazorEcommerce.Shared.Checkout;
+
+namespace BlazorEcommerce.Client.Services.CartService;
 public interface ICartService
 {
 	public event Action OnChange;
@@ -14,4 +16,8 @@ public interface ICartService
 	Task IncreaseItemCountInBasket(CartItemResponse item, decimal quantity);
 
 	Task RemoveItemFromBasket(int productId, decimal quantity);
+
+	Task ChangeDeliveryMethod(OrderDeliveryMethodModel deliveryMethodModel);
+
+	Task CreatePaymentIntend(string basketId);
 }

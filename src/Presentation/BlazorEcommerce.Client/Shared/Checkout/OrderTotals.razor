@@ -1,28 +1,35 @@
 ﻿@inject ICartService CartService
 @implements IDisposable
 
-<section style="background-color: whitesmoke;">
-	<div class="bg-primary text-light text-center px-4 py-3 text-uppercase fw-bold">
-		Order Summary
-	</div>
-	<div class="px-3">
-		<p class="fst-italic my-3">Shipping costs will be calculated based on choice made during checkout</p>
-		<ul class="list-unstyled mb-4">
-			<li class="d-flex justify-content-between py-3 border-bottom">
-				<strong class="text-muted">Order subtotal</strong>
-				<strong>$@CartTotal?.SubTotal</strong>
-			</li>
-			<li class="d-flex justify-content-between py-3 border-bottom">
-				<strong class="text-muted">Shipping and handling</strong>
-				<strong>$@CartTotal?.ShippingPrice</strong>
-			</li>
-			<li class="d-flex justify-content-between py-3 border-bottom">
-				<strong class="text-muted">Total</strong>
-				<strong>$@CartTotal?.Total</strong>
-			</li>
-		</ul>
-	</div>
-</section>
+@if (Basket is null || CartTotal is null)
+{
+	<p>@CartService.Message</p>
+}
+else
+{
+	<section style="background-color: whitesmoke;">
+		<div class="bg-primary text-light text-center px-4 py-3 text-uppercase fw-bold">
+			Order Summary
+		</div>
+		<div class="px-3">
+			<p class="fst-italic my-3">Shipping costs will be calculated based on choice made during checkout</p>
+			<ul class="list-unstyled mb-4">
+				<li class="d-flex justify-content-between py-3 border-bottom">
+					<strong class="text-muted">Order subtotal</strong>
+					<strong>$@CartTotal.SubTotal</strong>
+				</li>
+				<li class="d-flex justify-content-between py-3 border-bottom">
+					<strong class="text-muted">Shipping and handling</strong>
+					<strong>$@CartTotal.ShippingPrice</strong>
+				</li>
+				<li class="d-flex justify-content-between py-3 border-bottom">
+					<strong class="text-muted">Total</strong>
+					<strong>$@CartTotal.Total</strong>
+				</li>
+			</ul>
+		</div>
+	</section>
+}
 
 @code {
 	private CartResponse? Basket { get; set; }
@@ -32,7 +39,6 @@
 	protected override void OnInitialized()
 	{
 		GetData();
-
 		CartService.OnChange += UpdateBasket;
 	}
 
@@ -46,14 +52,19 @@
 	{
 		Basket = CartService.Basket;
 
-		var subTotal = Basket?.Items.Sum(x => x.Price * x.CartItemQuantity);
-
-		CartTotal = new CartTotal
+		if (Basket is not null)
 		{
-			SubTotal = subTotal,
-			ShippingPrice = 0,
-			Total = subTotal
-		};
+			var subTotal = Basket.Items.Sum(x => x.Price * x.CartItemQuantity);
+
+			var shippingPrice = Basket.ShippingPrice;
+
+			CartTotal = new CartTotal
+			{
+				SubTotal = subTotal,
+				ShippingPrice = shippingPrice,
+				Total = subTotal + shippingPrice
+			};
+		}
 	}
 
 	public void Dispose()

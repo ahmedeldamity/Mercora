@@ -1,4 +1,5 @@
-﻿using BlazorEcommerce.Shared.Checkout;
+﻿using BlazorEcommerce.Client.Pages.Cart;
+using BlazorEcommerce.Shared.Checkout;
 
 namespace BlazorEcommerce.Client.Services.Checkout;
 public interface ICheckoutService

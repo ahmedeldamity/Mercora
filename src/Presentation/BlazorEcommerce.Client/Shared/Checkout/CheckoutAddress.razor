@@ -46,10 +46,10 @@
 		</div>
 	</div>
 	<div class="d-flex justify-content-between flex-row mt-2">
-		<button class="btn btn-outline-primary rounded-2">
+		<a class="btn btn-outline-primary rounded-2" href="/cart">
 			<i class="fa fa-angle-left"></i> Back to cart
-		</button>
-		<button class="btn btn-primary rounded-2">
+		</a>
+		<button class="btn btn-primary rounded-2" @onclick="() => MoveStep(2)">
 			Go to delivery <i class="fa fa-angle-right"></i>
 		</button>
 	</div>
@@ -57,20 +57,23 @@
 
 @code {
 
+	[Parameter] public EventCallback<int> Move { set; get; }
+
 	UserAddressModel UserAddress = new();
 
 	protected override async Task OnInitializedAsync()
 	{
 		UserAddress = await AccountService.GetUserAddressAsync() ?? new UserAddressModel();
-
-		Console.WriteLine(UserAddress.FirstName);
 	}
 
 	private async Task HandleValidSubmit()
 	{
 		await AccountService.UpdateUserAddressAsync(UserAddress);
+	}
 
-		Console.WriteLine("Right");
+	private void MoveStep(int step)
+	{
+		Move.InvokeAsync(step);
 	}
 
 }

@@ -5,10 +5,22 @@
 		<div class="col-8">
 			<Stepper></Stepper>
 			<div class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2">
-				@* <CheckoutAddress></CheckoutAddress> *@
-				@* <CheckoutDelivery></CheckoutDelivery> *@
-				<CartSummary IsBasket="false"></CartSummary>
-				
+				@if (CurrentStep == 1)
+				{
+					<CheckoutAddress Move="MoveBack"></CheckoutAddress>
+				}
+				else if (CurrentStep == 2)
+				{
+					<CheckoutDelivery Move="MoveBack"></CheckoutDelivery>
+				}
+				else if (CurrentStep == 3)
+				{
+					<CartSummary Move="MoveBack" IsBasket="false"></CartSummary>
+				}
+				else
+				{
+					Console.WriteLine("Last");
+				}
 			</div>
 		</div>
 		<div class="col-4">
@@ -18,7 +30,13 @@
 	</div>
 </div>
 
-
 @code {
 
+	private int CurrentStep = 1;
+
+	private void MoveBack(int step)
+	{
+		CurrentStep = step;
+	}
+	
 }

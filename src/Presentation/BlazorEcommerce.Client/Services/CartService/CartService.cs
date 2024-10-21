@@ -1,4 +1,6 @@
-﻿namespace BlazorEcommerce.Client.Services.CartService;
+﻿using BlazorEcommerce.Shared.Checkout;
+
+namespace BlazorEcommerce.Client.Services.CartService;
 public class CartService(HttpClient httpClient, ILocalStorageService localStorageService) : ICartService
 {
 	public event Action? OnChange;
@@ -16,6 +18,7 @@ public class CartService(HttpClient httpClient, ILocalStorageService localStorag
 		if (string.IsNullOrWhiteSpace(cartId))
 		{
 			cartId = Guid.NewGuid().ToString();
+
 			await localStorageService.SetItemAsync("cartId", cartId);
 		}
 
@@ -71,6 +74,33 @@ public class CartService(HttpClient httpClient, ILocalStorageService localStorag
 		await UpdateBasket();
 	}
 
+	public async Task ChangeDeliveryMethod(OrderDeliveryMethodModel deliveryMethodModel)
+	{
+		if(Basket == null) return;
+
+		Basket.DeliveryMethodId = deliveryMethodModel.Id;
+
+		Basket.ShippingPrice = deliveryMethodModel.Cost;
+
+		await UpdateBasket();
+	}
+
+	public async Task CreatePaymentIntend(string basketId)
+	{
+		var response = await httpClient.PostAsJsonAsync($"api/Payment/{basketId}", Basket);
+
+		if (response.IsSuccessStatusCode)
+		{
+			Basket = await response.Content.ReadFromJsonAsync<CartResponse>();
+
+			Message = "Payment created successfully.";
+
+			Console.WriteLine("Success Man");
+
+			NotifyStateChanged();
+		}
+	}
+
 	private async Task UpdateBasket()
 	{
 		var response = await httpClient.PostAsJsonAsync("api/Cart", Basket);
@@ -92,6 +122,9 @@ public class CartService(HttpClient httpClient, ILocalStorageService localStorag
 		if (response.IsSuccessStatusCode)
 		{
 			Basket = await response.Content.ReadFromJsonAsync<CartResponse>();
+
+			Console.WriteLine($"Pricce: {Basket?.ShippingPrice}");
+
 			Message = "Cart loaded successfully.";
 		}
 		else
