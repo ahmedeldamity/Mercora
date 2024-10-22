@@ -1,7 +1,7 @@
 ﻿@inject ICartService CartService
 @implements IDisposable
 
-@if (Basket is null || CartTotal is null)
+@if (CartResponse is null || CartTotal is null)
 {
 	<p>@CartService.Message</p>
 }
@@ -32,7 +32,7 @@ else
 }
 
 @code {
-	private CartResponse? Basket { get; set; }
+	private CartResponse? CartResponse { get; set; }
 
 	private CartTotal? CartTotal { get; set; }
 
@@ -50,13 +50,13 @@ else
 
 	private void GetData()
 	{
-		Basket = CartService.Basket;
+		CartResponse = CartService.Cart;
 
-		if (Basket is not null)
+		if (CartResponse is not null)
 		{
-			var subTotal = Basket.Items.Sum(x => x.Price * x.CartItemQuantity);
+			var subTotal = CartResponse.Items.Sum(x => x.Price * x.CartItemQuantity);
 
-			var shippingPrice = Basket.ShippingPrice;
+			var shippingPrice = CartResponse.ShippingPrice;
 
 			CartTotal = new CartTotal
 			{

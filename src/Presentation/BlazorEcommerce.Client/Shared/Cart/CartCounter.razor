@@ -12,13 +12,13 @@
 
 	protected override async Task OnInitializedAsync()
 	{
-		await CartService.InitializeBasket();
+		await CartService.InitializeCart();
 		CartService.OnChange += StateHasChanged;	
 	}
 
 	private int GetCartItemCount()
 	{
-		var cartCount = CartService?.Basket?.Items.Count ?? 0;
+		var cartCount = CartService?.Cart?.Items.Count ?? 0;
 		return cartCount;
 	}
 

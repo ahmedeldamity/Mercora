@@ -1,7 +1,7 @@
 ﻿@inject ICartService CartService
 @implements IDisposable
 
-@if (Basket is null)
+@if (CartResponse is null)
 {
 	<p>@CartService.Message</p>
 }
@@ -12,20 +12,20 @@ else
 			<thead class="table-primary text-uppercase">
 				<tr class="bg-primary">
 					<th><div class="py-2">Product</div></th>
-					@if (IsBasket) { <th><div class="py-2">Stock</div></th> }
+					@if (IsCart) { <th><div class="py-2">Stock</div></th> }
 					<th><div class="py-2">Price</div></th>
-					<th><div class="py-2 @(!IsBasket ? "text-center" : "")">Quantity</div></th>
+					<th><div class="py-2 @(!IsCart ? "text-center" : "")">Quantity</div></th>
 					<th><div class="py-2">Total</div></th>
-					@if (IsBasket) { <th><div class="py-2">Remove</div></th> }
+					@if (IsCart) { <th><div class="py-2">Remove</div></th> }
 				</tr>
 			</thead>
 			<tbody>
-			@foreach (var item in Basket.Items)
+			@foreach (var item in CartResponse.Items)
 			{
 				<tr>
 					<td>
 						<div class="p-2 d-inline-block">
-							<img class="img-fluid basket-image" src="@item.ImageCover" alt="@item.Name">
+							<img class="img-fluid cart-summary-image" src="@item.ImageCover" alt="@item.Name">
 							<div class="ms-3 d-inline-block align-middle">
 								<h5 class="mb-0">
 									<a href="/product/@item.Id" class="text-primary fw-bold text-decoration-none">@item.Name</a>
@@ -34,23 +34,26 @@ else
 							</div>
 						</div>
 					</td>
-					@if (IsBasket) {
+					@if (IsCart)
+					{
 						<td class="align-middle"><strong>@item.Quantity</strong></td>
 					}
 					<td class="align-middle"><strong>@item.Price.ToString("C")</strong></td>
 					<td class="align-middle">
-						<div class="d-flex align-items-center @(IsBasket ? "" : "justify-content-center")">
-							@if(IsBasket) {
+							<div class="d-flex align-items-center @(IsCart ? "" : "justify-content-center")">
+							@if (IsCart)
+							{
 								<i class="bi bi-dash-circle-fill text-warning me-2 fs-3 clickable" @onclick="() => RemoveItem(item.Id, 1)"></i>
 							}
 							<strong class="fs-4">@item.CartItemQuantity</strong>
-							@if (IsBasket) {
+							@if (IsCart)
+							{
 								<i class="bi bi-plus-circle-fill text-warning ms-2 fs-3 clickable" @onclick="() => AddItem(item, 1)"></i>
 							}
 						</div>
 					</td>
 					<td class="align-middle"><strong>@((item.Price * item.CartItemQuantity).ToString("C"))</strong></td>
-					@if (IsBasket)
+					@if (IsCart)
 					{
 						<td class="align-middle">
 							<a class="text-danger">
@@ -62,7 +65,7 @@ else
 			}
 			</tbody>
 		</table>
-		@if (!IsBasket)
+		@if (!IsCart)
 		{
 			<div class="d-flex justify-content-between flex-row mt-2">
 				<button class="btn btn-outline-primary rounded-2" @onclick="() => MoveStep(2)">
@@ -78,7 +81,7 @@ else
 
 @code {
 
-	private CartResponse? Basket { get; set; }
+	private CartResponse? CartResponse { get; set; }
 
 	[Parameter] public EventCallback<int> Move { set; get; }
 
@@ -86,7 +89,7 @@ else
 
 	[Parameter] public EventCallback<(int, decimal)> DecreaseItem { set; get; }
 
-	[Parameter] public bool IsBasket { get; set; } = true;
+	[Parameter] public bool IsCart { get; set; } = true;
 
 	private void AddItem(CartItemResponse item, decimal quantity)
 	{
@@ -100,14 +103,14 @@ else
 
 	protected override void OnInitialized()
 	{
-		Basket = CartService.Basket;
+		CartResponse = CartService.Cart;
 
-		CartService.OnChange += UpdateBasket;
+		CartService.OnChange += UpdateCart;
 	}
 
-	private void UpdateBasket()
+	private void UpdateCart()
 	{
-		Basket = CartService.Basket;
+		CartResponse = CartService.Cart;
 		StateHasChanged();
 	}
 
@@ -118,8 +121,8 @@ else
 
 	private void MoveStep(int step)
 	{
-		if(Basket is not null)
-			CartService.CreatePaymentIntend(Basket.Id);
+		if (CartResponse is not null)
+			CartService.CreatePaymentIntend(CartResponse.Id);
 
 		Move.InvokeAsync(step);
 	}

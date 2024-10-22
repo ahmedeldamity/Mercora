@@ -1,23 +1,21 @@
-﻿using BlazorEcommerce.Shared.Checkout;
-
-namespace BlazorEcommerce.Client.Services.CartService;
+﻿namespace BlazorEcommerce.Client.Services.CartService;
 public interface ICartService
 {
 	public event Action OnChange;
 
-	public CartResponse? Basket { get; set; }
+	public CartResponse? Cart { get; set; }
 
 	public string Message { get; set; }
 
-	Task InitializeBasket();
+	Task InitializeCart();
 
-	Task AddProductToBasket(ProductResponse product, decimal quantity);
+	Task AddProductToCart(ProductResponse product, decimal quantity);
 
-	Task IncreaseItemCountInBasket(CartItemResponse item, decimal quantity);
+	Task IncreaseItemCountInCart(CartItemResponse item, decimal quantity);
 
-	Task RemoveItemFromBasket(int productId, decimal quantity);
+	Task RemoveItemFromCart(int productId, decimal quantity);
 
 	Task ChangeDeliveryMethod(OrderDeliveryMethodModel deliveryMethodModel);
 
-	Task CreatePaymentIntend(string basketId);
+	Task CreatePaymentIntend(string cartId);
 }

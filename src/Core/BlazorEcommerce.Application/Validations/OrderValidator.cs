@@ -3,11 +3,11 @@ public class OrderValidator: AbstractValidator<OrderRequest>
 {
     public OrderValidator()
     {
-        RuleFor(x => x.BasketId)
+        RuleFor(x => x.CartId)
             .NotEmpty()
-            .WithMessage("BasketId is required")
+            .WithMessage("CartId is required")
             .MaximumLength(128)
-            .WithMessage("BasketId must not exceed 128 characters");
+            .WithMessage("CartId must not exceed 128 characters");
 
         RuleFor(x => x.ShippingAddress)
             .NotNull()

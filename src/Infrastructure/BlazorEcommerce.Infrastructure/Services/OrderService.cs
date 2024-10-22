@@ -1,29 +1,29 @@
 ﻿namespace BlazorEcommerce.Infrastructure.Services;
-public class OrderService(IUnitOfWork unitOfWork, IBasketRepository basketRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor) : IOrderService
+public class OrderService(IUnitOfWork unitOfWork, ICartRepository cartRepository, IMapper mapper, IHttpContextAccessor httpContextAccessor) : IOrderService
 {
     #region Why We Take OrderAddress
     // In my thinking before, I was thinking to take buyerEmail and bring user address from database
     // but this is not good idea because it is not always the user take the order to his address
     // it can be takes the order to another address like where he buys gift to another person
     #endregion
-    public async Task<Result<OrderResponse>> CreateOrderAsync(string basketId, OrderAddressRequest orderAddress)
+    public async Task<Result<OrderResponse>> CreateOrderAsync(string cartId, OrderAddressRequest orderAddress)
     {
         var userEmail = httpContextAccessor.HttpContext?.User.FindFirstValue(ClaimTypes.Email);
 
         var address = mapper.Map<OrderAddressRequest, OrderAddress>(orderAddress);
 
-        // 1. Get basket from basket repository
-        var basket = await basketRepository.GetBasketAsync(basketId);
+		// 1. Get cart from cart repository
+		var cart = await cartRepository.GetCartAsync(cartId);
 
-        if (basket?.DeliveryMethodId is null || basket.PaymentIntentId is null)
+        if (cart?.DeliveryMethodId is null || cart.PaymentIntentId is null)
             return Result.Failure<OrderResponse>(new Error(404, "Invalid basket data. Ensure that the basket, delivery method, and payment intent are properly provided."));
 
         // 2. Get Items at Cart from Product repository for get the real products price
         var orderItems = new List<OrderItem>();
-
-        if (basket?.Items?.Count > 0)
+	    
+        if (cart?.Items?.Count > 0)
         {
-            foreach (var item in basket.Items)
+            foreach (var item in cart.Items)
             {
                 var product = await unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
 
@@ -39,13 +39,13 @@ public class OrderService(IUnitOfWork unitOfWork, IBasketRepository basketReposi
         var subTotal = orderItems.Sum(orderItem => orderItem.Price * orderItem.Quantity);
 
         // 4. Get Delivery Method
-        var deliveryMethod = await unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket!.DeliveryMethodId.Value);
+        var deliveryMethod = await unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(cart!.DeliveryMethodId.Value);
 
         // 5. Check if exist order in database has the same Payment Intent will update it else will create new one
 
         var orderRepository = unitOfWork.Repository<Order>();
 
-        var orderSpec = new OrderWithPaymentIntentSpecifications(basket.PaymentIntentId);
+        var orderSpec = new OrderWithPaymentIntentSpecifications(cart.PaymentIntentId);
 
         var order = await orderRepository.GetEntityAsync(orderSpec);
 
@@ -61,7 +61,7 @@ public class OrderService(IUnitOfWork unitOfWork, IBasketRepository basketReposi
         }
         else    // Create New Order
         {
-            order = new Order(userEmail!, address, deliveryMethod!, orderItems, subTotal, basket.PaymentIntentId);
+            order = new Order(userEmail!, address, deliveryMethod!, orderItems, subTotal, cart.PaymentIntentId);
 
             await orderRepository.AddAsync(order);
         }

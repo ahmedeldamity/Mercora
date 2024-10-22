@@ -40,7 +40,7 @@ else
 	private async Task UpdateQuantity(ProductResponse product)
 	{
 		if (product is not null)
-			await CartService.AddProductToBasket(product, 1);
+			await CartService.AddProductToCart(product, 1);
 
 		ToastService.ShowSuccess("Product Added To Cart Successfully");
 	}

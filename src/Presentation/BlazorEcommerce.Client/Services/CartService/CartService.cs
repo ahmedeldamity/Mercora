@@ -1,19 +1,17 @@
-﻿using BlazorEcommerce.Shared.Checkout;
-
-namespace BlazorEcommerce.Client.Services.CartService;
+﻿namespace BlazorEcommerce.Client.Services.CartService;
 public class CartService(IHttpClientFactory _httpClientFactory, ILocalStorageService localStorageService) : ICartService
 {
 	private readonly HttpClient httpClient = _httpClientFactory.CreateClient("Auth");
 
 	public event Action? OnChange;
 
-	public CartResponse? Basket { get; set; }
+	public CartResponse? Cart { get; set; }
 
 	public string Message { get; set; } = "Loading cart...";
-
+	
 	private void NotifyStateChanged() => OnChange?.Invoke();
 
-	public async Task InitializeBasket()
+	public async Task InitializeCart()
 	{
 		var cartId = await localStorageService.GetItemAsync<string>("cartId");
 
@@ -24,26 +22,26 @@ public class CartService(IHttpClientFactory _httpClientFactory, ILocalStorageSer
 			await localStorageService.SetItemAsync("cartId", cartId);
 		}
 
-		await RefreshBasket(cartId);
+		await RefreshCart(cartId);
 	}
 
-	public async Task AddProductToBasket(ProductResponse product, decimal quantity)
+	public async Task AddProductToCart(ProductResponse product, decimal quantity)
 	{
 		var cartItem = MapToCartItemRequest(product, quantity);
 
-		await AddOrUpdateItemInBasket(cartItem);
+		await AddOrUpdateItemInCart(cartItem);
 	}
 
-	public async Task IncreaseItemCountInBasket(CartItemResponse item, decimal quantity)
+	public async Task IncreaseItemCountInCart(CartItemResponse item, decimal quantity)
 	{
 		var cartItem = MapToCartItemRequest(item, quantity);
 
-		await AddOrUpdateItemInBasket(cartItem);
+		await AddOrUpdateItemInCart(cartItem);
 	}
 
-	private async Task AddOrUpdateItemInBasket(CartItemRequest item)
+	private async Task AddOrUpdateItemInCart(CartItemRequest item)
 	{
-		var existingItem = Basket?.Items.FirstOrDefault(x => x.Id == item.Id);
+		var existingItem = Cart?.Items.FirstOrDefault(x => x.Id == item.Id);
 
 		if (existingItem != null)
 		{
@@ -52,48 +50,44 @@ public class CartService(IHttpClientFactory _httpClientFactory, ILocalStorageSer
 		else
 		{
 			var itemResponse = MapToCartItemResponse(item);
-			Basket?.Items.Add(itemResponse);
+			Cart?.Items.Add(itemResponse);
 		}
 
-		await UpdateBasket();
+		await UpdateCart();
 	}
 
-	public async Task RemoveItemFromBasket(int productId, decimal quantity)
+	public async Task RemoveItemFromCart(int productId, decimal quantity)
 	{
-		var item = Basket?.Items.FirstOrDefault(x => x.Id == productId);
+		var item = Cart?.Items.FirstOrDefault(x => x.Id == productId);
 
 		if (item == null) return;
 
 		if (item.CartItemQuantity > quantity)
-		{
 			item.CartItemQuantity -= quantity;
-		}
 		else
-		{
-			Basket?.Items.Remove(item);
-		}
+			Cart?.Items.Remove(item);
 
-		await UpdateBasket();
+		await UpdateCart();
 	}
 
 	public async Task ChangeDeliveryMethod(OrderDeliveryMethodModel deliveryMethodModel)
 	{
-		if(Basket == null) return;
+		if(Cart == null) return;
 
-		Basket.DeliveryMethodId = deliveryMethodModel.Id;
+		Cart.DeliveryMethodId = deliveryMethodModel.Id;
 
-		Basket.ShippingPrice = deliveryMethodModel.Cost;
+		Cart.ShippingPrice = deliveryMethodModel.Cost;
 
-		await UpdateBasket();
+		await UpdateCart();
 	}
 
-	public async Task CreatePaymentIntend(string basketId)
+	public async Task CreatePaymentIntend(string cartId)
 	{
-		var response = await httpClient.PostAsJsonAsync($"api/Payment/{basketId}", Basket);
+		var response = await httpClient.PostAsJsonAsync($"api/Payment/{cartId}", Cart);
 
 		if (response.IsSuccessStatusCode)
 		{
-			Basket = await response.Content.ReadFromJsonAsync<CartResponse>();
+			Cart = await response.Content.ReadFromJsonAsync<CartResponse>();
 
 			Message = "Payment created successfully.";
 
@@ -103,35 +97,32 @@ public class CartService(IHttpClientFactory _httpClientFactory, ILocalStorageSer
 		}
 	}
 
-	private async Task UpdateBasket()
+	private async Task UpdateCart()
 	{
-		var response = await httpClient.PostAsJsonAsync("api/Cart", Basket);
+		var response = await httpClient.PostAsJsonAsync("api/Cart", Cart);
 
 		if (!response.IsSuccessStatusCode)
 		{
 			Message = "Failed to update cart.";
 		}
 
-		Basket = await response.Content.ReadFromJsonAsync<CartResponse>();
+		Cart = await response.Content.ReadFromJsonAsync<CartResponse>();
 
 		NotifyStateChanged();
 	}
 
-	private async Task RefreshBasket(string cartId)
+	private async Task RefreshCart(string cartId)
 	{
 		var response = await httpClient.GetAsync($"api/Cart?id={cartId}");
 
 		if (response.IsSuccessStatusCode)
 		{
-			Basket = await response.Content.ReadFromJsonAsync<CartResponse>();
-
-			Console.WriteLine($"Pricce: {Basket?.ShippingPrice}");
-
+			Cart = await response.Content.ReadFromJsonAsync<CartResponse>();
 			Message = "Cart loaded successfully.";
 		}
 		else
 		{
-			Basket = new CartResponse(cartId);
+			Cart = new CartResponse(cartId);
 			Message = "Failed to load cart.";
 		}
 

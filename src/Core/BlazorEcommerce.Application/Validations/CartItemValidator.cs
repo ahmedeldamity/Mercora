@@ -1,7 +1,7 @@
 ﻿namespace BlazorEcommerce.Application.Validations;
-public class BasketItemValidator : AbstractValidator<CartItemRequest>
+public class CartItemValidator : AbstractValidator<CartItemRequest>
 {
-    public BasketItemValidator()
+    public CartItemValidator()
     {
         RuleFor(x => x.Name)
             .NotEmpty()

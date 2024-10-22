@@ -2,9 +2,9 @@
 public class CartController(ICartService cartService) : BaseController
 {
     [HttpPost]
-    public async Task<ActionResult<CartResponse>> CreateOrUpdateCart(CartRequest cartDto)
+    public async Task<ActionResult<CartResponse>> CreateOrUpdateCart(CartRequest cartRequest)
     {
-        var result = await cartService.CreateOrUpdateCartAsync(cartDto);
+        var result = await cartService.CreateOrUpdateCartAsync(cartRequest);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }

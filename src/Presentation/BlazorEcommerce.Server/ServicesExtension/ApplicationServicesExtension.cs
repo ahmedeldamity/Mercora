@@ -19,7 +19,7 @@ public static class ApplicationServicesExtension
         services.AddScoped(typeof(IBrandService), typeof(BrandService));
 
         // Register Cart Repository
-        services.AddScoped(typeof(IBasketRepository), typeof(CartRepository));
+        services.AddScoped(typeof(ICartRepository), typeof(CartRepository));
 
         // Register Order Service
         services.AddScoped(typeof(IOrderService), typeof(OrderService));

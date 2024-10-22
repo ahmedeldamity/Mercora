@@ -69,7 +69,7 @@ else
     private async Task UpdateQuantity()
 	{
 		if (Product is not null)
-			await CartService.AddProductToBasket(Product, CurrentQuantity);
+			await CartService.AddProductToCart(Product, CurrentQuantity);
 
         NavigationManager.NavigateTo("/cart");
 	}

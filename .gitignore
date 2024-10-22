@@ -363,3 +363,14 @@ MigrationBackup/
 FodyWeavers.xsd
 
 *.json
+
+images
+
+*.png
+.webp
+.jpg
+.jpeg
+.gif
+.svg
+.ico
+.avif

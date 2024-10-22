@@ -6,7 +6,7 @@ public class OrderController(IOrderService orderService) : BaseController
     [HttpPost]
     public async Task<ActionResult> CreateOrder(OrderRequest orderDto)
     {
-        var result = await orderService.CreateOrderAsync(orderDto.BasketId, orderDto.ShippingAddress);
+        var result = await orderService.CreateOrderAsync(orderDto.CartId, orderDto.ShippingAddress);
 
         return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }

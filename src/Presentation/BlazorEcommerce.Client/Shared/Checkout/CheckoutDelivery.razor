@@ -38,8 +38,8 @@
 	{
 		DeliveryMethods = await CheckoutService.GetDeliveryMethods();
 
-		if (CartService.Basket is { DeliveryMethodId: not null })
-			SelectedDeliveryMethodId = CartService.Basket.DeliveryMethodId ?? 1;
+		if (CartService.Cart is { DeliveryMethodId: not null })
+			SelectedDeliveryMethodId = CartService.Cart.DeliveryMethodId ?? 1;
 	}
 
 	private void ChangeDeliveryMethod(OrderDeliveryMethodModel deliveryMethodModel)

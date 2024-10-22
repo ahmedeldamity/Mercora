@@ -2,34 +2,34 @@
 using Product = BlazorEcommerce.Domain.Entities.ProductEntities.Product;
 
 namespace BlazorEcommerce.Infrastructure.Services;
-public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepository, IConfiguration configuration, IMapper mapper) : IPaymentService
+public class PaymentService(IUnitOfWork unitOfWork, ICartRepository cartRepository, IConfiguration configuration, IMapper mapper) : IPaymentService
 {
-    public async Task<Result<CartResponse>> CreateOrUpdatePaymentIntent(string basketId)
+    public async Task<Result<CartResponse>> CreateOrUpdatePaymentIntent(string cartId)
     {
         // ser secret key of stripe
         StripeConfiguration.ApiKey = configuration["StripeSettings:Secretkey"];
 
         // get amount of salary from basket
-        var basket = await basketRepository.GetBasketAsync(basketId);
+        var cart = await cartRepository.GetCartAsync(cartId);
 
-        if (basket is null)
+        if (cart is null)
             return Result.Failure<CartResponse>(new Error(404, "The specified basket could not be found. Please check the basket details and try again."));
 
-        if (basket.DeliveryMethodId.HasValue)
+        if (cart.DeliveryMethodId.HasValue)
         {
-            var deliveryMethod = await unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(basket.DeliveryMethodId.Value);
+            var deliveryMethod = await unitOfWork.Repository<OrderDeliveryMethod>().GetEntityAsync(cart.DeliveryMethodId.Value);
 
             if (deliveryMethod is null)
             {
                 return Result.Failure<CartResponse>(new Error(404, "The specified delivery method could not be found. Please check the basket details and try again."));
             }
 
-            basket.ShippingPrice = deliveryMethod.Cost;
+            cart.ShippingPrice = deliveryMethod.Cost;
         }
 
-        if (basket?.Items.Count > 0)
+        if (cart?.Items.Count > 0)
         {
-            foreach (var item in basket.Items)
+            foreach (var item in cart.Items)
             {
                 var product = await unitOfWork.Repository<Product>().GetEntityAsync(item.Id);
 
@@ -49,11 +49,11 @@ public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepo
 
         PaymentIntent paymentIntent;
 
-        var itemsTotal = basket!.Items.Sum(item => (long)(item.Price * item.Quantity * 100));
+        var itemsTotal = cart!.Items.Sum(item => (long)(item.Price * item.Quantity * 100));
 
-        var shippingTotal = (long)(basket.ShippingPrice! * 100);
+        var shippingTotal = (long)(cart.ShippingPrice! * 100);
 
-        if (string.IsNullOrEmpty(basket?.PaymentIntentId)) // -> create new payment intent
+        if (string.IsNullOrEmpty(cart?.PaymentIntentId)) // -> create new payment intent
         {
             var createOptions = new PaymentIntentCreateOptions()
             {
@@ -64,9 +64,9 @@ public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepo
 
             paymentIntent = await paymentIntentService.CreateAsync(createOptions);
 
-            basket!.PaymentIntentId = paymentIntent.Id;
+            cart!.PaymentIntentId = paymentIntent.Id;
 
-            basket.ClientSecret = paymentIntent.ClientSecret;
+            cart.ClientSecret = paymentIntent.ClientSecret;
         }
         else // -> update payment intent
         {
@@ -75,12 +75,12 @@ public class PaymentService(IUnitOfWork unitOfWork, IBasketRepository basketRepo
                 Amount = itemsTotal + shippingTotal,
             };
 
-            paymentIntent = await paymentIntentService.UpdateAsync(basket.PaymentIntentId, updateOptions);
+            paymentIntent = await paymentIntentService.UpdateAsync(cart.PaymentIntentId, updateOptions);
         }
 
-        await basketRepository.CreateOrUpdateBasketAsync(basket);
+        await cartRepository.CreateOrUpdateCartAsync(cart);
 
-        var CartResponse = mapper.Map<Cart, CartResponse>(basket);
+        var CartResponse = mapper.Map<Cart, CartResponse>(cart);
 
         return Result.Success(CartResponse);
     }

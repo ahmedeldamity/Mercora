@@ -1,27 +1,27 @@
 ﻿namespace BlazorEcommerce.Infrastructure.Services;
-public class CartService(IBasketRepository basketRepository, IDeliveryMethodService deliveryMethodService, IMapper mapper) : ICartService
+public class CartService(ICartRepository cartRepository, IDeliveryMethodService deliveryMethodService, IMapper mapper) : ICartService
 {
-    public async Task<Result<CartResponse>> CreateOrUpdateCartAsync(CartRequest cartDto)
+    public async Task<Result<CartResponse>> CreateOrUpdateCartAsync(CartRequest cartRequest)
     {
-        var basket = mapper.Map<CartRequest, Cart>(cartDto);
+        var cart = mapper.Map<CartRequest, Cart>(cartRequest);
 
-        var createdOrUpdatedBasket = await basketRepository.CreateOrUpdateBasketAsync(basket);
+        var createdOrUpdatedCart = await cartRepository.CreateOrUpdateCartAsync(cart);
 
-        if (createdOrUpdatedBasket is null)
+        if (createdOrUpdatedCart is null)
         {
-            return Result.Failure<CartResponse>(new Error(400, "Failed to create or update the basket. Please try again."));
+            return Result.Failure<CartResponse>(new Error(400, "Failed to create or update the cart. Please try again."));
         }
 
-        var CartResponse = mapper.Map<Cart, CartResponse>(createdOrUpdatedBasket);
-
+        var CartResponse = mapper.Map<Cart, CartResponse>(createdOrUpdatedCart);
+ 
         return Result.Success(CartResponse);
     }
-
+	
     public async Task<Result<CartResponse>> GetCartAsync(string id)
     {
-        var basket = await basketRepository.GetBasketAsync(id);
+        var cart = await cartRepository.GetCartAsync(id);
 
-        if (basket is null)
+        if (cart is null)
         {
 	        var deliveryMethods = await deliveryMethodService.GetAllDeliveryMethodsAsync();
 
@@ -29,7 +29,7 @@ public class CartService(IBasketRepository basketRepository, IDeliveryMethodServ
 
 	        if (cheapestDeliveryMethod != null)
 	        {
-		        basket = new Cart(id)
+		        cart = new Cart(id)
 		        {
 			        DeliveryMethodId = cheapestDeliveryMethod.Id,
 			        ShippingPrice = cheapestDeliveryMethod.Cost
@@ -37,14 +37,14 @@ public class CartService(IBasketRepository basketRepository, IDeliveryMethodServ
 	        }
         }
 
-        var CartResponse = mapper.Map<Cart, CartResponse>(basket ?? new Cart(id));
+        var CartResponse = mapper.Map<Cart, CartResponse>(cart ?? new Cart(id));
 
         return Result.Success(CartResponse);
     }
 	
     public async Task DeleteCartAsync(string id)
     {
-        await basketRepository.DeleteBasketAsync(id);
+        await cartRepository.DeleteCartAsync(id);
     }
 
 }

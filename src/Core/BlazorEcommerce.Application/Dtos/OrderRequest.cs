@@ -1,5 +1,5 @@
 ﻿namespace BlazorEcommerce.Application.Dtos;
 public record OrderRequest(
-    string BasketId,
+    string CartId,
     OrderAddressRequest ShippingAddress
 );

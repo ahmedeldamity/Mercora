@@ -45,7 +45,7 @@
 	{
 		if (Product != null)
 		{
-			await CartService.AddProductToBasket(Product, 1);
+			await CartService.AddProductToCart(Product, 1);
 
 			ToastService.ShowSuccess("Product Added To Cart Successfully");
 		}
