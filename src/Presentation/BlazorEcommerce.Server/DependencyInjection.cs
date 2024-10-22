@@ -17,7 +17,7 @@ public static class DependencyInjection
 
         services.AddControllersWithViews();
 
-        builder.Services.AddRazorPages();
+        services.AddRazorPages();
 
 		services.AddSwaggerServices();
 

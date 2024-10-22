@@ -47,6 +47,16 @@ else
 	protected override void OnInitialized()
 	{
 		Basket = CartService.Basket;
+
+		CartService.OnChange += OnBasketChanged; // for real-time updates - if made page refresh
+
+	}
+
+	private void OnBasketChanged()
+	{
+		Basket = CartService.Basket;
+
+		StateHasChanged();
 	}
 
 	public void AddItem((CartItemResponse basketItem, decimal quantity) pair)
