@@ -1,8 +1,10 @@
 ﻿using BlazorEcommerce.Shared.Checkout;
 
 namespace BlazorEcommerce.Client.Services.CartService;
-public class CartService(HttpClient httpClient, ILocalStorageService localStorageService) : ICartService
+public class CartService(IHttpClientFactory _httpClientFactory, ILocalStorageService localStorageService) : ICartService
 {
+	private readonly HttpClient httpClient = _httpClientFactory.CreateClient("Auth");
+
 	public event Action? OnChange;
 
 	public CartResponse? Basket { get; set; }

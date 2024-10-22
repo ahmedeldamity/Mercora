@@ -18,3 +18,4 @@ global using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 global using Microsoft.AspNetCore.Components.Authorization;
 global using BlazorEcommerce.Client.Services.Checkout;
 global using BlazorEcommerce.Shared.Checkout;
+global using BlazorEcommerce.Client.Handlers;

@@ -3,8 +3,12 @@ var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
 
-builder.Services.AddBlazoredToast();
+builder.Services.AddOptions();
+builder.Services.AddAuthorizationCore();
 
+builder.Services.AddTransient<AuthenticationHandler>();
+
+builder.Services.AddBlazoredToast();
 builder.Services.AddBlazoredLocalStorage();
 
 builder.Services.AddScoped(typeof(IAccountService), typeof(AccountService));
@@ -13,14 +17,11 @@ builder.Services.AddScoped(typeof(ICategoryService), typeof(CategoryService));
 builder.Services.AddScoped(typeof(ICartService), typeof(CartService));
 builder.Services.AddScoped(typeof(ICheckoutService), typeof(CheckoutService));
 
-builder.Services.AddOptions();
-builder.Services.AddAuthorizationCore();
-
-builder.Services.AddScoped(sp => new HttpClient
-{
-	BaseAddress = new Uri(builder.HostEnvironment.BaseAddress)
-});
-
 builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
+builder.Services.AddHttpClient("Auth", options =>
+{
+	options.BaseAddress = new Uri(builder.HostEnvironment.BaseAddress);
+}).AddHttpMessageHandler<AuthenticationHandler>();
 
 await builder.Build().RunAsync();

@@ -1,6 +1,8 @@
 ﻿namespace BlazorEcommerce.Client.Services.ProductService;
-public class ProductService(HttpClient httpClient) : IProductService
+public class ProductService(IHttpClientFactory _httpClientFactory) : IProductService
 {
+	private readonly HttpClient httpClient = _httpClientFactory.CreateClient("Auth");
+	
 	public string Message { get; set; } = "Loading products...";
 
 	public ProductParameters SpecificationParameters { get; set; } = new();

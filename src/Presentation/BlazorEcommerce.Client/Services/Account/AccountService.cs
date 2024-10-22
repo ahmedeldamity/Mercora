@@ -2,8 +2,10 @@
 using System.Net.Http.Headers;
 
 namespace BlazorEcommerce.Client.Services.Account;
-public class AccountService(HttpClient httpClient, ILocalStorageService LocalStorage) : IAccountService
+public class AccountService(IHttpClientFactory _httpClientFactory, ILocalStorageService LocalStorage) : IAccountService
 {
+	private readonly HttpClient httpClient = _httpClientFactory.CreateClient("Auth");
+
 	public async Task<bool> SendEmailVerification(RegisterVerificationRequest registerVerificationRequest)
 	{
 		return (await httpClient.PostAsJsonAsync("api/v1/account/send-email-verification-code", registerVerificationRequest)).IsSuccessStatusCode;
@@ -128,18 +130,6 @@ public class AccountService(HttpClient httpClient, ILocalStorageService LocalSto
 		try
 		{
 			var response = await httpClient.GetAsync("api/v1/account/get-current-user-address");
-
-			if (response.StatusCode == HttpStatusCode.Unauthorized)
-			{
-				var accessToken = await TryRefreshTokenAsync();
-
-				if (string.IsNullOrEmpty(accessToken) is false)
-				{
-					httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.Replace("\"", ""));
-
-					response = await httpClient.GetAsync("api/v1/account/get-current-user-address");
-				}
-			}
 
 			if (response.IsSuccessStatusCode)
 			{
