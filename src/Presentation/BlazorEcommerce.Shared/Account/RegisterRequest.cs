@@ -9,6 +9,6 @@ public class RegisterRequest
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Code is required")]
-    [RegularExpression(@"^\d{6}$", ErrorMessage = "Code must contain 6 digits")]
+    //[RegularExpression(@"^\d{6}$", ErrorMessage = "Code must contain 6 digits")]
     public string Code { get; set; } = string.Empty;
 }
