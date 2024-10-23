@@ -1,0 +1,26 @@
+﻿@page "/github-oauth-code"
+@inject IToastService ToastService
+@inject NavigationManager NavigationManager
+@inject IAccountService AccountService
+
+@code {
+	[Parameter] public string? Code { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		var uri = NavigationManager.ToAbsoluteUri(NavigationManager.Uri);
+		var query = System.Web.HttpUtility.ParseQueryString(uri.Query);
+
+		if (string.IsNullOrEmpty(query["code"]) is false)
+		{
+			var code = query["code"];
+
+			if (code is not null)
+				await AccountService.GithubResponse(code);
+		}
+		else
+			ToastService.ShowError("Authentication failed or not initiated.");
+
+		NavigationManager.NavigateTo("/login");
+	}
+}
