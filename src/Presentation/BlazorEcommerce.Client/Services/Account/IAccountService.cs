@@ -1,6 +1,4 @@
-﻿using BlazorEcommerce.Shared.Checkout;
-
-namespace BlazorEcommerce.Client.Services.Account;
+﻿namespace BlazorEcommerce.Client.Services.Account;
 public interface IAccountService
 {
 	public Task<bool> SendEmailVerification(RegisterVerificationRequest registerVerificationRequest);
@@ -22,4 +20,8 @@ public interface IAccountService
 	Task<UserAddressModel?> GetUserAddressAsync();
 
 	Task<UserAddressModel?> UpdateUserAddressAsync(UserAddressModel userAddressRequest);
+
+	Task GoogleResponse(string code);
+
+    Task GithubResponse(string code);
 }

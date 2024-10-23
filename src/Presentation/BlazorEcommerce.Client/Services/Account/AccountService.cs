@@ -1,8 +1,9 @@
-﻿using System.Net;
+﻿using BlazorEcommerce.Shared;
+using Microsoft.AspNetCore.Components;
 using System.Net.Http.Headers;
 
 namespace BlazorEcommerce.Client.Services.Account;
-public class AccountService(IHttpClientFactory _httpClientFactory, ILocalStorageService LocalStorage) : IAccountService
+public class AccountService(IHttpClientFactory _httpClientFactory, ILocalStorageService LocalStorage, NavigationManager navigationManager) : IAccountService
 {
 	private readonly HttpClient httpClient = _httpClientFactory.CreateClient("Auth");
 
@@ -75,7 +76,7 @@ public class AccountService(IHttpClientFactory _httpClientFactory, ILocalStorage
 	{
 		await LocalStorage.RemoveItemAsync("AuthenticationToken");
 
-		await httpClient.PostAsync("/api/account/v1/revoke-token", null);
+		await httpClient.PostAsync("/api/v1/account/revoke-token", null);
 	}
 
 	public async Task SendResetPasswordCode(ResetPasswordRequest resetPasswordRequest)
@@ -162,5 +163,43 @@ public class AccountService(IHttpClientFactory _httpClientFactory, ILocalStorage
 			return null;
 		}
 	}
+
+	public async Task GoogleResponse(string code)
+	{
+        var codeRequest = new OAuthCode
+        {
+            Code = code
+        };
+
+        var response = await httpClient.PostAsJsonAsync("api/v1/account/google-response", codeRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+            var email = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrEmpty(email) is false)
+                navigationManager.NavigateTo($"/check-authentication?auth=success&email={email}");
+        }
+        navigationManager.NavigateTo($"/check-authentication?auth=failure");
+    }
+
+    public async Task GithubResponse(string code)
+    {
+        var codeRequest = new OAuthCode
+        {
+            Code = code
+        };
+
+		var response = await httpClient.PostAsJsonAsync("api/v1/account/github-response", codeRequest);
+
+        if (response.IsSuccessStatusCode)
+        {
+			var email = await response.Content.ReadAsStringAsync();
+
+            if (string.IsNullOrEmpty(email) is false)
+				navigationManager.NavigateTo($"/check-authentication?auth=success&email={email}");
+        }
+        navigationManager.NavigateTo($"/check-authentication?auth=failure");
+    }
 
 }

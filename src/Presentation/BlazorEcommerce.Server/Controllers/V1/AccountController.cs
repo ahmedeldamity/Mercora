@@ -3,8 +3,10 @@
 [Route("api/v{version:apiVersion}/[controller]")]
 [ApiVersion("1.0")]
 [EnableRateLimiting("SlidingWindowPolicy")]
-public class AccountController(IAccountService accountService) : ControllerBase
+public class AccountController(IAccountService accountService, IOptions<Urls> urls) : ControllerBase
 {
+	private readonly Urls _urls = urls.Value;
+
 	[HttpPost("send-email-verification-code")]
 	[EnableRateLimiting("ConcurrencyPolicy")]
 	public async Task<ActionResult<AppUserResponse>> SendEmailVerificationCode(RegisterVerificationRequest request)
@@ -41,15 +43,13 @@ public class AccountController(IAccountService accountService) : ControllerBase
 		return Redirect(result);
 	}
     
-	[HttpGet("google-response")]
-	public async Task<ActionResult> GoogleResponse(string code)
+	[HttpPost("google-response")]
+	public async Task<ActionResult> GoogleResponse(OAuthCode oAuthCode)
 	{
-		var result = await accountService.GoogleResponse(code);
+		var result = await accountService.GoogleResponse(oAuthCode.Code);
 
-		return result.IsSuccess ?
-            Redirect($"https://localhost:7055/check-authentication?auth=success&email={result.Value}") :
-            Redirect("https://localhost:7055/check-authentication?auth=failure");
-	}
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
+    }
 
 	[HttpGet("github-login")]
 	public ActionResult GithubLogin()
@@ -59,14 +59,12 @@ public class AccountController(IAccountService accountService) : ControllerBase
 		return Redirect(result);
 	}
 
-	[HttpGet("github-response")]
-	public async Task<ActionResult> GithubResponse(string code)
+	[HttpPost("github-response")]
+	public async Task<ActionResult> GithubResponse(OAuthCode oAuthCode)
 	{
-		var result = await accountService.GithubResponse(code);
+		var result = await accountService.GithubResponse(oAuthCode.Code);
 
-        return result.IsSuccess ?
-            Redirect($"https://localhost:7055/check-authentication?auth=success&email={result.Value}") :
-            Redirect("https://localhost:7055/check-authentication?auth=failure");
+        return result.IsSuccess ? Ok(result.Value) : result.ToProblem();
     }
 	
 	[HttpGet("get-user")]
