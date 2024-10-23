@@ -1,7 +1,13 @@
+using BlazorEcommerce.Shared.Models;
+
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
+
+builder.Services.Configure<GithubData>(builder.Configuration.GetSection("Github"));
+builder.Services.Configure<GoogleData>(builder.Configuration.GetSection("Google"));
+builder.Services.Configure<Urls>(builder.Configuration.GetSection("Urls"));
 
 builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();

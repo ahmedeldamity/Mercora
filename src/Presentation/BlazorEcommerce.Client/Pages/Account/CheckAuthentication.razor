@@ -5,7 +5,6 @@
 @inject ILocalStorageService LocalStorageService
 @inject AuthenticationStateProvider AuthenticationStateProvider
 
-
 <p>@Message</p>
 
 @code {
@@ -22,9 +21,9 @@
 
             if (email is null)
             {
-	            ToastService.ShowError("Authentication failed or not initiated.");
+                Navigation.NavigateTo("/login");
 
-	            Navigation.NavigateTo("/login");
+	            ToastService.ShowError("Authentication failed or not initiated.");
             }
             else
             {
@@ -42,17 +41,17 @@
 				}
 				else
 				{
-					ToastService.ShowError("Authentication failed or not initiated.");
-
 					Navigation.NavigateTo("/login");
+
+					ToastService.ShowError("Authentication failed or not initiated.");
 				}
 			}
         }
         else
         {
-            ToastService.ShowError("Authentication failed or not initiated.");
+	        Navigation.NavigateTo("/login");
 
-            Navigation.NavigateTo("/login");
+            ToastService.ShowError("Authentication failed or not initiated.");
         }
     }
 

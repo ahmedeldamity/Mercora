@@ -100,9 +100,9 @@ app.UseAuthorization();
 
 app.UseStatusCodePagesWithReExecute("/error/{0}");
 
-app.MapRazorPages();
-
 app.MapControllers();
+
+app.MapRazorPages();
 
 app.MapFallbackToFile("index.html");
 #region Explaination

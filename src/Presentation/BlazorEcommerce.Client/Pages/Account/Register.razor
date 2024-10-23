@@ -2,10 +2,13 @@
 @inject IAccountService AccountService
 @inject NavigationManager NavigationManager
 @inject IToastService ToastService
+@inject IOptions<GithubData> GithubSettings
+@inject IOptions<GoogleData> GoogleSettings
+@inject IOptions<Urls> Url
 
 <PageTitle>Register</PageTitle>
 
-<EditForm Model="User" OnValidSubmit="HandleValidSubmit" class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2" style="max-width: 450px;">
+<EditForm Model="User" OnValidSubmit="HandleValidSubmit" class="mx-auto p-3 bg-light-subtle shadow-sm rounded-2" style="max-width: 400px;">
 	<DataAnnotationsValidator />
 	<ValidationSummary />
 
@@ -23,18 +26,22 @@
 		<ValidationMessage For="@(() => User.Email)" />
 	</div>
 
-	<button type="submit" class="btn btn-primary w-100 py-2 btn-block mt-2">Register</button>
+	<button type="submit" class="btn btn-primary w-100 py-3 btn-block mt-2">Continue</button>
 
 	<hr class="my-4" />
 
 	<div class="text-center">
 		<p>or register with:</p>
-		<button type="button" @onclick="ClickGoogleLogin" class="btn btn-danger w-100 py-2">
-			<i class="fab fa-google"></i> Google
-		</button>
-		<button type="button" @onclick="ClickGithubLogin" class="btn btn-dark w-100 py-2 mt-2">
-			<i class="fab fa-github"></i> GitHub
-		</button>
+		<a href="https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?client_id=@GoogleSettings.Value.ClientId&redirect_uri=@Url.Value.BaseUrl/google-oauth-code&response_type=code&scope=openid%20profile%20email"
+		   class="btn btn-outline-info w-100 py-2 mb-2 fw-bold fs-5">
+			<i class="bi bi-google"></i>
+			<span class="d-inline-block">Google</span>
+		</a>
+		<a href="https://github.com/login/oauth/authorize?client_id=@GithubSettings.Value.ClientId&redirect_uri=@Url.Value.BaseUrl/github-oauth-code&scope=user:email"
+		   class="btn btn-outline-dark w-100 py-2 fw-bold fs-5">
+			<i class="bi bi-github"></i>
+			<span class="d-inline-block">GitHub</span>
+		</a>
 	</div>
 
 	<div class="text-center mt-3">
@@ -58,10 +65,5 @@
 
         NavigationManager.NavigateTo("/verify-email/" + User.Email);
     }
-
-    private void ClickGoogleLogin() => NavigationManager.NavigateTo("/api/v1/account/google-login", true);
-
-
-	private void ClickGithubLogin() => NavigationManager.NavigateTo("/api/v1/account/github-login", true);
 }
 
