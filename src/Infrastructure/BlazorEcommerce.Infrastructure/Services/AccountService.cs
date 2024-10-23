@@ -25,7 +25,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 
         var subject = $"✅ {registerRequest.Email.Split('@')[0]}, Please confirm your email address";
 
-		var redirectUrl = $"https://localhost:7055/verify-email/{registerRequest.Email}/{securedCode}";
+		var redirectUrl = $"{_urls.BaseUrl}/verify-email/{registerRequest.Email}/{securedCode}";
 
 		var body = AccountServiceHelper.RegisterEmailBody(redirectUrl, registerRequest.DisplayName);
 
@@ -33,7 +33,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
         
 		var model = new RegisterVerificationData(registerRequest.Email, securedCode, registerRequest.DisplayName);
 
-        await _database.StringSetAsync(key, JsonConvert.SerializeObject(model), TimeSpan.FromMinutes(5));
+        await _database.StringSetAsync(key, JsonConvert.SerializeObject(model), TimeSpan.FromMinutes(30));
         
         var emailToSend = new EmailResponse(subject, body, registerRequest.Email);
 
@@ -132,7 +132,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
     {
 	    var googleOAuthUrl = $"https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?" +
 	                         $"client_id={_googleData.ClientId}" +
-	                         $"&redirect_uri={_urls.BaseUrl}/api/v1/Account/google-response" +
+	                         $"&redirect_uri={_urls.BaseUrl}/google-oauth-code" +
 	                         $"&response_type=code" +
 	                         $"&scope=openid%20profile%20email";
 
@@ -160,11 +160,9 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 	    {
 		    var response = await Register(googleUserInfo.Name, googleUserInfo.Email);
 
-			if (response.IsSuccess is false)
-                return Result.Failure<string>(new Error(400, "Failed to create user."));
-
-			return Result.Success<string>(googleUserInfo.Email);
-	    }
+			return response.IsSuccess is false ? Result.Failure<string>(new Error(400, "Failed to create user.")) :
+                Result.Success<string>(googleUserInfo.Email);
+        }
 
         return Result.Success<string>(googleUserInfo.Email);
     }
@@ -173,7 +171,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 	{
 		var githubOAuthUrl = $"https://github.com/login/oauth/authorize?" +
 							  $"client_id={_githubData.ClientId}" +
-							  $"&redirect_uri={_urls.BaseUrl}/api/v1/Account/github-response" +
+							  $"&redirect_uri={_urls.BaseUrl}/github-oauth-code" +
 							  $"&scope=user:email";
 
 		return githubOAuthUrl;
@@ -200,11 +198,9 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 		{
             var response = await Register(githubUserInfo.Name, githubUserInfo.Email);
 
-            if (response.IsSuccess is false)
-                return Result.Failure<string>(new Error(400, "Failed to create user."));
-
-            return Result.Success<string>(githubUserInfo.Email);
-		}
+            return response.IsSuccess is false ? Result.Failure<string>(new Error(400, "Failed to create user.")) :
+                Result.Success<string>(githubUserInfo.Email);
+        }
 
 		return Result.Success<string>(githubUserInfo.Email);
 	}
@@ -222,7 +218,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 
         var subject = $"✅ {request.Email.Split('@')[0]}, Reset your password for Mercora";
 
-        var redirectUrl = $"https://localhost:7055/resetpassword/change/{user.Email}/{encodedToken}";
+        var redirectUrl = $"{_urls.BaseUrl}/resetpassword/change/{user.Email}/{encodedToken}";
 
         var body = AccountServiceHelper.ResetPasswordEmailBody(redirectUrl, request.Email.Split('@')[0]);
 
@@ -230,7 +226,7 @@ IEmailSettingService emailSettings, IConnectionMultiplexer connection, IMapper m
 
 		var model = new ResetPasswordData(request.Email);
 
-        await _database.StringSetAsync(key, JsonConvert.SerializeObject(model), TimeSpan.FromMinutes(5));
+        await _database.StringSetAsync(key, JsonConvert.SerializeObject(model), TimeSpan.FromMinutes(30));
 
         var emailToSend = new EmailResponse(subject, body, request.Email);
 

@@ -16,7 +16,7 @@ public static class AccountServiceHelper
 			{"code", authorizationCode},
 			{"client_id", clientId},
 			{"client_secret", clientSecret},
-			{"redirect_uri", $"{baseUrl}/api/v1/Account/google-response"},
+			{"redirect_uri", $"{baseUrl}/google-oauth-code"},
 			{"grant_type", "authorization_code"}
 		};
 
