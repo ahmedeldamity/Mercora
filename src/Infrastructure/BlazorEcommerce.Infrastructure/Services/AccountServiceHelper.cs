@@ -307,4 +307,5 @@ public static class AccountServiceHelper
 		}
 		return result == 0;
 	}
+
 }
